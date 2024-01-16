@@ -13,6 +13,9 @@ var env_timeout := OS.get_environment("CLIENT_TIMEOUT")
 var timeout := float(env_timeout) if env_timeout else _DEFAULT_TIMEOUT
 
 
+@onready var root := $Root
+
+
 func _enter_tree() -> void:
 	Program.client = self
 
@@ -425,7 +428,6 @@ func set_authority_id(id: int) -> void:
 	print("client(", peer_id, "): setting authority to ", id)
 	authority_id = id
 	set_multiplayer_authority(id)
-	$Game.set_multiplayer_authority(id)
 
 
 @rpc("any_peer")

@@ -1,0 +1,33 @@
+[gd_scene load_steps=6 format=3 uid="uid://dygqpiqxq8leo"]
+
+[ext_resource type="Script" path="res://world/game_world.gd" id="1_itc23"]
+[ext_resource type="Material" uid="uid://7k6o3sk5f7jg" path="res://assets/grids/Dark/texture_01.tres" id="2_dfi1h"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_bko8l"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_wyrj6"]
+sky_material = SubResource("ProceduralSkyMaterial_bko8l")
+
+[sub_resource type="Environment" id="Environment_4f6vo"]
+background_mode = 2
+sky = SubResource("Sky_wyrj6")
+tonemap_mode = 2
+
+[node name="World" type="Node3D"]
+script = ExtResource("1_itc23")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_4f6vo")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Floor" type="CSGBox3D" parent="."]
+material_override = ExtResource("2_dfi1h")
+size = Vector3(100, 0.1, 100)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)

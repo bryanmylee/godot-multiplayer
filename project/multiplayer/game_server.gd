@@ -101,6 +101,7 @@ func _handle_local_client_webrtc_ready(peer_id: int) -> void:
 			message_peer(client_id, MessageType.SET_MULTIPLAYER_AUTHORITY, authority_id)
 		)
 	await Promise.all(set_authority_id_promises).settled
+	load_world()
 
 
 #region Client-Server Communication
@@ -277,4 +278,14 @@ func _forward_ice_candidate(target_id: int, data: Variant) -> Promise:
 	@param data: ICECandidatePayload
 	"""
 	return message_peer(target_id, MessageType.WEBRTC_CANDIDATE, data)
+#endregion
+
+
+#region Game Management
+const DEFAULT_WORLD_PATH := "res://world/game_world.tscn"
+func load_world(world_path: String = DEFAULT_WORLD_PATH) -> void:
+	var game_world = load(world_path).instantiate()
+	if not game_world is GameWorld:
+		return Result.Err("Node at world_path=" + world_path + " is not a `GameWorld` instance")
+	Program.client.root.add_child(game_world)
 #endregion
