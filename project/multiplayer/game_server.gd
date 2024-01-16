@@ -1,0 +1,252 @@
+extends Node
+class_name GameServer
+
+enum MessageType {
+	CONNECTED_TO_GAME_SERVER,
+	WEBRTC_OFFER,
+	WEBRTC_ANSWER,
+	WEBRTC_CANDIDATE,
+	WEBRTC_ADD_PEER,
+}
+
+const _DEFAULT_PORT := 8910
+var env_port := OS.get_environment("PORT")
+var port := int(env_port) if env_port else _DEFAULT_PORT
+
+var env_id := OS.get_environment("SERVER_ID")
+var id := int(env_id) if env_id else randi()
+
+const _DEFAULT_TIMEOUT := 5.0
+var env_timeout := OS.get_environment("SERVER_TIMEOUT")
+var timeout := float(env_timeout) if env_timeout else _DEFAULT_TIMEOUT
+
+
+func _enter_tree() -> void:
+	# For prototyping, we usually want one client to simultaneously run
+	# the server and client.
+	if not (Program.is_dedicated_server or Program.is_debug):
+		queue_free()
+		return
+	Program.server = self
+
+
+var socket := WebSocketMultiplayerPeer.new()
+"Record<String, {
+	id: String;
+	rtc_ready: bool;
+}>"
+var clients := {}
+
+
+func _ready() -> void:
+	socket.peer_connected.connect(_handle_peer_connected)
+	socket.peer_disconnected.connect(_handle_peer_disconnected)
+	var result := start()
+	if result.is_err():
+		if Program.is_dedicated_server:
+			OS.kill(OS.get_process_id())
+		elif Program.is_debug:
+			queue_free()
+
+
+func _exit_tree() -> void:
+	socket.peer_connected.disconnect(_handle_peer_connected)
+	socket.peer_disconnected.disconnect(_handle_peer_disconnected)
+
+
+func _handle_peer_connected(peer_id: int) -> void:
+	print("server(", id, "): peer connected: ", peer_id)
+	clients[str(peer_id)] = {
+		"id": peer_id,
+		"rtc_ready": false,
+	}
+	await confirm_peer_connection(peer_id).settled
+
+
+func _handle_peer_disconnected(peer_id: int) -> void:
+	print("server(", id, "): socket disconnected: ", peer_id)
+
+
+#region Client-Server Communication
+func _process(_delta: float) -> void:
+	socket.poll()
+	_read_incoming_packets()
+
+
+func _read_incoming_packets() -> void:
+	if socket.get_available_packet_count() == 0:
+		return
+	var packet = socket.get_packet()
+	if packet == null:
+		return
+	var data_string = packet.get_string_from_utf8()
+	var data: Dictionary = JSON.parse_string(data_string)
+	if data.has("result"):
+		_handle_client_response(data)
+	else:
+		_handle_client_message(data)
+
+
+"Record<String, { resolve(data): void, reject(err): void }>"
+var _message_response_handlers_for_id := {}
+func _handle_client_response(message: Variant) -> void:
+	"""
+	@param message: ClientResponse
+	"""
+	if not message.has("id"):
+		print("server(", id, "): received response without message id")
+		return
+	if not _message_response_handlers_for_id.has(message.id):
+		print(
+			"server(", id,
+			"): received response from client(", message.peer_id,
+			") with invalid message id: ",
+			message.id,
+		)
+		return
+	var resolve_reject = _message_response_handlers_for_id[message.id]
+	var result := Result.from_dict(message.result)
+	if result.is_ok():
+		resolve_reject.resolve.call(result.unwrap())
+	else:
+		resolve_reject.reject.call(result.unwrap_err())
+	_message_response_handlers_for_id.erase(message.id)
+
+
+func _handle_client_message(message: Variant) -> void:
+	"""
+	@param message: ClientMessage
+	"""
+	if message.mtype == GameClient.MessageType.WEBRTC_OFFER:
+		var result: Result = await _forward_webrtc_offer(message.data.target_id, message.data).settled
+		_respond_to_peer(message, result)
+	elif message.mtype == GameClient.MessageType.WEBRTC_ANSWER:
+		var result: Result = await _forward_webrtc_answer(message.data.target_id, message.data).settled
+		_respond_to_peer(message, result)
+	elif message.mtype == GameClient.MessageType.WEBRTC_CANDIDATE:
+		var result: Result = await _forward_ice_candidate(message.data.target_id, message.data).settled
+		_respond_to_peer(message, result)
+	elif message.mtype == GameClient.MessageType.WEBRTC_READY:
+		var result: Result = await _handle_webrtc_ready(message.peer_id)
+		_respond_to_peer(message, result)
+
+
+"""
+type ServerMessage = {
+	id: String;
+	mtype: MessageType;
+	data: Variant;
+}
+"""
+func message_peer(peer_id: int, mtype: MessageType, data: Variant) -> Promise:
+	return Promise.new(
+		func(resolve, reject):
+			var message_id := str(randi())
+			_send_data_to_peer(peer_id, {
+				"id": message_id,
+				"mtype": mtype,
+				"data": data,
+			})
+			_message_response_handlers_for_id[message_id] = {
+				"resolve": resolve,
+				"reject": reject,
+			}
+			await get_tree().create_timer(timeout).timeout
+			reject.call(
+				"server(" + str(id) \
+				+ "): timeout on message(" + message_id \
+				+ ") for peer(" + str(peer_id) + ")"
+			)
+			_message_response_handlers_for_id.erase(message_id)
+	)
+
+
+"""
+type ServerResponse = {
+	id: String;
+	result: Result;
+}
+"""
+func _respond_to_peer(message: Variant, result: Result) -> void:
+	"""
+	@param message: ClientMessage
+	"""
+	_send_data_to_peer(message.peer_id, {
+		"id": message.id,
+		"result": result.to_dict(),
+	})
+
+
+func _send_data_to_peer(peer_id: int, data: Variant) -> void:
+	var data_bytes := JSON.stringify(data).to_utf8_buffer()
+	socket.get_peer(peer_id).put_packet(data_bytes)
+#endregion
+
+
+#region WebRTC Signalling
+"""
+type WebRTCAddPeerPayload = {
+	target_id: int;
+	to_offer: bool;
+}
+"""
+func _handle_webrtc_ready(from_peer_id: int) -> Result:
+	var other_ids := clients.values() \
+		.filter(func (c): return c.rtc_ready) \
+		.map(func (c): return c.id)
+	print("server(", id, "): client(", from_peer_id, ") being added to RTC peers: ", other_ids)
+	clients[str(from_peer_id)].rtc_ready = true
+
+	var add_self_to_others: Array[Promise] = []
+	for other_peer_id in other_ids:
+		var to_peer_id := int(other_peer_id)
+		add_self_to_others.append(message_peer(to_peer_id, MessageType.WEBRTC_ADD_PEER, {
+			"target_id": from_peer_id,
+			"to_offer": false,
+		}))
+	await Promise.all(add_self_to_others).settled
+
+	var add_others_to_self: Array[Promise] = []
+	for other_peer_id in other_ids:
+		var to_peer_id := int(other_peer_id)
+		add_others_to_self.append(message_peer(from_peer_id, MessageType.WEBRTC_ADD_PEER, {
+			"target_id": to_peer_id,
+			"to_offer": true,
+		}))
+	return await Promise.all(add_others_to_self).settled
+
+
+func _forward_webrtc_offer(target_id: int, data: Variant) -> Promise:
+	"""
+	@param data: WebRTCOfferPayload
+	"""
+	return message_peer(target_id, MessageType.WEBRTC_OFFER, data)
+
+
+func _forward_webrtc_answer(target_id: int, data: Variant) -> Promise:
+	"""
+	@param data: WebRTCAnswerPayload
+	"""
+	return message_peer(target_id, MessageType.WEBRTC_ANSWER, data)
+
+
+func _forward_ice_candidate(target_id: int, data: Variant) -> Promise:
+	"""
+	@param data: ICECandidatePayload
+	"""
+	return message_peer(target_id, MessageType.WEBRTC_CANDIDATE, data)
+#endregion
+
+
+func confirm_peer_connection(peer_id: int) -> Promise:
+	return message_peer(peer_id, MessageType.CONNECTED_TO_GAME_SERVER, peer_id)
+
+
+func start() -> Result:
+	print("server(", id, "): starting server on: ", port)
+	var result := Result.from_gderr(socket.create_server(port))
+	if result.is_err():
+		print("server(", id, "): failed to start server due to: ", result.to_string())
+	else:
+		print("server(", id, "): started server on: ", port)
+	return result

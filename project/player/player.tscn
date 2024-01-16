@@ -1,0 +1,32 @@
+[gd_scene load_steps=4 format=3 uid="uid://bv8kgs0ovjuyk"]
+
+[ext_resource type="Script" path="res://multiplayer/id_provider.gd" id="1_pnolb"]
+[ext_resource type="Script" path="res://player/player_input.gd" id="2_o0iwe"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_kwsv2"]
+
+[node name="Player" type="CharacterBody3D"]
+
+[node name="IdentityProvider" type="Node" parent="."]
+script = ExtResource("1_pnolb")
+
+[node name="Input" type="Node" parent="." node_paths=PackedStringArray("id_provider")]
+script = ExtResource("2_o0iwe")
+id_provider = NodePath("../IdentityProvider")
+
+[node name="Model" type="Node3D" parent="."]
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 1, 2.08165e-12)
+size = Vector3(1, 2, 1)
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 1.5, -0.5)
+size = Vector3(1.5, 0.2, 0.5)
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 1, 2.08165e-12)
+shape = SubResource("CapsuleShape3D_kwsv2")
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 3, 4)

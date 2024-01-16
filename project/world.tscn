@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://dygqpiqxq8leo"]
+
+[ext_resource type="Material" uid="uid://7k6o3sk5f7jg" path="res://assets/grids/Dark/texture_01.tres" id="1_kwd6s"]
+
+[node name="World" type="Node3D"]
+
+[node name="Floor" type="CSGBox3D" parent="."]
+material_override = ExtResource("1_kwd6s")
+size = Vector3(100, 0.1, 100)

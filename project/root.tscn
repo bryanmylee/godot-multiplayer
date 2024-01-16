@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://dqoqll4di5jv8"]
+
+[ext_resource type="Script" path="res://multiplayer/game_server.gd" id="1_npw5s"]
+[ext_resource type="Script" path="res://multiplayer/game_client.gd" id="1_u4j86"]
+
+[node name="Root" type="Node3D"]
+
+[node name="Server" type="Node" parent="."]
+script = ExtResource("1_npw5s")
+
+[node name="Client" type="Node" parent="."]
+script = ExtResource("1_u4j86")
