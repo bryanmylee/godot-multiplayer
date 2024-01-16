@@ -60,6 +60,16 @@ func _ready() -> void:
 			queue_free()
 
 
+func start() -> Result:
+	print("server(", id, "): starting server on: ", port)
+	var result := Result.from_gderr(socket.create_server(port))
+	if result.is_err():
+		print("server(", id, "): failed to start server due to: ", result.to_string())
+	else:
+		print("server(", id, "): started server on: ", port)
+	return result
+
+
 func _exit_tree() -> void:
 	socket.peer_connected.disconnect(_handle_peer_connected)
 	socket.peer_disconnected.disconnect(_handle_peer_disconnected)
@@ -72,7 +82,7 @@ func _handle_peer_connected(peer_id: int) -> void:
 		"id": peer_id,
 		"rtc_ready": false,
 	}
-	await confirm_peer_connection(peer_id).settled
+	await message_peer(peer_id, MessageType.CONNECTED_TO_GAME_SERVER, peer_id).settled
 
 
 func _handle_peer_disconnected(peer_id: int) -> void:
@@ -268,17 +278,3 @@ func _forward_ice_candidate(target_id: int, data: Variant) -> Promise:
 	"""
 	return message_peer(target_id, MessageType.WEBRTC_CANDIDATE, data)
 #endregion
-
-
-func confirm_peer_connection(peer_id: int) -> Promise:
-	return message_peer(peer_id, MessageType.CONNECTED_TO_GAME_SERVER, peer_id)
-
-
-func start() -> Result:
-	print("server(", id, "): starting server on: ", port)
-	var result := Result.from_gderr(socket.create_server(port))
-	if result.is_err():
-		print("server(", id, "): failed to start server due to: ", result.to_string())
-	else:
-		print("server(", id, "): started server on: ", port)
-	return result
