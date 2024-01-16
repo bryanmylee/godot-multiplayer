@@ -10,3 +10,9 @@ script = ExtResource("1_npw5s")
 
 [node name="Client" type="Node" parent="."]
 script = ExtResource("1_u4j86")
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Client"]
+_spawnable_scenes = PackedStringArray("res://world/world.tscn")
+spawn_path = NodePath("../Game")
+
+[node name="Game" type="Node" parent="Client"]

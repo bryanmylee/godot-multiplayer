@@ -425,6 +425,7 @@ func set_authority_id(id: int) -> void:
 	print("client(", peer_id, "): setting authority to ", id)
 	authority_id = id
 	set_multiplayer_authority(id)
+	$Game.set_multiplayer_authority(id)
 
 
 @rpc("any_peer")
