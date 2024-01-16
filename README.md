@@ -2,7 +2,13 @@
 
 A sample project with matchmaking and server authority.
 
-# Architecture
+# Network Architecture
+
+## WebRTC
+
+We use WebRTC for its ability to provide low-latency, real-time, and secure communication between peers across all platforms. Most notably, WebRTC is the only such protocol that is available on the web.
+
+This describes the implementation details of how the game server and game clients coordinate the creation and initialization of the WebRTC mesh network.
 
 ## Overview
 
@@ -27,12 +33,6 @@ When the client terminates its connection to the game server, either intentional
 When a client reconnects to the matchmaking server, the matchmaking server will look up its database of player information to check their current status. If the player is within a validity window, the matchmaking server will send a message to the client indicating that re-joining the match is allowed with the game server information.
 
 The client can respond to this message by ignoring or accepting the re-join offer and re-initiate an RTC connection to the game server.
-
-## WebRTC
-
-We use WebRTC for its ability to provide low-latency, real-time, and secure communication between peers across all platforms. Most notably, WebRTC is the only such protocol that is available on the web.
-
-This describes the implementation details of how the game server and game clients coordinate the creation and initialization of the WebRTC mesh network.
 
 # Variables
 
