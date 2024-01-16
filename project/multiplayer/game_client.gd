@@ -28,8 +28,6 @@ func _ready() -> void:
 	connect_to_game_server("127.0.0.1", 8910)
 	await connected_to_game_server
 	await create_webrtc_mesh().settled
-	await get_tree().create_timer(5).timeout
-	ping_network.rpc()
 
 
 func _exit_tree() -> void:
@@ -46,6 +44,7 @@ func _handle_webrtc_peer_disconnected(disconnected_peer_id: int) -> void:
 
 
 var peer_id := 0
+var authority_id := 1
 
 
 #region Client-Server Communication
@@ -112,6 +111,10 @@ func _handle_server_message(message: Variant) -> void:
 	elif message.mtype == GameServer.MessageType.WEBRTC_ADD_PEER:
 		var result: Result = await _handle_webrtc_add_peer(message.data)
 		_respond_to_server(message, result)
+	elif message.mtype == GameServer.MessageType.SET_MULTIPLAYER_AUTHORITY:
+		set_authority_id(message.data)
+		_respond_to_server(message, Result.Ok(null))
+
 
 """
 type ClientMessage = {
@@ -399,6 +402,7 @@ func _handle_connected_to_server(assigned_id: int) -> Result:
 	return Result.Ok(assigned_id)
 
 
+signal created_webrtc_mesh(peer_id: int)
 func create_webrtc_mesh() -> Promise:
 	var create_mesh_result := Result.from_gderr(rtc_network.create_mesh(peer_id))
 	if create_mesh_result.is_err():
@@ -406,8 +410,21 @@ func create_webrtc_mesh() -> Promise:
 		return Promise.new(func (_resolve, reject): reject.call("failed to create RTC mesh"))
 	print("client(", peer_id, "): created RTC mesh")
 	multiplayer.multiplayer_peer = rtc_network
-	
-	return message_server(MessageType.WEBRTC_READY, null)
+
+	return Promise.new(func(resolve, reject):
+		var message_result: Result = await message_server(MessageType.WEBRTC_READY, null).settled
+		if message_result.is_err():
+			reject.call(message_result.unwrap_err())
+			return
+		created_webrtc_mesh.emit(peer_id)
+		resolve.call(message_result.unwrap())
+	)
+
+
+func set_authority_id(id: int) -> void:
+	print("client(", peer_id, "): setting authority to ", id)
+	authority_id = id
+	set_multiplayer_authority(id)
 
 
 @rpc("any_peer")

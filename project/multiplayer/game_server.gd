@@ -7,6 +7,7 @@ enum MessageType {
 	WEBRTC_ANSWER,
 	WEBRTC_CANDIDATE,
 	WEBRTC_ADD_PEER,
+	SET_MULTIPLAYER_AUTHORITY,
 }
 
 const _DEFAULT_PORT := 8910
@@ -24,10 +25,10 @@ var timeout := float(env_timeout) if env_timeout else _DEFAULT_TIMEOUT
 func _enter_tree() -> void:
 	# For prototyping, we usually want one client to simultaneously run
 	# the server and client.
-	if not (Program.is_dedicated_server or Program.is_debug):
+	if Program.is_dedicated_server or OS.is_debug_build():
+		Program.server = self
+	else:
 		queue_free()
-		return
-	Program.server = self
 
 
 var socket := WebSocketMultiplayerPeer.new()
@@ -36,22 +37,33 @@ var socket := WebSocketMultiplayerPeer.new()
 	rtc_ready: bool;
 }>"
 var clients := {}
+var authority_id := 1
 
 
 func _ready() -> void:
 	socket.peer_connected.connect(_handle_peer_connected)
 	socket.peer_disconnected.connect(_handle_peer_disconnected)
-	var result := start()
-	if result.is_err():
+	Program.client.created_webrtc_mesh.connect(_handle_local_client_webrtc_ready)
+
+	var start_result := start()
+	if start_result.is_err():
+		# For a dedicated server, if we fail to start the server, we want to
+		# exit the program with an error code so that the matchmaking server
+		# can detect the failure.
 		if Program.is_dedicated_server:
 			OS.kill(OS.get_process_id())
-		elif Program.is_debug:
+			return
+		# For prototyping, `_ready` is called by all clients but only one client
+		# will be able to bind to the listening port. Therefore, we can free all
+		# programs that failed to start the server and assume they are just clients.
+		if OS.is_debug_build():
 			queue_free()
 
 
 func _exit_tree() -> void:
 	socket.peer_connected.disconnect(_handle_peer_connected)
 	socket.peer_disconnected.disconnect(_handle_peer_disconnected)
+	Program.client.created_webrtc_mesh.disconnect(_handle_local_client_webrtc_ready)
 
 
 func _handle_peer_connected(peer_id: int) -> void:
@@ -65,6 +77,20 @@ func _handle_peer_connected(peer_id: int) -> void:
 
 func _handle_peer_disconnected(peer_id: int) -> void:
 	print("server(", id, "): socket disconnected: ", peer_id)
+
+
+func _handle_local_client_webrtc_ready(peer_id: int) -> void:
+	print("server(", id, "): local client ready with id: ", peer_id)
+	authority_id = peer_id
+	var ready_client_ids := clients.values() \
+		.filter(func (c): return c.rtc_ready) \
+		.map(func (c): return c.id)
+	var set_authority_id_promises: Array[Promise] = []
+	for client_id in ready_client_ids:
+		set_authority_id_promises.append(
+			message_peer(client_id, MessageType.SET_MULTIPLAYER_AUTHORITY, authority_id)
+		)
+	await Promise.all(set_authority_id_promises).settled
 
 
 #region Client-Server Communication
@@ -197,23 +223,29 @@ func _handle_webrtc_ready(from_peer_id: int) -> Result:
 	print("server(", id, "): client(", from_peer_id, ") being added to RTC peers: ", other_ids)
 	clients[str(from_peer_id)].rtc_ready = true
 
-	var add_self_to_others: Array[Promise] = []
-	for other_peer_id in other_ids:
-		var to_peer_id := int(other_peer_id)
-		add_self_to_others.append(message_peer(to_peer_id, MessageType.WEBRTC_ADD_PEER, {
-			"target_id": from_peer_id,
-			"to_offer": false,
-		}))
-	await Promise.all(add_self_to_others).settled
+	await message_peer(from_peer_id, MessageType.SET_MULTIPLAYER_AUTHORITY, authority_id).settled
 
-	var add_others_to_self: Array[Promise] = []
+	var add_self_to_others_promises: Array[Promise] = []
 	for other_peer_id in other_ids:
 		var to_peer_id := int(other_peer_id)
-		add_others_to_self.append(message_peer(from_peer_id, MessageType.WEBRTC_ADD_PEER, {
-			"target_id": to_peer_id,
-			"to_offer": true,
-		}))
-	return await Promise.all(add_others_to_self).settled
+		add_self_to_others_promises.append(
+			message_peer(to_peer_id, MessageType.WEBRTC_ADD_PEER, {
+				"target_id": from_peer_id,
+				"to_offer": false,
+			})
+		)
+	await Promise.all(add_self_to_others_promises).settled
+
+	var add_others_to_self_promises: Array[Promise] = []
+	for other_peer_id in other_ids:
+		var to_peer_id := int(other_peer_id)
+		add_others_to_self_promises.append(
+			message_peer(from_peer_id, MessageType.WEBRTC_ADD_PEER, {
+				"target_id": to_peer_id,
+				"to_offer": true,
+			})
+		)
+	return await Promise.all(add_others_to_self_promises).settled
 
 
 func _forward_webrtc_offer(target_id: int, data: Variant) -> Promise:
