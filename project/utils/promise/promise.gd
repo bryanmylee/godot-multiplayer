@@ -88,6 +88,8 @@ static func from_many(input_signals: Array[Signal]) -> Array[Promise]:
 static func all(promises: Array[Promise]) -> Promise:
 	return Promise.new(
 		func(resolve: Callable, reject: Callable):
+			if promises.is_empty():
+				resolve.call(null)
 			var resolved_promises: Array[bool] = []
 			var results := []
 			results.resize(promises.size())
@@ -111,6 +113,8 @@ static func all(promises: Array[Promise]) -> Promise:
 static func any(promises: Array[Promise]) -> Promise:
 	return Promise.new(
 		func(resolve: Callable, reject: Callable):
+			if promises.is_empty():
+				reject.call("At least one promise is required")
 			var rejected_promises: Array[bool] = []
 			var rejections: Array[Variant] = []
 			rejections.resize(promises.size())
