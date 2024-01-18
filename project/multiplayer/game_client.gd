@@ -201,29 +201,27 @@ func _handle_webrtc_add_peer(data: Variant) -> Result:
 	
 	print("client(", peer_id, "): adding peer: ", data.target_id)
 
-	var handle_session_description := Promise.new(
-		func(resolve, reject):
-			var description = await rtc_connection.session_description_created
-			var type: String = description[0]
-			var desc_data: Variant = description[1]
-			var res := await set_local_description(type, desc_data, data.target_id)
-			if res.is_err():
-				reject.call(res.unwrap_err())
-			else:
-				resolve.call(res.unwrap())
+	var handle_session_description := Promise.new(func(resolve, reject):
+		var description = await rtc_connection.session_description_created
+		var type: String = description[0]
+		var desc_data: Variant = description[1]
+		var res := await set_local_description(type, desc_data, data.target_id)
+		if res.is_err():
+			reject.call(res.unwrap_err())
+		else:
+			resolve.call(res.unwrap())
 	)
 
-	var handle_ice_candidate := Promise.new(
-		func(resolve, reject):
-			var candidate = await rtc_connection.ice_candidate_created
-			var media: String = candidate[0]
-			var index: int = candidate[1]
-			var sdp_name: String = candidate[2]
-			var res := await send_ice_candidate(media, index, sdp_name, data.target_id)
-			if res.is_err():
-				reject.call(res.unwrap_err())
-			else:
-				resolve.call(res.unwrap())
+	var handle_ice_candidate := Promise.new(func(resolve, reject):
+		var candidate = await rtc_connection.ice_candidate_created
+		var media: String = candidate[0]
+		var index: int = candidate[1]
+		var sdp_name: String = candidate[2]
+		var res := await send_ice_candidate(media, index, sdp_name, data.target_id)
+		if res.is_err():
+			reject.call(res.unwrap_err())
+		else:
+			resolve.call(res.unwrap())
 	)
 
 	rtc_network.add_peer(rtc_connection, data.target_id)
