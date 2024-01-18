@@ -3,15 +3,23 @@ class_name GameWorld
 
 
 func _enter_tree() -> void:
-  Program.world = self
+	Program.world = self
 
 
 func _ready():
-  pass
+	spawn_player()
 
 
-#region Game Logic
-const DEFAULT_PLAYER_PATH := "res://player/player.tscn"
-func spawn_player(player_path: String = DEFAULT_PLAYER_PATH) -> void:
-  pass
+#region Player Spawning
+"""
+type SpawnPlayerOptions = {
+	scene_path?: String;
+	position?: Vector3;
+}
+"""
+func spawn_player(_opts: Dictionary = {}) -> void:
+	"""
+	@param opts: SpawnPlayerOptions
+	"""
+	pass
 #endregion

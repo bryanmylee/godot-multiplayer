@@ -61,7 +61,26 @@ On other clients, a predictive event will simply be received from the server pre
 
 ## Implementation
 
-The client could perform an RPC to the server with an event name and parameters?
+The client performs an RPC to the server to indicate the emission of a predictive event. Since the game state is replicated on the server and clients, we can co-locate our client-side emission code with our server-side handling code.
+
+```gdscript
+@rpc("reliable", "any_peer") # called by clients to the server.
+func _spawn_player(event_id: int, at_position: Vector3) -> void:
+  # handle server-side verification.
+
+
+signal _spawn_player_response_signal(event_id: int, response: Variant)
+@rpc("reliable") # called by the server for a given client.
+func _spawn_player_response(event_id: int, response: Variant) -> void:
+  _spawn_player_response_signal.emit(event_id, response)
+```
+
+To uniquely associate the event to the response from the server, we add an `event_id` argument and wrap the behavior within a `Promise` using our `Network.server_rpc` method.
+
+```gdscript
+func spawn_player(at_position: Vector3) -> void:
+  var result = Events.server_rpc(_spawn_player, at_position, _spawn_player_response_signal).settled
+```
 
 # Variables
 
