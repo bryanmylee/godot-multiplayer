@@ -9,10 +9,10 @@ func server_rpc(
 	response_signal: Signal
 ) -> Promise:
 	return Promise.new(func (resolve, reject):
-		var event_id := str(randi())
+		var event_id := randi()
 		event_emitter.rpc_id(get_multiplayer_authority(), event_id, event_opts)
 
-		var response_handler := func (response_event_id: String, response_data: Variant):
+		var response_handler := func (response_event_id: int, response_data: Variant):
 			if response_event_id != event_id:
 				return
 			var response_result := Result.from_dict(response_data)
@@ -26,6 +26,6 @@ func server_rpc(
 		await get_tree().create_timer(TIMEOUT).timeout
 		reject.call(
 			"client(" + str(multiplayer.get_unique_id()) \
-			+ "): timeout on predictive event(" + event_id + ")"
+			+ "): timeout on server_rpc(" + event_emitter.get_method() + ")"
 		)
 	)

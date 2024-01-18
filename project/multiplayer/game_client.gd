@@ -13,7 +13,7 @@ var env_timeout := OS.get_environment("CLIENT_TIMEOUT")
 var timeout := float(env_timeout) if env_timeout else _DEFAULT_TIMEOUT
 
 
-@onready var root := $Root
+@export var world_spawner: MultiplayerSpawner
 
 
 func _enter_tree() -> void:
@@ -31,40 +31,6 @@ func _ready() -> void:
 	connect_to_game_server("127.0.0.1", 8910)
 	await connected_to_game_server
 	await create_webrtc_mesh().settled
-
-	if Program.server == null:
-		await get_tree().create_timer(4).timeout
-		var result: Result = await send_event({
-			"message": "This is a predictive event"
-		}).settled
-		print(
-			"client(", multiplayer.get_unique_id(),
-			"): received response: ", result
-		)
-
-
-#region Predictive Events
-func send_event(data: Variant) -> Promise:
-	return GameNetwork.server_rpc(_server_event, data, _server_event_response_signal)
-
-
-@rpc("reliable", "any_peer") # allows clients to send events to the server.
-func _server_event(event_id: String, data: Variant) -> void:
-	var sender_id := multiplayer.get_remote_sender_id()
-	print(
-		"server with client(", peer_id,
-		"): received event from client(", sender_id,
-		"): ", data)
-	_server_event_response.rpc_id(sender_id, event_id, Result.Ok({
-		"message": "This is a response to the predictive event",
-	}).to_dict())
-
-
-signal _server_event_response_signal(event_id: String, data: Variant)
-@rpc("reliable") # allows the server to resolve events on clients.
-func _server_event_response(event_id: String, data: Variant) -> void:
-	_server_event_response_signal.emit(event_id, data)
-#endregion
 
 
 func _exit_tree() -> void:
@@ -456,6 +422,7 @@ func create_webrtc_mesh() -> Promise:
 
 func set_authority_id(id: int) -> void:
 	print("client(", peer_id, "): setting authority to ", id)
+	Program.set_multiplayer_authority(id)
 	GameNetwork.set_multiplayer_authority(id)
 	set_multiplayer_authority(id)
 
@@ -466,10 +433,10 @@ func ping_network() -> void:
 
 
 #region Game Logic
-const DEFAULT_WORLD_PATH := "res://world/game_world.tscn"
-func load_world(world_path: String = DEFAULT_WORLD_PATH) -> void:
-	var game_world = load(world_path).instantiate()
+const DEFAULT_WORLD_SCENE := "res://world/game_world.tscn"
+func load_world(world_scene: String = DEFAULT_WORLD_SCENE) -> void:
+	var game_world = load(world_scene).instantiate()
 	if not game_world is GameWorld:
-		return Result.Err("Node at world_path=" + world_path + " is not a `GameWorld` instance")
-	Program.client.root.add_child(game_world)
+		return Result.Err("Node(" + world_scene + ") is not a `GameWorld` instance")
+	world_spawner.add_child(game_world)
 #endregion
