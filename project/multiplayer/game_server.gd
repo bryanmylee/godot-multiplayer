@@ -101,7 +101,7 @@ func _handle_local_client_webrtc_ready(peer_id: int) -> void:
 			message_peer(client_id, MessageType.SET_MULTIPLAYER_AUTHORITY, authority_id)
 		)
 	await Promise.all(set_authority_id_promises).settled
-	load_world()
+	Program.client.load_world()
 
 
 #region Client-Server Communication
@@ -137,7 +137,7 @@ func _handle_client_response(message: Variant) -> void:
 		print(
 			"server(", id,
 			"): received response from client(", message.peer_id,
-			") with invalid message id: ",
+			") with non-existent message id: ",
 			message.id,
 		)
 		return
@@ -176,25 +176,24 @@ type ServerMessage = {
 }
 """
 func message_peer(peer_id: int, mtype: MessageType, data: Variant) -> Promise:
-	return Promise.new(
-		func(resolve, reject):
-			var message_id := str(randi())
-			_send_data_to_peer(peer_id, {
-				"id": message_id,
-				"mtype": mtype,
-				"data": data,
-			})
-			_message_response_handlers_for_id[message_id] = {
-				"resolve": resolve,
-				"reject": reject,
-			}
-			await get_tree().create_timer(timeout).timeout
-			reject.call(
-				"server(" + str(id) \
-				+ "): timeout on message(" + message_id \
-				+ ") for peer(" + str(peer_id) + ")"
-			)
-			_message_response_handlers_for_id.erase(message_id)
+	return Promise.new(func(resolve, reject):
+		var message_id := str(randi())
+		_send_data_to_peer(peer_id, {
+			"id": message_id,
+			"mtype": mtype,
+			"data": data,
+		})
+		_message_response_handlers_for_id[message_id] = {
+			"resolve": resolve,
+			"reject": reject,
+		}
+		await get_tree().create_timer(timeout).timeout
+		reject.call(
+			"server(" + str(id) \
+			+ "): timeout on message(" + message_id \
+			+ ") for peer(" + str(peer_id) + ")"
+		)
+		_message_response_handlers_for_id.erase(message_id)
 	)
 
 
@@ -278,14 +277,4 @@ func _forward_ice_candidate(target_id: int, data: Variant) -> Promise:
 	@param data: ICECandidatePayload
 	"""
 	return message_peer(target_id, MessageType.WEBRTC_CANDIDATE, data)
-#endregion
-
-
-#region Game Management
-const DEFAULT_WORLD_PATH := "res://world/game_world.tscn"
-func load_world(world_path: String = DEFAULT_WORLD_PATH) -> void:
-	var game_world = load(world_path).instantiate()
-	if not game_world is GameWorld:
-		return Result.Err("Node at world_path=" + world_path + " is not a `GameWorld` instance")
-	Program.client.root.add_child(game_world)
 #endregion

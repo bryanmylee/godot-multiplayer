@@ -34,6 +34,35 @@ When a client reconnects to the matchmaking server, the matchmaking server will 
 
 The client can respond to this message by ignoring or accepting the re-join offer and re-initiate an RTC connection to the game server.
 
+# Server Authority Architecture
+
+## Predictive events
+
+Certain actions will trigger events that require immediate feedback e.g. hit registration for weapons. These events must be verified on the server but also need to be precomputed on the client. If verification fails, we need to either undo and rollback state or ignore the event's effects on the client.
+
+We'll refer to these as **predictive events**. Predictive events should be delivered reliably.
+
+### Predictive event stages
+
+On the originating client, a predictive event has the following stages:
+
+1. emit the event to the server
+2. receive a verification from server
+3. receive a rejection from server
+4. timeout on the event
+
+On the server, a predictive event has the following stages:
+
+1. receive an event
+2. either emit a verification or rejection to the originating client
+3. if verified, broadcast the event to other clients.
+
+On other clients, a predictive event will simply be received from the server pre-verified.
+
+## Implementation
+
+The client could perform an RPC to the server with an event name and parameters?
+
 # Variables
 
 ## Program

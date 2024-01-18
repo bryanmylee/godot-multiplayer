@@ -82,7 +82,7 @@ func _handle_server_response(message: Variant) -> void:
 	if not _message_response_handlers_for_id.has(message.id):
 		print(
 			"client(", peer_id,
-			"): received response with invalid message id: ",
+			"): received response with non-existent message id: ",
 			message.id,
 		)
 		return
@@ -128,25 +128,24 @@ type ClientMessage = {
 }
 """
 func message_server(mtype: MessageType, data: Variant) -> Promise:
-	return Promise.new(
-		func(resolve, reject):
-			var message_id := str(randi())
-			_send_data_to_server({
-				"id": message_id,
-				"peer_id": peer_id,
-				"mtype": mtype,
-				"data": data,
-			})
-			_message_response_handlers_for_id[message_id] = {
-				"resolve": resolve,
-				"reject": reject,
-			}
-			await get_tree().create_timer(timeout).timeout
-			reject.call(
-				"client(" + str(peer_id) \
-				+ "): timeout on message(" + message_id + ")"
-			)
-			_message_response_handlers_for_id.erase(message_id)
+	return Promise.new(func(resolve, reject):
+		var message_id := str(randi())
+		_send_data_to_server({
+			"id": message_id,
+			"peer_id": peer_id,
+			"mtype": mtype,
+			"data": data,
+		})
+		_message_response_handlers_for_id[message_id] = {
+			"resolve": resolve,
+			"reject": reject,
+		}
+		await get_tree().create_timer(timeout).timeout
+		reject.call(
+			"client(" + str(peer_id) \
+			+ "): timeout on message(" + message_id + ")"
+		)
+		_message_response_handlers_for_id.erase(message_id)
 	)
 
 
@@ -433,3 +432,64 @@ func set_authority_id(id: int) -> void:
 @rpc("any_peer")
 func ping_network() -> void:
 	print("client(", peer_id, "): ping from ", multiplayer.get_remote_sender_id())
+
+
+#region Game Logic
+const DEFAULT_WORLD_PATH := "res://world/game_world.tscn"
+func load_world(world_path: String = DEFAULT_WORLD_PATH) -> void:
+	var game_world = load(world_path).instantiate()
+	if not game_world is GameWorld:
+		return Result.Err("Node at world_path=" + world_path + " is not a `GameWorld` instance")
+	Program.client.root.add_child(game_world)
+#endregion
+
+
+#region Predictive Events
+@rpc("reliable", "any_peer") # allows clients to send events to the server.
+func _server_event(event_id: String, data: Variant) -> void:
+	var sender_id := multiplayer.get_remote_sender_id()
+	print(
+		"server with client(", peer_id,
+		"): received event from client(", sender_id,
+		"): ", data)
+	_server_event_response.rpc_id(sender_id, event_id, Result.Ok({
+		"message": "This is a response to the predictive event",
+	}).to_dict())
+
+
+@rpc("reliable") # allows the server to resolve events on clients.
+func _server_event_response(event_id: String, data: Variant) -> void:
+	if not _event_response_handlers_for_id.has(event_id):
+		print(
+			"client(", peer_id,
+			"): received predictive event response with non-existent event id: ", event_id,
+		)
+		return
+	var resolve_reject = _event_response_handlers_for_id[event_id]
+	var result := Result.from_dict(data)
+	if result.is_ok():
+		resolve_reject.resolve.call(result.unwrap())
+	else:
+		resolve_reject.reject.call(result.unwrap_err())
+	_event_response_handlers_for_id.erase(event_id)
+
+
+"Record<String, { resolve(data): void, reject(err): void }>"
+var _event_response_handlers_for_id := {}
+func send_event(data: Variant) -> Promise:
+	return Promise.new(func (resolve, reject):
+		var event_id := str(randi())
+		_server_event.rpc_id(authority_id, event_id, data)
+		_event_response_handlers_for_id[event_id] = {
+			"resolve": resolve,
+			"reject": reject,
+		}
+		await get_tree().create_timer(timeout).timeout
+		reject.call(
+			"client(" + str(peer_id) \
+			+ "): timeout on predictive event(" + event_id + ")"
+		)
+		_event_response_handlers_for_id.erase(event_id)
+		pass
+	)
+#endregion
