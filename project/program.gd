@@ -6,3 +6,4 @@ var version := OS.get_environment("VERSION")
 
 var server: GameServer
 var client: GameClient
+var world: GameWorld
