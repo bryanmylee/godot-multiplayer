@@ -7,7 +7,7 @@ enum MessageType {
 	WEBRTC_ANSWER,
 	WEBRTC_CANDIDATE,
 	WEBRTC_ADD_PEER,
-	SET_MULTIPLAYER_AUTHORITY,
+	SET_GAME_AUTHORITY_ID,
 }
 
 const _DEFAULT_PORT := 8910
@@ -33,7 +33,7 @@ func _enter_tree() -> void:
 
 var socket := WebSocketMultiplayerPeer.new()
 "Record<String, {
-	id: String;
+	id: int;
 	rtc_ready: bool;
 }>"
 var clients := {}
@@ -98,7 +98,7 @@ func _handle_local_client_webrtc_ready(peer_id: int) -> void:
 	var set_authority_id_promises: Array[Promise] = []
 	for client_id in ready_client_ids:
 		set_authority_id_promises.append(
-			message_peer(client_id, MessageType.SET_MULTIPLAYER_AUTHORITY, authority_id)
+			message_peer(client_id, MessageType.SET_GAME_AUTHORITY_ID, authority_id)
 		)
 	await Promise.all(set_authority_id_promises).settled
 	Program.client.load_world()
@@ -233,11 +233,10 @@ func _handle_webrtc_ready(from_peer_id: int) -> Result:
 	print("server(", id, "): client(", from_peer_id, ") being added to RTC peers: ", other_ids)
 	clients[str(from_peer_id)].rtc_ready = true
 
-	await message_peer(from_peer_id, MessageType.SET_MULTIPLAYER_AUTHORITY, authority_id).settled
+	await message_peer(from_peer_id, MessageType.SET_GAME_AUTHORITY_ID, authority_id).settled
 
 	var add_self_to_others_promises: Array[Promise] = []
-	for other_peer_id in other_ids:
-		var to_peer_id := int(other_peer_id)
+	for to_peer_id in other_ids:
 		add_self_to_others_promises.append(
 			message_peer(to_peer_id, MessageType.WEBRTC_ADD_PEER, {
 				"target_id": from_peer_id,
@@ -247,8 +246,7 @@ func _handle_webrtc_ready(from_peer_id: int) -> Result:
 	await Promise.all(add_self_to_others_promises).settled
 
 	var add_others_to_self_promises: Array[Promise] = []
-	for other_peer_id in other_ids:
-		var to_peer_id := int(other_peer_id)
+	for to_peer_id in other_ids:
 		add_others_to_self_promises.append(
 			message_peer(from_peer_id, MessageType.WEBRTC_ADD_PEER, {
 				"target_id": to_peer_id,

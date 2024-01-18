@@ -22,11 +22,11 @@ size = Vector3(0.6, 0.25, 0.18)
 [node name="Player" type="CharacterBody3D"]
 script = ExtResource("1_l1f46")
 
-[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
-replication_config = SubResource("SceneReplicationConfig_rsjbf")
-
 [node name="IdentityProvider" type="Node" parent="."]
 script = ExtResource("1_pnolb")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_rsjbf")
 
 [node name="Input" type="Node" parent="." node_paths=PackedStringArray("id_provider")]
 script = ExtResource("2_o0iwe")

@@ -1,7 +1,7 @@
 extends Node
 class_name IdentityProvider
 
-var multiplayer_id := 1
-var is_remote_player :
-	get: return multiplayer.get_unique_id() != multiplayer_id
-
+var id:
+	get: return get_parent().name.to_int()
+var is_local_player:
+	get: return Program.client.peer_id == id

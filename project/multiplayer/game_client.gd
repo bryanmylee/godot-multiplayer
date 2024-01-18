@@ -113,8 +113,8 @@ func _handle_server_message(message: Variant) -> void:
 	elif message.mtype == GameServer.MessageType.WEBRTC_ADD_PEER:
 		var result: Result = await _handle_webrtc_add_peer(message.data)
 		_respond_to_server(message, result)
-	elif message.mtype == GameServer.MessageType.SET_MULTIPLAYER_AUTHORITY:
-		set_authority_id(message.data)
+	elif message.mtype == GameServer.MessageType.SET_GAME_AUTHORITY_ID:
+		set_game_authority_id(message.data)
 		_respond_to_server(message, Result.Ok(null))
 
 
@@ -420,10 +420,9 @@ func create_webrtc_mesh() -> Promise:
 	)
 
 
-func set_authority_id(id: int) -> void:
-	print("client(", peer_id, "): setting authority to ", id)
-	Program.set_multiplayer_authority(id)
-	GameNetwork.set_multiplayer_authority(id)
+func set_game_authority_id(id: int) -> void:
+	print("client(", peer_id, "): setting game authority to ", id)
+	Program.game_authority_id = id
 	set_multiplayer_authority(id)
 
 

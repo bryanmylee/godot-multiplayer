@@ -7,11 +7,11 @@ class_name GameWorld
 
 func _enter_tree() -> void:
 	Program.world = self
-	set_multiplayer_authority(Program.get_multiplayer_authority())
+	set_multiplayer_authority(Program.game_authority_id)
 
 
-func _ready():
-	if Program.server == null:
+func _ready() -> void:
+	if not Program.is_server:
 		spawn_player()
 
 
@@ -24,16 +24,17 @@ type SpawnPlayerOptions = {
 """
 const DEFAULT_PLAYER_SCENE := "res://player/player.tscn"
 func spawn_player(opts: Dictionary = {}) -> void:
-	print("client(", multiplayer.get_unique_id(), "): spawning player")
-	var spawn_result: Result = await GameNetwork.server_rpc(
-		_spawn_player_server,
+	print("client(", Program.client.peer_id, "): spawning player")
+	var spawn_result: Result = await GameNetwork.rpc_authority_with_return(
+		__authority_spawn_player,
 		opts,
-		_spawn_player_settled,
+		__settled_spawn_player,
 	).settled
 	print(spawn_result)
 
+
 @rpc("reliable", "any_peer")
-func _spawn_player_server(event_id: int, opts: Dictionary) -> void:
+func __authority_spawn_player(event_id: int, opts: Dictionary) -> void:
 	"""
 	@param opts: SpawnPlayerOptions
 	"""
@@ -43,7 +44,7 @@ func _spawn_player_server(event_id: int, opts: Dictionary) -> void:
 	var scene_path = opts.scene_path if "scene_path" in opts else DEFAULT_PLAYER_SCENE
 	var player = load(scene_path).instantiate()
 	if not player is Player:
-		_spawn_player_response.rpc_id(sender_id, event_id, Result.Err(
+		_spawn_player__response.rpc_id(sender_id, event_id, Result.Err(
 			"Node (" + scene_path + ") is not a `Player` instance"
 		).to_dict())
 		return
@@ -55,10 +56,11 @@ func _spawn_player_server(event_id: int, opts: Dictionary) -> void:
 	player.position = spawn_position
 	
 	player_spawner.add_child(player, true)
-	_spawn_player_response.rpc_id(sender_id, event_id, Result.Ok(null).to_dict())
+	_spawn_player__response.rpc_id(sender_id, event_id, Result.Ok(null).to_dict())
 
-signal _spawn_player_settled(event_id: int, response: Variant)
+
+signal __settled_spawn_player(event_id: int, response: Variant)
 @rpc("reliable")
-func _spawn_player_response(event_id: int, response: Variant) -> void:
-	_spawn_player_settled.emit(event_id, response)
+func _spawn_player__response(event_id: int, response: Variant) -> void:
+	__settled_spawn_player.emit(event_id, response)
 #endregion
