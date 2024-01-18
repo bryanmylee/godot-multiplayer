@@ -61,8 +61,8 @@ func msg(message_: String) -> Error:
 ## Shorthand for[br]
 ## [code]Error.new(some_type, { 'cause' : [/code][param cause][code] })[/code][br]
 ## Returns self
-func cause(cause: Variant) -> Error:
-	details.cause = cause
+func cause(_cause: Variant) -> Error:
+	details.cause = _cause
 	return self
 
 ## Puts [code]self[/code] as the cause of a new [code]Error([/code][param t][code])[/code] [br]

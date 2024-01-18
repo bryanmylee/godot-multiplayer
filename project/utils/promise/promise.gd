@@ -43,23 +43,23 @@ func _init(callable: Callable):
 				rejected.emit(rejection)
 	)
 
-	
+
 func then(resolved_callback: Callable) -> Promise:
 	resolved.connect(
 		resolved_callback, 
 		CONNECT_ONE_SHOT
 	)
 	return self
-	
-	
+
+
 func catch(rejected_callback: Callable) -> Promise:
 	rejected.connect(
 		rejected_callback, 
 		CONNECT_ONE_SHOT
 	)
 	return self
-	
-	
+
+
 static func from(input_signal: Signal) -> Promise:
 	return Promise.new(
 		func(resolve: Callable, _reject: Callable):
@@ -108,8 +108,8 @@ static func all(promises: Array[Promise]) -> Promise:
 						reject.call(rejection)
 				)
 	)
-	
-	
+
+
 static func any(promises: Array[Promise]) -> Promise:
 	return Promise.new(
 		func(resolve: Callable, reject: Callable):

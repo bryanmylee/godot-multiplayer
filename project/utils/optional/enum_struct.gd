@@ -122,8 +122,8 @@ func contains(enum_variant: EnumVariant) -> Result:
 
 
 ## Checks whether this [EnumStruct] has the specified [param variant]
-func has(variant: StringName) -> bool:
-	return _variants.has(variant)
+func has(_variant: StringName) -> bool:
+	return _variants.has(_variant)
 
 
 func _get(property: StringName) -> Variant:

@@ -37,21 +37,21 @@ static func Ok(v) -> Result:
 	return Result.new(v, true)
 
 ## Contains the error value
-static func Err(err) -> Result:
-	return Result.new(err, false)
+static func Err(_err) -> Result:
+	return Result.new(_err, false)
 
 ## Constructs a [Result] from the global [enum @GlobalScope.Error] enum[br]
 ## [constant @GlobalScope.OK] will result in the Ok() variant, everything else will result in Err()
-static func from_gderr(err: int) -> Result:
-	return Result.new(err, err == OK)
+static func from_gderr(_err: int) -> Result:
+	return Result.new(_err, _err == OK)
 
 ## Constructs an [code]Err([/code] [Error] [code])[/code] with the error code [param err][br]
 ## Both [enum @GlobalScope.Error] and custom [Error] codes are allowed[br]
 ## [constant @GlobalScope.OK] will result in the Ok() variant, everything else will result in Err()[br]
 ## Also see [method toError]
-static func newError(err: int) -> Result:
-	if err == OK:	return Result.new(OK, true)
-	return Result.new(Error.new(err), false)
+static func newError(_err: int) -> Result:
+	if _err == OK:	return Result.new(OK, true)
+	return Result.new(Error.new(_err), false)
 
 func _to_string() -> String:
 	if _is_ok:
@@ -61,9 +61,9 @@ func _to_string() -> String:
 func duplicate() -> Result:
 	return Result.new(_value.duplicate(), _is_ok)
 
-func _init(v, is_ok: bool):
+func _init(v, __is_ok: bool):
 	_value = v
-	_is_ok = is_ok
+	_is_ok = __is_ok
 
 ## Returns true if the result if Ok
 func is_ok() -> bool:
@@ -194,13 +194,13 @@ func err_cause(cause: Variant) -> Result:
 ## result.map_err_mut(func(err: Error):		err.as_cause_mut(type))
 ## [/codeblock]
 ## See also [method err_cause], [method Error.cause], [method Error.as_cause]
-func err_as_cause(err: int) -> Result:
+func err_as_cause(_err: int) -> Result:
 	if _is_ok or !(_value is Error):	return self
 	# Error::as_cause_mut() expanded
 	var inner: Error = Error.new(_value.type, _value.details)
 	inner.message = _value.message
 	
-	_value.type = err
+	_value.type = _err
 	_value.details = { 'cause' : inner }
 	_value.message = ''
 	return self
