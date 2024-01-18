@@ -69,7 +69,10 @@ func _read_incoming_packets() -> void:
 		_handle_server_message(data)
 
 
-"Record<String, { resolve(data): void, reject(err): void }>"
+"Dict<{
+	resolve(data): void,
+	reject(err): void
+}>"
 var _message_response_handlers_for_id := {}
 func _handle_server_response(message: Variant) -> void:
 	"""
@@ -152,7 +155,7 @@ func message_server(mtype: MessageType, data: Variant) -> Promise:
 type ClientResponse = {
 	id: String;
 	peer_id: String;
-	result: Result;
+	result: Result::to_dict;
 }
 """
 func _respond_to_server(message: Variant, result: Result) -> void:

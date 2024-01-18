@@ -41,7 +41,7 @@ func __authority_spawn_player(event_id: int, opts: Dictionary) -> void:
 	var sender_id := multiplayer.get_remote_sender_id()
 	print("server(", Program.server.id, "): spawning player: ", sender_id)
 
-	var scene_path = opts.scene_path if "scene_path" in opts else DEFAULT_PLAYER_SCENE
+	var scene_path = opts.get("scene_path", DEFAULT_PLAYER_SCENE)
 	var player = load(scene_path).instantiate()
 	if not player is Player:
 		_spawn_player__response.rpc_id(sender_id, event_id, Result.Err(
@@ -50,9 +50,7 @@ func __authority_spawn_player(event_id: int, opts: Dictionary) -> void:
 		return
 	player.name = str(sender_id)
 	
-	var spawn_position = opts.position \
-		if "position" in opts \
-		else Vector3(randf_range(-10, 10), 0, randf_range(-10, 10))
+	var spawn_position = opts.get("position", Vector3(randf_range(-10, 10), 0, randf_range(-10, 10)))
 	player.position = spawn_position
 	
 	player_spawner.add_child(player, true)

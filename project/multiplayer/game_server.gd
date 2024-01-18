@@ -32,7 +32,7 @@ func _enter_tree() -> void:
 
 
 var socket := WebSocketMultiplayerPeer.new()
-"Record<String, {
+"Dict<{
 	id: int;
 	rtc_ready: bool;
 }>"
@@ -124,7 +124,10 @@ func _read_incoming_packets() -> void:
 		_handle_client_message(data)
 
 
-"Record<String, { resolve(data): void, reject(err): void }>"
+"Dict<{
+	resolve(data): void,
+	reject(err): void
+}>"
 var _message_response_handlers_for_id := {}
 func _handle_client_response(message: Variant) -> void:
 	"""
@@ -200,7 +203,7 @@ func message_peer(peer_id: int, mtype: MessageType, data: Variant) -> Promise:
 """
 type ServerResponse = {
 	id: String;
-	result: Result;
+	result: Result::to_dict;
 }
 """
 func _respond_to_peer(message: Variant, result: Result) -> void:
