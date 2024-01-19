@@ -1,7 +1,15 @@
 class_name Logger
 
+"Dict<bool>"
+const FILTERED_TAGS := {
+	"webrtc": true,
+}
+
 
 static func client_log(args: Array, tags: Array = []):
+	if tags.any(func (t): return FILTERED_TAGS.get(t, false)):
+		return
+	
 	var id_str := "client(authority)(" + str(Program.client.peer_id) + "): " \
 		if Program.is_server and Program.client.peer_id != 0 \
 		else "client(" + str(Program.client.peer_id) + "): "
@@ -16,6 +24,9 @@ static func client_log(args: Array, tags: Array = []):
 
 
 static func server_log(args: Array, tags: Array = []):
+	if tags.any(func (t): return FILTERED_TAGS.get(t, true)):
+		return
+	
 	var id_str := "server(" + str(Program.server.id) + "): "
 	
 	var log_str := id_str + "".join(args)
