@@ -38,7 +38,7 @@ func rpc_clients_except_id(
 	event_opts: Variant,
 ) -> void:
 	var other_ids := Program.server.clients.values() \
-		.filter(func (c): return c.rtc_ready and c.id != except_id) \
+		.filter(func (c): return c.rtc_ready and c.id != Program.game_authority_id and c.id != except_id) \
 		.map(func (c): return c.id)
 	for to_peer_id in other_ids:
 		event_emitter.rpc_id(to_peer_id, event_opts)
