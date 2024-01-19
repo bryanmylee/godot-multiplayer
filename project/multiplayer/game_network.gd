@@ -20,9 +20,10 @@ func rpc_authority_with_return(
 				resolve.call(response_result.unwrap())
 			else:
 				reject.call(response_result.unwrap_err())
-			
+		
+		# Auto-disconnected when `response_handler` is deallocated.
 		response_signal.connect(response_handler)
-
+		
 		await get_tree().create_timer(TIMEOUT).timeout
 		reject.call(
 			"client(" + str(Program.client.peer_id) \
