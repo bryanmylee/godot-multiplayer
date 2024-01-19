@@ -70,12 +70,6 @@ func start() -> Result:
 	return result
 
 
-func _exit_tree() -> void:
-	socket.peer_connected.disconnect(_handle_client_connected)
-	socket.peer_disconnected.disconnect(_handle_client_disconnected)
-	Program.client.created_webrtc_mesh.disconnect(_handle_local_client_webrtc_ready)
-
-
 func _handle_client_connected(peer_id: int) -> void:
 	Logger.server_log(["client connected: ", peer_id], ["client-server"])
 	clients[str(peer_id)] = {

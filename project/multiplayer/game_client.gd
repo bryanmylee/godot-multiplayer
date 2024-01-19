@@ -33,11 +33,6 @@ func _ready() -> void:
 	await create_webrtc_mesh().settled
 
 
-func _exit_tree() -> void:
-	multiplayer.peer_connected.disconnect(_handle_webrtc_peer_connected)
-	multiplayer.peer_disconnected.disconnect(_handle_webrtc_peer_connected)
-
-
 func _handle_webrtc_peer_connected(new_peer_id: int) -> void:
 	Logger.client_log(["connected peer: ", new_peer_id], ["webrtc"])
 
