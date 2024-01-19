@@ -39,11 +39,11 @@ func _exit_tree() -> void:
 
 
 func _handle_webrtc_peer_connected(new_peer_id: int) -> void:
-	print("client(", peer_id, "): connected peer: ", new_peer_id)
+	Logger.client_log(["connected peer: ", new_peer_id], ["webrtc"])
 
 
 func _handle_webrtc_peer_disconnected(disconnected_peer_id: int) -> void:
-	print("client(", peer_id, "): disconnected peer: ", disconnected_peer_id)
+	Logger.client_log(["disconnected peer: ", disconnected_peer_id], ["webrtc"])
 
 
 var peer_id := 0
@@ -79,14 +79,10 @@ func _handle_server_response(message: Variant) -> void:
 	@param message: ServerResponse
 	"""
 	if not message.has("id"):
-		print("client(", peer_id, "): received response without message id")
+		Logger.client_log(["received response without message id"], ["client-server"])
 		return
 	if not _message_response_handlers_for_id.has(message.id):
-		print(
-			"client(", peer_id,
-			"): received response with non-existent message id: ",
-			message.id,
-		)
+		Logger.client_log(["received response with non-existent message id: ", message.id], ["client-server"])
 		return
 	var resolve_reject = _message_response_handlers_for_id[message.id]
 	var result := Result.from_dict(message.result)
@@ -198,10 +194,10 @@ func _handle_webrtc_add_peer(data: Variant) -> Result:
 		rtc_connection.initialize(WEBRTC_CONFIG)
 	)
 	if initialize_result.is_err():
-		print("client(", peer_id, "): failed to initialize RTC connection to peer: ", data.target_id)
+		Logger.client_log(["failed to initialize RTC connection to peer: ", data.target_id], ["webrtc"])
 		return initialize_result
 	
-	print("client(", peer_id, "): adding peer: ", data.target_id)
+	Logger.client_log(["adding peer: ", data.target_id], ["webrtc"])
 
 	var handle_session_description := Promise.new(func(resolve, reject):
 		var description = await rtc_connection.session_description_created
@@ -235,7 +231,7 @@ func _handle_webrtc_add_peer(data: Variant) -> Result:
 	# `ice_candidate_created` signals are emitted.
 	var offer_result := Result.from_gderr(rtc_connection.create_offer())
 	if offer_result.is_err():
-		print("client(", peer_id, "): ", offer_result.to_string())
+		Logger.client_log([offer_result.unwrap_err()], ["webrtc"])
 		return offer_result
 	
 	var connection_ready_result: Result = await Promise.all([
@@ -243,10 +239,10 @@ func _handle_webrtc_add_peer(data: Variant) -> Result:
 		handle_ice_candidate,
 	]).settled
 	if connection_ready_result.is_err():
-		print("client(", peer_id, "): ", connection_ready_result.to_string())
+		Logger.client_log([connection_ready_result.unwrap_err()], ["webrtc"])
 		return connection_ready_result
-
-	print("client(", peer_id, "): added peer: ", data.target_id)
+	
+	Logger.client_log(["added peer: ", data.target_id], ["webrtc"])
 	return Result.Ok(null)
 
 
@@ -254,10 +250,10 @@ func _handle_webrtc_offer(data: Variant) -> Result:
 	"""
 	@param data: WebRTCOfferPayload
 	"""
-	print("client(", peer_id, "): received an offer from: ", data.sender_id)
+	Logger.client_log(["received an offer from: ", data.sender_id], ["webrtc"])
 	if not rtc_network.has_peer(data.sender_id):
 		var err := Result.Err("failed to find offering peer: " + str(data.sender_id))
-		print("client(", peer_id, "): ", err.to_string())
+		Logger.client_log([err.unwrap_err()], ["webrtc"])
 		return err
 	return Result.from_gderr(
 		rtc_network.get_peer(data.sender_id).connection.set_remote_description(
@@ -268,10 +264,10 @@ func _handle_webrtc_offer(data: Variant) -> Result:
 
 
 func _handle_webrtc_answer(data: Variant) -> Result:
-	print("client(", peer_id, "): received an answer from: ", data.sender_id)
+	Logger.client_log(["received an answer from: ", data.sender_id], ["webrtc"])
 	if not rtc_network.has_peer(data.sender_id):
 		var err := Result.Err("failed to find answering peer: " + str(data.sender_id))
-		print("client(", peer_id, "): ", err.to_string())
+		Logger.client_log([err.unwrap_err()], ["webrtc"])
 		return err
 	return Result.from_gderr(
 		rtc_network.get_peer(data.sender_id).connection.set_remote_description(
@@ -282,10 +278,10 @@ func _handle_webrtc_answer(data: Variant) -> Result:
 
 
 func _handle_ice_candidate(data: Variant) -> Result:
-	print("client(", peer_id, "): received an ICE candidate from: ", data.sender_id)
+	Logger.client_log(["received an ICE candidate from: ", data.sender_id], ["webrtc"])
 	if not rtc_network.has_peer(data.sender_id):
 		var err := Result.Err("failed to find ICE candidate peer: " + str(data.sender_id))
-		print("client(", peer_id, "): ", err.to_string())
+		Logger.client_log([err.unwrap_err()], ["webrtc"])
 		return err
 	return Result.from_gderr(
 		rtc_network.get_peer(data.sender_id).connection.add_ice_candidate(
@@ -304,16 +300,16 @@ type WebRTCOfferPayload = {
 }
 """
 func send_webrtc_offer(offer: Variant, target_id: int) -> Result:
-	print("client(", peer_id, "): sending offer to target: ", target_id)
+	Logger.client_log(["sending offer to target: ", target_id], ["webrtc"])
 	var result: Result = await message_server(MessageType.WEBRTC_OFFER, {
 		"offer": offer,
 		"sender_id": peer_id,
 		"target_id": target_id,
 	}).settled
 	if result.is_err():
-		print("client(", peer_id, "): failed to send offer to target: ", target_id)
+		Logger.client_log(["failed to send offer to target: ", target_id], ["webrtc"])
 	else:
-		print("client(", peer_id, "): successfully sent offer to target: ", target_id)
+		Logger.client_log(["successfully sent offer to target: ", target_id], ["webrtc"])
 	return result
 
 
@@ -325,16 +321,16 @@ type WebRTCAnswerPayload = {
 }
 """
 func send_webrtc_answer(answer: Variant, target_id: int) -> Result:
-	print("client(", peer_id, "): sending answer to target: ", target_id)
+	Logger.client_log(["sending answer to target: ", target_id], ["webrtc"])
 	var result: Result = await message_server(MessageType.WEBRTC_ANSWER, {
 		"answer": answer,
 		"sender_id": peer_id,
 		"target_id": target_id,
 	}).settled
 	if result.is_err():
-		print("client(", peer_id, "): failed to send answer to target: ", target_id)
+		Logger.client_log(["failed to send answer to target: ", target_id], ["webrtc"])
 	else:
-		print("client(", peer_id, "): successfully sent answer to target: ", target_id)
+		Logger.client_log(["successfully sent answer to target: ", target_id], ["webrtc"])
 	return result
 
 
@@ -342,15 +338,15 @@ func set_local_description(type: String, data: Variant, target_id: int) -> Resul
 	# Make sure a connection has been established for the offer target.
 	if not rtc_network.has_peer(target_id):
 		var err := Result.Err("Failed to find peer " + str(target_id) + " to set local description for")
-		print("client(", peer_id, "): ", err.to_string())
+		Logger.client_log([err.unwrap_err()], ["webrtc"])
 		return err
 	
-	print("client(", peer_id, "): setting local description for ", target_id)
+	Logger.client_log(["setting local description for ", target_id], ["webrtc"])
 	var set_desc_result := Result.from_gderr(
 		rtc_network.get_peer(target_id).connection.set_local_description(type, data)
 	)
 	if set_desc_result.is_err():
-		print("client(", peer_id, "): ", set_desc_result.to_string())
+		Logger.client_log([set_desc_result.unwrap_err()], ["webrtc"])
 		return set_desc_result
 	
 	if type == "offer":
@@ -382,9 +378,9 @@ func send_ice_candidate(
 		"target_id": target_id,
 	}).settled
 	if result.is_err():
-		print("client(", peer_id, "): failed to send ICE candidate to target: ", target_id)
+		Logger.client_log(["failed to send ICE candidate to target: ", target_id], ["webrtc"])
 	else:
-		print("client(", peer_id, "): successfully sent ICE candidate to target: ", target_id)
+		Logger.client_log(["successfully sent ICE candidate to target: ", target_id], ["webrtc"])
 	return result
 #endregion
 
@@ -393,13 +389,13 @@ signal connected_to_game_server(assigned_id: int)
 func connect_to_game_server(host: String, port: int) -> void:
 	var protocol := "wss://" if Program.ssl_enabled else "ws://"
 	var address := protocol + host + ":" + str(port)
-	print("client(...): connecting to game server at: ", address)
+	Logger.client_log(["connecting to game server at: ", address], ["client-server"])
 	server_socket.create_client(address)
 
 
 func _handle_connected_to_server(assigned_id: int) -> Result:
 	peer_id = assigned_id
-	print("client(", peer_id, "): connected to game server")
+	Logger.client_log(["connected to game server"], ["client-server"])
 	connected_to_game_server.emit(assigned_id)
 	return Result.Ok(assigned_id)
 
@@ -408,9 +404,9 @@ signal created_webrtc_mesh(peer_id: int)
 func create_webrtc_mesh() -> Promise:
 	var create_mesh_result := Result.from_gderr(rtc_network.create_mesh(peer_id))
 	if create_mesh_result.is_err():
-		print("client(", peer_id, "): failed to create RTC mesh")
+		Logger.client_log(["failed to create RTC mesh"], ["webrtc"])
 		return Promise.new(func (_resolve, reject): reject.call("failed to create RTC mesh"))
-	print("client(", peer_id, "): created RTC mesh")
+	Logger.client_log(["created RTC mesh"], ["webrtc"])
 	multiplayer.multiplayer_peer = rtc_network
 
 	return Promise.new(func(resolve, reject):
@@ -424,14 +420,14 @@ func create_webrtc_mesh() -> Promise:
 
 
 func set_game_authority_id(id: int) -> void:
-	print("client(", peer_id, "): setting game authority to ", id)
+	Logger.client_log(["setting game authority to: ", id], ["client-server"])
 	Program.game_authority_id = id
 	set_multiplayer_authority(id)
 
 
 @rpc("any_peer")
 func ping_network() -> void:
-	print("client(", peer_id, "): ping from ", multiplayer.get_remote_sender_id())
+	Logger.client_log(["ping from: ", multiplayer.get_remote_sender_id()], ["debug"])
 
 
 #region Game Logic
