@@ -41,8 +41,8 @@ var authority_id := 1
 
 
 func _ready() -> void:
-	socket.peer_connected.connect(_handle_peer_connected)
-	socket.peer_disconnected.connect(_handle_peer_disconnected)
+	socket.peer_connected.connect(_handle_client_connected)
+	socket.peer_disconnected.connect(_handle_client_disconnected)
 	Program.client.created_webrtc_mesh.connect(_handle_local_client_webrtc_ready)
 
 	var start_result := start()
@@ -61,23 +61,23 @@ func _ready() -> void:
 
 
 func start() -> Result:
-	print("server(", id, "): starting server on: ", port)
+	Logger.server_log(["starting server on: ", port], ["init"])
 	var result := Result.from_gderr(socket.create_server(port))
 	if result.is_err():
-		print("server(", id, "): failed to start server due to: ", result.to_string())
+		Logger.server_log(["failed to start server due to: ", result.unwrap_err()], ["init"])
 	else:
-		print("server(", id, "): started server on: ", port)
+		Logger.server_log(["started server on port: ", port], ["init"])
 	return result
 
 
 func _exit_tree() -> void:
-	socket.peer_connected.disconnect(_handle_peer_connected)
-	socket.peer_disconnected.disconnect(_handle_peer_disconnected)
+	socket.peer_connected.disconnect(_handle_client_connected)
+	socket.peer_disconnected.disconnect(_handle_client_disconnected)
 	Program.client.created_webrtc_mesh.disconnect(_handle_local_client_webrtc_ready)
 
 
-func _handle_peer_connected(peer_id: int) -> void:
-	print("server(", id, "): peer connected: ", peer_id)
+func _handle_client_connected(peer_id: int) -> void:
+	Logger.server_log(["client connected: ", peer_id], ["client-server"])
 	clients[str(peer_id)] = {
 		"id": peer_id,
 		"rtc_ready": false,
@@ -85,12 +85,12 @@ func _handle_peer_connected(peer_id: int) -> void:
 	await message_peer(peer_id, MessageType.CONNECTED_TO_GAME_SERVER, peer_id).settled
 
 
-func _handle_peer_disconnected(peer_id: int) -> void:
-	print("server(", id, "): socket disconnected: ", peer_id)
+func _handle_client_disconnected(peer_id: int) -> void:
+	Logger.server_log(["client disconnected: ", peer_id], ["client-server"])
 
 
 func _handle_local_client_webrtc_ready(peer_id: int) -> void:
-	print("server(", id, "): local client ready with id: ", peer_id)
+	Logger.server_log(["authority client ready with id: ", peer_id], ["webrtc"])
 	authority_id = peer_id
 	var ready_client_ids := clients.values() \
 		.filter(func (c): return c.rtc_ready) \
@@ -134,15 +134,12 @@ func _handle_client_response(message: Variant) -> void:
 	@param message: ClientResponse
 	"""
 	if not message.has("id"):
-		print("server(", id, "): received response without message id")
+		Logger.server_log(["received response without message id"], ["client-server"])
 		return
 	if not _message_response_handlers_for_id.has(message.id):
-		print(
-			"server(", id,
-			"): received response from client(", message.peer_id,
-			") with non-existent message id: ",
-			message.id,
-		)
+		Logger.server_log([
+			"received response from client(", message.peer_id, ") with non-existent message id: ", message.id
+		], ["client-server"])
 		return
 	var resolve_reject = _message_response_handlers_for_id[message.id]
 	var result := Result.from_dict(message.result)
@@ -233,7 +230,7 @@ func _handle_webrtc_ready(from_peer_id: int) -> Result:
 	var other_ids := clients.values() \
 		.filter(func (c): return c.rtc_ready) \
 		.map(func (c): return c.id)
-	print("server(", id, "): client(", from_peer_id, ") being added to RTC peers: ", other_ids)
+	Logger.server_log(["adding client(", from_peer_id, ") to peers: ", other_ids], ["client-server"])
 	clients[str(from_peer_id)].rtc_ready = true
 
 	await message_peer(from_peer_id, MessageType.SET_GAME_AUTHORITY_ID, authority_id).settled

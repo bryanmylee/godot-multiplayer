@@ -21,29 +21,21 @@ func _enter_tree() -> void:
 #region just_jumped
 var just_jumped := false
 func jump() -> void:
-	print("client(", Program.client.peer_id, "): player(", id_provider.id, "): just jumped")
+	Logger.client_log(["player(", id_provider.id, "): just jumped"], ["game"])
 	just_jumped = true
 	__authority_jump.rpc_id(Program.game_authority_id, just_jumped)
 
 
 @rpc("reliable")
 func __authority_jump(_just_jumped: bool) -> void:
-	print(
-		"client(", Program.client.peer_id,
-		"): player(", id_provider.id,
-		"): just_jumped changed: ", _just_jumped
-	)
+	Logger.client_log(["player(", id_provider.id, "): just jumped"], ["game"])
 	just_jumped = _just_jumped
 	GameNetwork.rpc_clients_except_id(id_provider.id, __broadcast_jump, _just_jumped)
 
 
 @rpc("reliable")
 func __broadcast_jump(_just_jumped: bool) -> void:
-	print(
-		"client(", Program.client.peer_id,
-		"): player(", id_provider.id,
-		"): just_jumped changed: ", _just_jumped
-	)
+	Logger.client_log(["player(", id_provider.id, "): just jumped"], ["game"])
 	just_jumped = _just_jumped
 #endregion
 

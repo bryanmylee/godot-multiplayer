@@ -24,13 +24,13 @@ type SpawnPlayerOptions = {
 """
 const DEFAULT_PLAYER_SCENE := "res://player/player.tscn"
 func spawn_player(opts: Dictionary = {}) -> void:
-	print("client(", Program.client.peer_id, "): spawning player")
+	Logger.client_log(["spawning own player"], ["game", "world"])
 	var spawn_result: Result = await GameNetwork.rpc_authority_with_return(
 		__authority_spawn_player,
 		opts,
 		__settled_spawn_player,
 	).settled
-	print(spawn_result)
+	Logger.client_log([spawn_result], ["game", "world"])
 
 
 @rpc("reliable", "any_peer")
@@ -39,7 +39,7 @@ func __authority_spawn_player(event_id: int, opts: Dictionary) -> void:
 	@param opts: SpawnPlayerOptions
 	"""
 	var sender_id := multiplayer.get_remote_sender_id()
-	print("server(", Program.server.id, "): spawning player: ", sender_id)
+	Logger.server_log(["spawning player: ", sender_id], ["game", "world"])
 
 	var scene_path = opts.get("scene_path", DEFAULT_PLAYER_SCENE)
 	var player = load(scene_path).instantiate()
