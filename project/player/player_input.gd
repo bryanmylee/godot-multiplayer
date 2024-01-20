@@ -12,7 +12,7 @@ class_name PlayerInput
 
 
 func _enter_tree() -> void:
-	if Program.is_server or id_provider.is_local_player:
+	if Program.is_game_authority or id_provider.is_local_player:
 		set_multiplayer_authority(id_provider.id)
 
 
