@@ -78,9 +78,19 @@ func _handle_client_connected(peer_id: int) -> void:
 	}
 	await message_peer(peer_id, MessageType.CONNECTED_TO_GAME_SERVER, peer_id).settled
 
+	if Program.world != null:
+		var spawn_result := Program.world.__authority_spawn_player({
+			"player_id": peer_id,
+		})
+		Logger.server_log([spawn_result])
+
 
 func _handle_client_disconnected(peer_id: int) -> void:
 	Logger.server_log(["client disconnected: ", peer_id], ["client-server"])
+	
+	if Program.world != null:
+		var unspawn_result := Program.world.__authority_unspawn_player(peer_id)
+		Logger.server_log([unspawn_result])
 
 
 func _handle_local_client_webrtc_ready(peer_id: int) -> void:
