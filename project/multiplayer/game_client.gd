@@ -26,7 +26,7 @@ var rtc_network := WebRTCMultiplayerPeer.new()
 
 func _ready() -> void:
 	multiplayer.peer_connected.connect(_handle_webrtc_peer_connected)
-	multiplayer.peer_disconnected.connect(_handle_webrtc_peer_connected)
+	multiplayer.peer_disconnected.connect(_handle_webrtc_peer_disconnected)
 
 	connect_to_game_server("127.0.0.1", 8910)
 	await connected_to_game_server
