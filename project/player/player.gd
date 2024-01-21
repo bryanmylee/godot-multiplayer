@@ -1,16 +1,17 @@
 extends CharacterBody3D
 class_name Player
 
-@onready var id_provider := $IdentityProvider as IdentityProvider
-@onready var controller := $Controller as PlayerController
-
-
 func _enter_tree() -> void:
 	set_multiplayer_authority(Program.game_authority_id)
 
 
+@onready var id_provider := $IdentityProvider as IdentityProvider
+@onready var controller := $Controller as PlayerController
+
+
 func _ready() -> void:
 	$Camera.current = id_provider.is_local_player
+	set_physics_process(id_provider.is_local_player or Program.is_game_authority)
 
 
 func _physics_process(delta: float) -> void:

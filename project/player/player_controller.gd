@@ -14,27 +14,27 @@ var is_crouching := false :
 		if is_crouching == new: return
 		is_crouching = new
 		if id_provider.is_local_player:
-			sync_to_authority("is_crouching", new)
+			sync_reliable_to_authority("is_crouching", is_crouching)
 		elif Program.is_game_authority:
-			authority_sync_to_peers("is_crouching", new)
+			authority_sync_reliable_to_peers("is_crouching", is_crouching)
 
 var is_running := false :
 	set(new):
 		if is_running == new: return
 		is_running = new
 		if id_provider.is_local_player:
-			sync_to_authority("is_running", new)
+			sync_reliable_to_authority("is_running", is_running)
 		elif Program.is_game_authority:
-			authority_sync_to_peers("is_running", new)
+			authority_sync_reliable_to_peers("is_running", is_running)
 
 var direction := Vector2.ZERO :
 	set(new):
 		if direction == new: return
 		direction = new
 		if id_provider.is_local_player:
-			sync_to_authority("direction", new)
+			sync_reliable_to_authority("direction", direction)
 		elif Program.is_game_authority:
-			authority_sync_to_peers("direction", new)
+			authority_sync_reliable_to_peers("direction", direction)
 #endregion
 
 
@@ -43,15 +43,17 @@ var just_jumped := false :
 	set(new):
 		if just_jumped == new: return
 		just_jumped = new
-		if id_provider.is_local_player:
-			sync_reliable_to_authority("just_jumped", new)
-		elif Program.is_game_authority:
-			authority_sync_reliable_to_peers("just_jumped", new)
+		if just_jumped:
+			if id_provider.is_local_player:
+				sync_reliable_to_authority("just_jumped", just_jumped)
+			elif Program.is_game_authority:
+				authority_sync_reliable_to_peers("just_jumped", just_jumped)
 #endregion
 
 
 func _ready() -> void:
 	set_process(id_provider.is_local_player)
+	set_synchronization_process(id_provider.is_local_player)
 
 
 func _process(_delta: float) -> void:

@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://bv8kgs0ovjuyk"]
+[gd_scene load_steps=8 format=3 uid="uid://bv8kgs0ovjuyk"]
 
 [ext_resource type="Script" path="res://player/player.gd" id="1_l1f46"]
 [ext_resource type="Script" path="res://multiplayer/id_provider.gd" id="1_pnolb"]
 [ext_resource type="PackedScene" uid="uid://beq47521ote8e" path="res://player/player_controller.tscn" id="3_ml5lm"]
+[ext_resource type="Script" path="res://player/player_state_verifier.gd" id="4_h8vy8"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_uwxnw"]
 
@@ -19,6 +20,11 @@ script = ExtResource("1_l1f46")
 script = ExtResource("1_pnolb")
 
 [node name="Controller" parent="." node_paths=PackedStringArray("id_provider") instance=ExtResource("3_ml5lm")]
+id_provider = NodePath("../IdentityProvider")
+
+[node name="PlayerStateVerifier" type="Node" parent="." node_paths=PackedStringArray("player", "id_provider")]
+script = ExtResource("4_h8vy8")
+player = NodePath("..")
 id_provider = NodePath("../IdentityProvider")
 
 [node name="Model" type="Node3D" parent="."]
