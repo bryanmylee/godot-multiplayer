@@ -34,8 +34,9 @@ material_override = ExtResource("2_dfi1h")
 use_collision = true
 size = Vector3(100, 0.1, 100)
 
-[node name="CSGBox3D" type="CSGBox3D" parent="Map"]
+[node name="CenterDatum" type="CSGBox3D" parent="Map"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 3, 2.08165e-12)
+use_collision = true
 material = ExtResource("3_475hy")
 
 [node name="PlayerSpawner" type="MultiplayerSpawner" parent="."]

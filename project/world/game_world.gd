@@ -18,7 +18,7 @@ type SpawnPlayerOptions = {
 }
 """
 const DEFAULT_PLAYER_SCENE := "res://player/player.tscn"
-func __authority_spawn_player(opts: Dictionary) -> Result: # Result<Player>
+func authority_spawn_player(opts: Dictionary) -> Result: # Result<Player>
 	"""
 	@param opts: SpawnPlayerOptions
 	"""
@@ -43,7 +43,7 @@ func __authority_spawn_player(opts: Dictionary) -> Result: # Result<Player>
 	return Result.Ok(player)
 
 
-func __authority_unspawn_player(player_id: int) -> Result: # Result<Player>
+func authority_unspawn_player(player_id: int) -> Result: # Result<Player>
 	if not Program.is_game_authority:
 		return Result.Err("authority-only method")
 	
