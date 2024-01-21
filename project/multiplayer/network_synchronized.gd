@@ -1,5 +1,5 @@
 extends Node
-class_name Synchronized
+class_name NetworkSynchronized
 
 @export_group("Dependencies")
 @export var id_provider: IdentityProvider

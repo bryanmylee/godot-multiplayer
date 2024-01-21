@@ -1,4 +1,4 @@
-extends Synchronized
+extends NetworkSynchronized
 class_name PlayerController
 
 func _enter_tree() -> void:
