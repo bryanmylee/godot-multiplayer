@@ -93,7 +93,7 @@ func _handle_server_message(message: Variant) -> void:
 	@param message: ServerMessage
 	"""
 	if message.mtype == GameServer.MessageType.CONNECTED_TO_GAME_SERVER:
-		var result: Result = _handle_connected_to_server(message.data)
+		var result: Result = _handle_connected_to_game_server(message.data)
 		_respond_to_server(message, result)
 	elif message.mtype == GameServer.MessageType.WEBRTC_OFFER:
 		var result: Result = _handle_webrtc_offer(message.data)
@@ -388,7 +388,7 @@ func connect_to_game_server(host: String, port: int) -> void:
 	server_socket.create_client(address)
 
 
-func _handle_connected_to_server(assigned_id: int) -> Result:
+func _handle_connected_to_game_server(assigned_id: int) -> Result:
 	peer_id = assigned_id
 	Logger.client_log(["connected to game server"], ["client-server"])
 	connected_to_game_server.emit(assigned_id)
