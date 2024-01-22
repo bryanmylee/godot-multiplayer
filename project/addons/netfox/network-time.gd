@@ -296,7 +296,8 @@ func start():
 		_logger.debug("Client #%s is now on time!" % [pid])
 	)
 	
-	if not multiplayer.is_server():
+	# PATCH: replaced `multiplayer.is_server()` with `Program.is_game_authority`.
+	if not Program.is_game_authority:
 		NetworkTimeSynchronizer.start()
 		await NetworkTimeSynchronizer.on_sync
 		_tick = _remote_tick
@@ -305,7 +306,8 @@ func start():
 		_active = true
 		after_sync.emit()
 		
-		rpc_id(1, "_submit_sync_success")
+		# PATCH: replaced static `1` authority with `Program.game_authority_id`.
+		_submit_sync_success.rpc_id(Program.game_authority_id)
 	else:
 		_active = true
 		_initial_sync_done = true
@@ -391,7 +393,7 @@ func _run_tick():
 	after_tick.emit(ticktime, tick)
 	
 	_tick += 1
-	_remote_tick +=1
+	_remote_tick += 1
 	_local_tick += 1
 
 func _handle_sync(server_time: float, server_tick: int, rtt: float):

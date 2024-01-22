@@ -3,6 +3,7 @@ extends Node
 const TIMEOUT := 5.0
 
 
+#region RPC Helpers
 func rpc_authority_with_return(
 	response_signal: Signal,
 	rpc_fn: Callable,
@@ -51,8 +52,12 @@ func rpc_clients_except_id(
 			rpc_fn.rpc_id(to_peer_id, arg1, arg2)
 		else:
 			rpc_fn.rpc_id(to_peer_id, arg1, arg2, arg3)
+#endregion
 
 
-# TODO sync ticks without system time.
-func get_network_synced_tick() -> int:
-	return int(Time.get_unix_time_from_system() * 1000)
+# Emitted when the RTC network mesh is configured and `Program.game_authority_id` is properly configured.
+signal game_network_ready
+
+
+func _ready() -> void:
+	game_network_ready.connect(NetworkTime.start)

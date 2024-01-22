@@ -37,13 +37,12 @@ var socket := WebSocketMultiplayerPeer.new()
 	rtc_ready: bool;
 }>"
 var clients := {}
-var authority_id := 1
 
 
 func _ready() -> void:
 	socket.peer_connected.connect(_handle_client_connected)
 	socket.peer_disconnected.connect(_handle_client_disconnected)
-	Program.client.created_webrtc_mesh.connect(_handle_local_client_webrtc_ready)
+	Program.client.created_webrtc_mesh.connect(_handle_authority_webrtc_client_ready)
 
 	var start_result := start()
 	if start_result.is_err():
@@ -93,9 +92,16 @@ func _handle_client_disconnected(peer_id: int) -> void:
 		Logger.server_log([unspawn_result])
 
 
-func _handle_local_client_webrtc_ready(peer_id: int) -> void:
+func _handle_authority_webrtc_client_ready(peer_id: int) -> void:
 	Logger.server_log(["authority client ready with id: ", peer_id], ["webrtc"])
-	authority_id = peer_id
+	Program.game_authority_id = peer_id
+	GameNetwork.game_network_ready.emit()
+	
+	await set_game_authority_on_existing_peers(Program.game_authority_id).settled
+	Program.client.load_world()
+
+
+func set_game_authority_on_existing_peers(authority_id: int) -> Promise:
 	var ready_client_ids := clients.values() \
 		.filter(func (c): return c.rtc_ready) \
 		.map(func (c): return c.id)
@@ -104,8 +110,7 @@ func _handle_local_client_webrtc_ready(peer_id: int) -> void:
 		set_authority_id_promises.append(
 			message_peer(client_id, MessageType.SET_GAME_AUTHORITY_ID, authority_id)
 		)
-	await Promise.all(set_authority_id_promises).settled
-	Program.client.load_world()
+	return Promise.all(set_authority_id_promises)
 
 
 #region Client-Server Communication
@@ -237,7 +242,7 @@ func _handle_webrtc_ready(from_peer_id: int) -> Result:
 	Logger.server_log(["adding client(", from_peer_id, ") to peers: ", other_ids], ["client-server"])
 	clients[str(from_peer_id)].rtc_ready = true
 
-	await message_peer(from_peer_id, MessageType.SET_GAME_AUTHORITY_ID, authority_id).settled
+	await message_peer(from_peer_id, MessageType.SET_GAME_AUTHORITY_ID, Program.game_authority_id).settled
 
 	var add_self_to_others_promises: Array[Promise] = []
 	for to_peer_id in other_ids:

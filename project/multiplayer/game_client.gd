@@ -34,7 +34,12 @@ func _ready() -> void:
 
 
 func _handle_webrtc_peer_connected(new_peer_id: int) -> void:
-	Logger.client_log(["connected peer: ", new_peer_id], ["webrtc"])
+	
+	if new_peer_id == Program.game_authority_id:
+		Logger.client_log(["connected game authority: ", new_peer_id], ["webrtc"])
+		GameNetwork.game_network_ready.emit()
+	else:
+		Logger.client_log(["connected peer: ", new_peer_id], ["webrtc"])
 
 
 func _handle_webrtc_peer_disconnected(disconnected_peer_id: int) -> void:
@@ -414,10 +419,10 @@ func create_webrtc_mesh() -> Promise:
 	)
 
 
-func set_game_authority_id(id: int) -> void:
-	Logger.client_log(["setting game authority to: ", id], ["client-server"])
-	Program.game_authority_id = id
-	set_multiplayer_authority(id)
+func set_game_authority_id(authority_id: int) -> void:
+	Logger.client_log(["setting game authority to: ", authority_id], ["client-server"])
+	Program.game_authority_id = authority_id
+	set_multiplayer_authority(authority_id)
 
 
 @rpc("any_peer")

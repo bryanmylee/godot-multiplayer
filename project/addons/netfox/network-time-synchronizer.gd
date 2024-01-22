@@ -106,7 +106,7 @@ func get_rtt(id: int, sample_id: int = -1) -> float:
 		return 0
 	
 	var trip_start = get_real_time()
-	rpc_id(id, "_request_ping")
+	_request_ping.rpc_id(id)
 	var response = await on_ping
 	var trip_end = get_real_time()
 	var rtt = trip_end - trip_start
@@ -118,7 +118,8 @@ func get_rtt(id: int, sample_id: int = -1) -> float:
 
 func _sync_time_loop(interval: float):
 	while true:
-		var sync_result = await sync_time(1)
+		# PATCH: replaced static `1` authority with `Program.game_authority_id`.
+		var sync_result = await sync_time(Program.game_authority_id)
 		var rtt = sync_result[1]
 		var new_time = sync_result[2]
 
@@ -138,7 +139,7 @@ func _sync_time_loop(interval: float):
 @rpc("any_peer", "reliable", "call_remote")
 func _request_ping():
 	var sender = multiplayer.get_remote_sender_id()
-	rpc_id(sender, "_respond_ping", NetworkTime.time, NetworkTime.tick)
+	_respond_ping.rpc_id(sender, NetworkTime.time, NetworkTime.tick)
 
 @rpc("any_peer", "reliable", "call_remote")
 func _respond_ping(peer_time: float, peer_tick: int):
