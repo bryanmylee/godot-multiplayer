@@ -50,10 +50,10 @@ The universal interface for both servers and clients.
 | ---------------- | ---------------------------------------------------------- | ------------- |
 | `SERVER_ID`      | The unique ID to identify the server in logs.              | `randi()`     |
 | `PORT`           | The port that the server listens for clients on.           | `8910`        |
-| `SERVER_TIMEOUT` | How long the server will wait for a response from clients. | `15`          |
+| `SERVER_TIMEOUT` | How long the server will wait for a response from clients. | `5.0`         |
 
 ## Client
 
 | Variable         | Description                                                   | Default value |
 | ---------------- | ------------------------------------------------------------- | ------------- |
-| `CLIENT_TIMEOUT` | How long the client will wait for a response from the server. | `15`          |
+| `CLIENT_TIMEOUT` | How long the client will wait for a response from the server. | `5.0`         |
