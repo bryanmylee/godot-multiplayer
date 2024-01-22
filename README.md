@@ -60,7 +60,7 @@ The universal interface for both servers and clients.
 
 # Roadmap
 
-[x] WebRTC Networking Setup
-[x] Server Authoritative Synchronization
-[ ] Authentication
-[ ] Matchmaking
+- [x] WebRTC Networking Setup
+- [x] Server Authoritative Synchronization
+- [ ] Authentication
+- [ ] Matchmaking
