@@ -57,3 +57,10 @@ The universal interface for both servers and clients.
 | Variable         | Description                                                   | Default value |
 | ---------------- | ------------------------------------------------------------- | ------------- |
 | `CLIENT_TIMEOUT` | How long the client will wait for a response from the server. | `5.0`         |
+
+# Roadmap
+
+[x] WebRTC Networking Setup
+[x] Server Authoritative Synchronization
+[ ] Authentication
+[ ] Matchmaking
