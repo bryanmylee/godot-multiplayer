@@ -6,7 +6,7 @@ const FILTERED_TAGS := {
 }
 
 
-static func client_log(args: Array, tags: Array = []):
+static func client_log(args: Array, tags := []):
 	if tags.any(func (t): return FILTERED_TAGS.get(t, false)):
 		return
 	
@@ -23,7 +23,7 @@ static func client_log(args: Array, tags: Array = []):
 	print(log_str)
 
 
-static func server_log(args: Array, tags: Array = []):
+static func server_log(args: Array, tags := []):
 	if tags.any(func (t): return FILTERED_TAGS.get(t, true)):
 		return
 	
