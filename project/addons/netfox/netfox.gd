@@ -66,12 +66,6 @@ var SETTINGS = [
 		"value": 0,
 		"type": TYPE_INT
 	},
-	# Events
-	{
-		"name": "netfox/events/enabled",
-		"value": true,
-		"type": TYPE_BOOL
-	}
 ]
 
 const AUTOLOADS = [
@@ -86,10 +80,6 @@ const AUTOLOADS = [
 	{
 		"name": "NetworkRollback",
 		"path": ROOT + "/rollback/network-rollback.gd"
-	},
-	{
-		"name": "NetworkEvents",
-		"path": ROOT + "/network-events.gd"
 	}
 ]
 
