@@ -3,8 +3,8 @@
 [ext_resource type="Script" path="res://player/player.gd" id="1_l1f46"]
 [ext_resource type="Script" path="res://multiplayer/id_provider.gd" id="1_pnolb"]
 [ext_resource type="PackedScene" uid="uid://beq47521ote8e" path="res://player/player_controller.tscn" id="3_ml5lm"]
-[ext_resource type="Script" path="res://player/player_state_verifier.gd" id="4_h8vy8"]
-[ext_resource type="Script" path="res://multiplayer/network_verified_state.gd" id="5_ikitt"]
+[ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="4_i8n27"]
+[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="4_w5wxv"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_uwxnw"]
 
@@ -20,16 +20,19 @@ script = ExtResource("1_l1f46")
 [node name="IdentityProvider" type="Node" parent="."]
 script = ExtResource("1_pnolb")
 
+[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("4_w5wxv")
+root = NodePath("..")
+state_properties = Array[String]([":global_transform"])
+input_properties = Array[String](["Controller:is_crouching", "Controller:is_running", "Controller:direction", "Controller:just_jumped"])
+
+[node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("4_i8n27")
+root = NodePath("..")
+properties = Array[String]([":global_transform"])
+
 [node name="Controller" parent="." node_paths=PackedStringArray("id_provider") instance=ExtResource("3_ml5lm")]
 id_provider = NodePath("../IdentityProvider")
-
-[node name="StateVerifier" type="Node" parent="." node_paths=PackedStringArray("player", "id_provider")]
-script = ExtResource("4_h8vy8")
-player = NodePath("..")
-id_provider = NodePath("../IdentityProvider")
-
-[node name="position" type="Node" parent="StateVerifier"]
-script = ExtResource("5_ikitt")
 
 [node name="Model" type="Node3D" parent="."]
 

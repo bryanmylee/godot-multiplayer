@@ -11,10 +11,9 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	$Camera.current = id_provider.is_local_player
-	set_physics_process(id_provider.is_local_player or Program.is_game_authority)
 
 
-func _physics_process(delta: float) -> void:
+func _rollback_tick(delta: float, _tick: int, _is_fresh: bool) -> void:
 	movement(delta)
 
 
@@ -39,5 +38,7 @@ func movement(delta: float) -> void:
 		controller.just_jumped = false
 	
 	velocity.y -= 9.8 * delta
-	
+
+	velocity *= NetworkTime.physics_factor
 	move_and_slide()
+	velocity /= NetworkTime.physics_factor
