@@ -2,7 +2,7 @@ extends Node
 class_name NetworkSynchronized
 
 @export var id_provider: IdentityProvider
-@export var synchronization_ticks_per_second := 10
+@export var synchronization_ticks_per_second := 60
 
 var delta_synchronization := 1.0 / synchronization_ticks_per_second
 

@@ -51,3 +51,8 @@ func rpc_clients_except_id(
 			rpc_fn.rpc_id(to_peer_id, arg1, arg2)
 		else:
 			rpc_fn.rpc_id(to_peer_id, arg1, arg2, arg3)
+
+
+# TODO sync ticks without system time.
+func get_network_synced_tick() -> int:
+	return int(Time.get_unix_time_from_system() * 1000)

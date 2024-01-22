@@ -20,6 +20,10 @@ config/icon="res://icon.svg"
 Program="*res://program.gd"
 GameNetwork="*res://multiplayer/game_network.gd"
 
+[debug]
+
+gdscript/warnings/integer_division=0
+
 [input]
 
 move_forward={
