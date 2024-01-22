@@ -102,7 +102,8 @@ func sync_time(id: int) -> Array[float]:
 
 ## Get roundtrip time to a given peer, in seconds.
 func get_rtt(id: int, sample_id: int = -1) -> float:
-	if id == multiplayer.get_unique_id():
+	# PATCH: replaced `multiplayer.get_unique_id()` with `Program.client.peer_id`.
+	if id == Program.client.peer_id:
 		return 0
 	
 	var trip_start = get_real_time()

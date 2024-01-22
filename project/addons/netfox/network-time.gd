@@ -332,7 +332,8 @@ func is_initial_sync_done() -> bool:
 ##
 ## Using this from a client is considered an error.
 func is_client_synced(peer_id: int) -> bool:
-	if not multiplayer.is_server():
+	# PATCH: replaced `multiplayer.is_server()` with `Program.is_game_authority`.
+	if not Program.is_game_authority:
 		_logger.error("Trying to check if client is synced from another client!")
 		return false
 	else:
@@ -412,4 +413,4 @@ func _submit_sync_success():
 	
 	if not _synced_clients.has(peer_id):
 		_synced_clients[peer_id] = true
-		after_client_sync.emit(multiplayer.get_remote_sender_id())
+		after_client_sync.emit(peer_id)
