@@ -34,8 +34,6 @@ When a client reconnects to the matchmaking server, the matchmaking server will 
 
 The client can respond to this message by ignoring or accepting the re-join offer and re-initiate an RTC connection to the game server.
 
-```
-
 # Variables
 
 ## Program
@@ -59,4 +57,3 @@ The universal interface for both servers and clients.
 | Variable         | Description                                                   | Default value |
 | ---------------- | ------------------------------------------------------------- | ------------- |
 | `CLIENT_TIMEOUT` | How long the client will wait for a response from the server. | `15`          |
-```
