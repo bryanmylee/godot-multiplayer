@@ -1,6 +1,6 @@
-# Server Authoritative Multiplayer
+# Server Authoritative WebRTC Multiplayer
 
-A sample project with matchmaking and server authority.
+A sample project with matchmaking, WebRTC, and server authority.
 
 # Network Architecture
 
