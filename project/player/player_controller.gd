@@ -12,21 +12,18 @@ func _enter_tree() -> void:
 #region Synchronized State
 var is_crouching := false
 var is_running := false
+var is_jumping := false
 var direction := Vector2.ZERO
-var just_jumped := false
 #endregion
 
 
 func _ready() -> void:
-	NetworkTime.before_tick_loop.connect(_gather_input)
+	if id_provider.is_local_player:
+		NetworkTime.before_tick_loop.connect(_gather_input)
 
 
 func _gather_input() -> void:
-	if not id_provider.is_local_player:
-		return
-	
 	is_crouching = Input.is_action_pressed("mod_crouch")
 	is_running = Input.is_action_pressed("mod_run")
+	is_jumping = Input.is_action_pressed("jump")
 	direction = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
-	if Input.is_action_just_pressed("jump"):
-		just_jumped = true

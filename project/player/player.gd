@@ -33,12 +33,20 @@ func movement(delta: float) -> void:
 		)
 		velocity = velocity.move_toward(target_velocity, 30 * delta)
 	
-	if controller.just_jumped:
-		velocity.y += 4.0
-		controller.just_jumped = false
-	
 	velocity.y -= 9.8 * delta
+	
+	if controller.is_jumping:
+		_force_update_is_on_floor()
+		if is_on_floor():
+			velocity.y = 4.0
 
 	velocity *= NetworkTime.physics_factor
 	move_and_slide()
 	velocity /= NetworkTime.physics_factor
+
+
+func _force_update_is_on_floor():
+	var old_velocity = velocity
+	velocity = Vector3.ZERO
+	move_and_slide()
+	velocity = old_velocity
