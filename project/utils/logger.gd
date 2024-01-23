@@ -24,7 +24,7 @@ static func client_log(args: Array, tags := []):
 
 
 static func server_log(args: Array, tags := []):
-	if tags.any(func (t): return FILTERED_TAGS.get(t, true)):
+	if tags.any(func (t): return FILTERED_TAGS.get(t, false)):
 		return
 	
 	var id_str := "server(" + str(Program.server.id) + "): "
