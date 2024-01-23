@@ -4,14 +4,15 @@ const TIMEOUT := 5.0
 
 
 #region RPC Helpers
-func rpc_authority_with_return(
+func rpc_id_with_return(
+	peer_id: int,
 	response_signal: Signal,
 	rpc_fn: Callable,
 	arg1: Variant,
 ) -> Promise:
 	return Promise.new(func (resolve, reject):
 		var id := randi()
-		rpc_fn.rpc_id(Program.game_authority_id, id, arg1)
+		rpc_fn.rpc_id(peer_id, id, arg1)
 
 		var response_handler := func (response_id: int, response_data: Variant):
 			if response_id != id:
@@ -28,7 +29,7 @@ func rpc_authority_with_return(
 		await get_tree().create_timer(TIMEOUT).timeout
 		reject.call(
 			"client(" + str(Program.client.peer_id) \
-			+ "): timeout on rpc_authority_with_return(" + rpc_fn.get_method() + ")"
+			+ "): timeout on rpc_id_with_return(" + rpc_fn.get_method() + ")"
 		)
 	)
 
