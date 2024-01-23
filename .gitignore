@@ -1,2 +1,15 @@
 # VSCode
 .vscode/
+
+# Build files 
+export/server/*
+!export/server/.gitkeep
+!export/server/Dockerfile
+export/web/*
+!export/web/.gitkeep
+export/windows/*
+!export/windows/.gitkeep
+export/macos/*
+!export/macos/.gitkeep
+export/linux/*
+!export/linux/.gitkeep
