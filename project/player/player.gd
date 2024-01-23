@@ -36,7 +36,7 @@ func movement(delta: float) -> void:
 	velocity.y -= 9.8 * delta
 	
 	if controller.is_jumping:
-		_force_update_is_on_floor()
+		_force_update_slide_collision()
 		if is_on_floor():
 			velocity.y = 4.0
 
@@ -45,7 +45,7 @@ func movement(delta: float) -> void:
 	velocity /= NetworkTime.physics_factor
 
 
-func _force_update_is_on_floor():
+func _force_update_slide_collision() -> void:
 	var old_velocity = velocity
 	velocity = Vector3.ZERO
 	move_and_slide()
