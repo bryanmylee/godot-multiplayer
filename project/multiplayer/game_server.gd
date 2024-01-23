@@ -51,11 +51,10 @@ func _ready() -> void:
 		# can detect the failure.
 		if Program.is_dedicated_server:
 			OS.kill(OS.get_process_id())
-			return
 		# For prototyping, `_ready` is called by all clients but only one client
 		# will be able to bind to the listening port. Therefore, we can free all
 		# programs that failed to start the server and assume they are just clients.
-		if OS.is_debug_build():
+		elif OS.is_debug_build():
 			queue_free()
 
 
