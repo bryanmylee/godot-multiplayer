@@ -5,7 +5,7 @@ enum MessageType {
 	WEBRTC_OFFER,
 	WEBRTC_ANSWER,
 	WEBRTC_CANDIDATE,
-	WEBRTC_READY,
+	WEBRTC_MESH_CREATED,
 }
 
 const _DEFAULT_TIMEOUT := 5.0
@@ -409,20 +409,23 @@ func _handle_connected_to_game_server(assigned_id: int) -> Result:
 
 
 signal created_webrtc_mesh(peer_id: int)
+signal webrtc_ready(peer_id: int)
 func create_webrtc_mesh() -> Promise:
 	var create_mesh_result := Result.from_gderr(rtc_network.create_mesh(peer_id))
 	if create_mesh_result.is_err():
 		Logger.client_log(["failed to create RTC mesh"], ["webrtc"])
 		return Promise.new(func (_resolve, reject): reject.call("failed to create RTC mesh"))
+	
 	Logger.client_log(["created RTC mesh"], ["webrtc"])
+	created_webrtc_mesh.emit(peer_id)
 	multiplayer.multiplayer_peer = rtc_network
 
 	return Promise.new(func(resolve, reject):
-		var message_result: Result = await message_server(MessageType.WEBRTC_READY, null).settled
+		var message_result: Result = await message_server(MessageType.WEBRTC_MESH_CREATED, null).settled
 		if message_result.is_err():
 			reject.call(message_result.unwrap_err())
 			return
-		created_webrtc_mesh.emit(peer_id)
+		webrtc_ready.emit(peer_id)
 		resolve.call(message_result.unwrap())
 	)
 

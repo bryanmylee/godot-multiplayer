@@ -42,7 +42,7 @@ var clients := {}
 func _ready() -> void:
 	socket.peer_connected.connect(_handle_client_connected)
 	socket.peer_disconnected.connect(_handle_client_disconnected)
-	Program.client.created_webrtc_mesh.connect(_handle_authority_webrtc_client_ready)
+	Program.client.webrtc_ready.connect(_handle_authority_webrtc_client_ready)
 
 	var start_result := start()
 	if start_result.is_err():
@@ -177,8 +177,8 @@ func _handle_client_message(message: Variant) -> void:
 	elif message.mtype == GameClient.MessageType.WEBRTC_CANDIDATE:
 		var result: Result = await _forward_ice_candidate(message.data.target_id, message.data).settled
 		_respond_to_peer(message, result)
-	elif message.mtype == GameClient.MessageType.WEBRTC_READY:
-		var result: Result = await _handle_webrtc_ready(message.peer_id)
+	elif message.mtype == GameClient.MessageType.WEBRTC_MESH_CREATED:
+		var result: Result = await _handle_webrtc_mesh_created(message.peer_id)
 		_respond_to_peer(message, result)
 
 
@@ -240,7 +240,7 @@ type WebRTCAddPeerPayload = {
 	to_offer: bool;
 }
 """
-func _handle_webrtc_ready(from_peer_id: int) -> Result:
+func _handle_webrtc_mesh_created(from_peer_id: int) -> Result:
 	var other_ids := clients.values() \
 		.filter(func (c): return c.rtc_ready) \
 		.map(func (c): return c.id)
@@ -249,25 +249,25 @@ func _handle_webrtc_ready(from_peer_id: int) -> Result:
 
 	await message_peer(from_peer_id, MessageType.SET_GAME_AUTHORITY_ID, Program.game_authority_id).settled
 
-	var add_self_to_others_promises: Array[Promise] = []
+	var add_from_to_others_promises: Array[Promise] = []
 	for to_peer_id in other_ids:
-		add_self_to_others_promises.append(
+		add_from_to_others_promises.append(
 			message_peer(to_peer_id, MessageType.WEBRTC_ADD_PEER, {
 				"target_id": from_peer_id,
 				"to_offer": false,
 			})
 		)
-	await Promise.all(add_self_to_others_promises).settled
+	await Promise.all(add_from_to_others_promises).settled
 
-	var add_others_to_self_promises: Array[Promise] = []
+	var add_others_to_from_promises: Array[Promise] = []
 	for to_peer_id in other_ids:
-		add_others_to_self_promises.append(
+		add_others_to_from_promises.append(
 			message_peer(from_peer_id, MessageType.WEBRTC_ADD_PEER, {
 				"target_id": to_peer_id,
 				"to_offer": true,
 			})
 		)
-	return await Promise.all(add_others_to_self_promises).settled
+	return await Promise.all(add_others_to_from_promises).settled
 
 
 func _forward_webrtc_offer(target_id: int, data: Variant) -> Promise:
