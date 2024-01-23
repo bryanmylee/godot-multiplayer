@@ -80,7 +80,10 @@ func _handle_client_connected(peer_id: int) -> void:
 		var spawn_result := Program.world.authority_spawn_player({
 			"player_id": peer_id,
 		})
-		Logger.server_log([spawn_result])
+		if spawn_result.is_err():
+			Logger.server_log([spawn_result])
+		else:
+			Logger.server_log(["spawned player: ", peer_id])
 
 
 func _handle_client_disconnected(peer_id: int) -> void:
