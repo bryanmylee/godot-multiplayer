@@ -32,6 +32,7 @@ func _ready() -> void:
 	multiplayer.peer_connected.connect(_handle_peer_connected)
 	multiplayer.peer_disconnected.connect(_handle_peer_disconnected)
 
+	GameNetwork.game_network_ready.emit()
 	load_world()
 
 

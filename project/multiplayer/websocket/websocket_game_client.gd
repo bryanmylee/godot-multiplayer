@@ -23,6 +23,7 @@ func start() -> Result:
 func _handle_connected_to_server() -> void:
 	peer_id = multiplayer.get_unique_id()
 	Logger.client_log(["connected to server"], ["init"])
+	GameNetwork.game_network_ready.emit()
 
 
 func _handle_server_connection_failed() -> void:
