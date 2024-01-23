@@ -51,7 +51,7 @@ The universal interface for both servers and clients.
 
 - [x] WebRTC Multiplayer Setup
 - [x] Server Authoritative Synchronization
-- [ ] WebSocket Multiplayer Setup
+- [x] WebSocket Multiplayer Setup
 - [ ] Game Server Deployment
 - [ ] Authentication
 - [ ] Matchmaking
