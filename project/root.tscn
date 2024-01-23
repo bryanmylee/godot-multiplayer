@@ -1,15 +1,15 @@
 [gd_scene load_steps=3 format=3 uid="uid://dqoqll4di5jv8"]
 
-[ext_resource type="Script" path="res://multiplayer/game_server.gd" id="1_npw5s"]
-[ext_resource type="Script" path="res://multiplayer/game_client.gd" id="1_u4j86"]
+[ext_resource type="Script" path="res://multiplayer/webrtc/webrtc_game_server.gd" id="1_38b1m"]
+[ext_resource type="Script" path="res://multiplayer/webrtc/webrtc_game_client.gd" id="2_aherm"]
 
 [node name="Root" type="Node"]
 
 [node name="Server" type="Node" parent="."]
-script = ExtResource("1_npw5s")
+script = ExtResource("1_38b1m")
 
 [node name="Client" type="Node" parent="." node_paths=PackedStringArray("world_spawner")]
-script = ExtResource("1_u4j86")
+script = ExtResource("2_aherm")
 world_spawner = NodePath("WorldSpawner")
 
 [node name="WorldSpawner" type="MultiplayerSpawner" parent="Client"]
