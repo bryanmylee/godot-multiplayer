@@ -81,7 +81,7 @@ func _handle_client_connected(peer_id: int) -> void:
 			"player_id": peer_id,
 		})
 		if spawn_result.is_err():
-			Logger.server_log([spawn_result])
+			Logger.server_log([spawn_result.unwrap_err()])
 		else:
 			Logger.server_log(["spawned player: ", peer_id])
 
@@ -91,7 +91,10 @@ func _handle_client_disconnected(peer_id: int) -> void:
 	
 	if Program.world != null:
 		var unspawn_result := Program.world.authority_unspawn_player(peer_id)
-		Logger.server_log([unspawn_result])
+		if unspawn_result.is_err():
+			Logger.server_log([unspawn_result.unwrap_err()])
+		else:
+			Logger.server_log(["unspawned player: ", peer_id])
 
 
 func _handle_authority_webrtc_client_ready(peer_id: int) -> void:
