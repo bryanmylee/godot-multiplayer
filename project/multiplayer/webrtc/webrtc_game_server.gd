@@ -20,6 +20,7 @@ func _ready() -> void:
 
 	var start_result := start()
 	if start_result.is_err():
+		Logger.server_log(["failed to start server due to: ", start_result.unwrap_err()], ["init"])
 		# For a dedicated server, if we fail to start the server, we want to
 		# exit the program with an error code so that the matchmaking server
 		# can detect the failure.
@@ -30,16 +31,13 @@ func _ready() -> void:
 		# programs that failed to start the server and assume they are just clients.
 		elif OS.is_debug_build():
 			queue_free()
+	else:
+		Logger.server_log(["started server on port: ", port], ["init"])
 
 
 func start() -> Result:
 	Logger.server_log(["starting server on: ", port], ["init"])
-	var result := Result.from_gderr(socket.create_server(port))
-	if result.is_err():
-		Logger.server_log(["failed to start server due to: ", result.unwrap_err()], ["init"])
-	else:
-		Logger.server_log(["started server on port: ", port], ["init"])
-	return result
+	return Result.from_gderr(socket.create_server(port))
 
 
 func _handle_client_connected(peer_id: int) -> void:

@@ -18,7 +18,7 @@ func _ready() -> void:
 	multiplayer.peer_connected.connect(_handle_webrtc_peer_connected)
 	multiplayer.peer_disconnected.connect(_handle_webrtc_peer_disconnected)
 
-	connect_to_game_server(server_host, server_port)
+	start()
 	await connected_to_game_server
 	await create_webrtc_mesh().settled
 
@@ -372,14 +372,14 @@ func send_ice_candidate(
 #endregion
 
 
-signal connected_to_game_server(assigned_id: int)
-func connect_to_game_server(host: String, port: int) -> void:
+func start() -> Result:
 	var protocol := "wss://" if Program.ssl_enabled else "ws://"
-	var address := protocol + host + ":" + str(port)
+	var address := protocol + server_host + ":" + str(server_port)
 	Logger.client_log(["connecting to game server at: ", address], ["client-server"])
-	server_socket.create_client(address)
+	return Result.from_gderr(server_socket.create_client(address))
 
 
+signal connected_to_game_server(assigned_id: int)
 func _handle_connected_to_game_server(assigned_id: int) -> Result:
 	peer_id = assigned_id
 	Logger.client_log(["connected to game server"], ["client-server"])

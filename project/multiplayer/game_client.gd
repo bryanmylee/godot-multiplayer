@@ -19,3 +19,7 @@ var peer_id := 0
 
 func _enter_tree() -> void:
 	Program.client = self
+
+
+func start() -> Result:
+	return Result.Err("missing implementation for `start`")
