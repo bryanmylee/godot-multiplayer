@@ -56,6 +56,8 @@ The universal interface for both servers and clients.
 
 | Variable         | Description                                                   | Default value |
 | ---------------- | ------------------------------------------------------------- | ------------- |
+| `SERVER_HOST`    | The server host to connect to.                                | `"127.0.0.1"` |
+| `SERVER_PORT`    | The port on the server to connect to.                         | `8910`        |
 | `CLIENT_TIMEOUT` | How long the client will wait for a response from the server. | `5.0`         |
 
 # Roadmap
