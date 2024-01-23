@@ -3,6 +3,8 @@ class_name WebSocketGameServer
 
 var peer := WebSocketMultiplayerPeer.new()
 
+@export var world_spawner: MultiplayerSpawner
+
 
 func _ready() -> void:
 	var start_result := start()
@@ -30,6 +32,8 @@ func _ready() -> void:
 	multiplayer.peer_connected.connect(_handle_peer_connected)
 	multiplayer.peer_disconnected.connect(_handle_peer_disconnected)
 
+	load_world()
+
 
 func start() -> Result:
 	Logger.server_log(["starting server on: ", port], ["init"])
@@ -43,7 +47,27 @@ func start() -> Result:
 
 func _handle_peer_connected(peer_id: int) -> void:
 	Logger.server_log(["client connected: ", peer_id], ["network"])
+	var spawn_result := Program.world.spawn_player({
+		"player_id": peer_id,
+	})
+	print(spawn_result)
+	if spawn_result.is_err():
+		Logger.server_log(["failed to spawn player(", peer_id, "): ", spawn_result.unwrap_err()], ["game"])
 
 
 func _handle_peer_disconnected(peer_id: int) -> void:
 	Logger.server_log(["client disconnected: ", peer_id], ["network"])
+	var unspawn_result := Program.world.unspawn_player(peer_id)
+	if unspawn_result.is_err():
+		Logger.server_log(["failed to unspawn player(", peer_id, "): ", unspawn_result.unwrap_err()], ["game"])
+
+
+#region Game Logic
+const DEFAULT_WORLD_SCENE := "res://world/game_world.tscn"
+func load_world(world_scene := DEFAULT_WORLD_SCENE) -> Result:
+	var game_world = load(world_scene).instantiate()
+	if not game_world is GameWorld:
+		return Result.Err("Node(" + world_scene + ") is not a `GameWorld` instance")
+	world_spawner.add_child(game_world)
+	return Result.Ok(null)
+#endregion

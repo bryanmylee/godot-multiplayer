@@ -422,9 +422,10 @@ func ping_network() -> void:
 
 #region Game Logic
 const DEFAULT_WORLD_SCENE := "res://world/game_world.tscn"
-func load_world(world_scene := DEFAULT_WORLD_SCENE) -> void:
+func load_world(world_scene := DEFAULT_WORLD_SCENE) -> Result:
 	var game_world = load(world_scene).instantiate()
 	if not game_world is GameWorld:
 		return Result.Err("Node(" + world_scene + ") is not a `GameWorld` instance")
 	world_spawner.add_child(game_world)
+	return Result.Ok(null)
 #endregion
