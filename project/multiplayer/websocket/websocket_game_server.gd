@@ -38,12 +38,7 @@ func _ready() -> void:
 
 func start() -> Result:
 	Logger.server_log(["starting server on: ", port], ["init"])
-	var result := Result.from_gderr(peer.create_server(port))
-	if result.is_err():
-		Logger.server_log(["failed to start server due to: ", result.unwrap_err()], ["init"])
-	else:
-		Logger.server_log(["started server on port: ", port], ["init"])
-	return result
+	return Result.from_gderr(peer.create_server(port))
 
 
 func _handle_peer_connected(peer_id: int) -> void:
