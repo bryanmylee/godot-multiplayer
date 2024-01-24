@@ -19,7 +19,7 @@ An NGINX proxy provides TLS by forwarding ports defined below:
 | Internal service port | External port with TLS | Protocol  | Description                 |
 | --------------------- | ---------------------- | --------- | --------------------------- |
 | `80`                  | `443`                  | HTTP      | The container-spawning API. |
-| `9000-9999`           | `19000-19999`          | WebSocket | The game server.            |
+| `19000-19249`         | `9000-9249`            | WebSocket | The game server.            |
 
 ## Variables
 

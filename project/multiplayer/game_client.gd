@@ -9,7 +9,7 @@ const _DEFAULT_SERVER_HOST := "127.0.0.1"
 var env_server_host := OS.get_environment("SERVER_HOST")
 var server_host := env_server_host if env_server_host else _DEFAULT_SERVER_HOST
 
-const _DEFAULT_SERVER_PORT := 19000
+const _DEFAULT_SERVER_PORT := 9000
 var env_server_port := OS.get_environment("SERVER_PORT")
 var server_port := int(env_server_port) if env_server_port else _DEFAULT_SERVER_PORT
 
