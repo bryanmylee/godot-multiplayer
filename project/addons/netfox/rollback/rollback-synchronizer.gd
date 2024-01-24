@@ -141,6 +141,22 @@ func _record_tick(tick: int):
 	if not _record_state_props.is_empty() and tick > _latest_state:
 		_states[tick] = PropertySnapshot.extract(_record_state_props)
 
+func _record_initial_tick(tick: int):
+	# Broadcast state we own
+	if not _auth_state_props.is_empty():
+		var initial_state := {}
+
+		for property in _auth_state_props:
+			initial_state[property.to_string()] = property.get_value()
+		
+		if initial_state.size() > 0:
+			_latest_state = max(_latest_state, tick)
+			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), initial_state)
+
+	# Record state for the specified tick (current + 1)
+	if not _record_state_props.is_empty() and tick > _latest_state:
+		_states[tick] = PropertySnapshot.extract(_record_state_props)
+
 func _after_loop():
 	_earliest_input = NetworkTime.tick
 	
