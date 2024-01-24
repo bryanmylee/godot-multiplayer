@@ -4,7 +4,6 @@
 # Build files 
 export/server/*
 !export/server/.gitkeep
-!export/server/Dockerfile
 export/web/*
 !export/web/.gitkeep
 export/windows/*

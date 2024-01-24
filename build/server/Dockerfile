@@ -9,7 +9,7 @@ COPY . ./
 RUN chmod +x server.x86_64
 
 # Expose the port that the application listens on.
-EXPOSE 8910
+EXPOSE 9000
 
 # Run the application.
 CMD ./server.x86_64 --server --headless
