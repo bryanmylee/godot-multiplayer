@@ -24,7 +24,7 @@ script = ExtResource("1_pnolb")
 script = ExtResource("4_w5wxv")
 root = NodePath("..")
 state_properties = Array[String]([":global_transform", ":velocity"])
-input_properties = Array[String](["Controller:is_crouching", "Controller:is_running", "Controller:is_jumping", "Controller:direction"])
+input_properties = Array[String](["Controller:is_crouching", "Controller:is_running", "Controller:just_jumped", "Controller:direction"])
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("4_i8n27")

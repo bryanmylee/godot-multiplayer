@@ -35,7 +35,7 @@ func movement(delta: float) -> void:
 	
 	velocity.y -= 9.8 * delta
 	
-	if controller.is_jumping:
+	if controller.just_jumped:
 		_force_update_slide_collision()
 		if is_on_floor():
 			velocity.y = 4.0
