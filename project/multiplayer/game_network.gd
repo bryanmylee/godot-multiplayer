@@ -32,27 +32,6 @@ func rpc_id_with_return(
 			+ "): timeout on rpc_id_with_return(" + rpc_fn.get_method() + ")"
 		)
 	)
-
-
-func rpc_clients_except_id(
-	except_id: int,
-	rpc_fn: Callable,
-	arg1: Variant = null,
-	arg2: Variant = null,
-	arg3: Variant = null,
-) -> void:
-	var other_ids := Program.server.clients.values() \
-		.filter(func (c): return c.rtc_ready and c.id != Program.game_authority_id and c.id != except_id) \
-		.map(func (c): return c.id)
-	for to_peer_id in other_ids:
-		if arg1 == null:
-			rpc_fn.rpc_id(to_peer_id)
-		elif arg2 == null:
-			rpc_fn.rpc_id(to_peer_id, arg1)
-		elif arg3 == null:
-			rpc_fn.rpc_id(to_peer_id, arg1, arg2)
-		else:
-			rpc_fn.rpc_id(to_peer_id, arg1, arg2, arg3)
 #endregion
 
 
