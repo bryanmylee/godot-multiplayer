@@ -1,16 +1,16 @@
 [gd_scene load_steps=3 format=3 uid="uid://dqoqll4di5jv8"]
 
-[ext_resource type="Script" path="res://multiplayer/websocket/websocket_game_server.gd" id="1_4hmqu"]
-[ext_resource type="Script" path="res://multiplayer/websocket/websocket_game_client.gd" id="2_l4sbv"]
+[ext_resource type="Script" path="res://multiplayer/game_server.gd" id="1_8wnkg"]
+[ext_resource type="Script" path="res://multiplayer/game_client.gd" id="2_ajfj8"]
 
 [node name="Root" type="Node"]
 
 [node name="Server" type="Node" parent="." node_paths=PackedStringArray("world_spawner")]
-script = ExtResource("1_4hmqu")
+script = ExtResource("1_8wnkg")
 world_spawner = NodePath("../WorldSpawner")
 
 [node name="Client" type="Node" parent="."]
-script = ExtResource("2_l4sbv")
+script = ExtResource("2_ajfj8")
 
 [node name="WorldSpawner" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("res://world/game_world.tscn")
