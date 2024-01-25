@@ -7,14 +7,23 @@ func _enter_tree() -> void:
 
 @onready var id_provider := $IdentityProvider as IdentityProvider
 @onready var controller := $Controller as PlayerController
+@onready var camera := $PitchPivot/Camera
+@onready var pitch_pivot := $PitchPivot as Node3D
+@onready var yaw_pivot := self as Node3D
 
 
 func _ready() -> void:
-	$Camera.current = id_provider.is_local_player
+	camera.current = id_provider.is_local_player
 
 
 func _rollback_tick(delta: float, _tick: int, _is_fresh: bool) -> void:
+	orientation(delta)
 	movement(delta)
+
+
+func orientation(_delta: float) -> void:
+	pitch_pivot.rotation.x -= controller.delta_pitch
+	yaw_pivot.rotation.y -= controller.delta_yaw
 
 
 func movement(delta: float) -> void:

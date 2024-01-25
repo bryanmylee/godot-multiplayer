@@ -24,7 +24,7 @@ script = ExtResource("1_pnolb")
 script = ExtResource("4_w5wxv")
 root = NodePath("..")
 state_properties = Array[String]([":global_transform", ":velocity"])
-input_properties = Array[String](["Controller:is_crouching", "Controller:is_running", "Controller:just_jumped", "Controller:direction"])
+input_properties = Array[String](["Controller:is_crouching", "Controller:is_running", "Controller:just_jumped", "Controller:direction", "Controller:delta_pitch", "Controller:delta_yaw"])
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("4_i8n27")
@@ -48,5 +48,8 @@ mesh = SubResource("BoxMesh_f5n2x")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 1, 2.08165e-12)
 shape = SubResource("CapsuleShape3D_kwsv2")
 
-[node name="Camera" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 2.2, 6.4)
+[node name="PitchPivot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="Camera" type="Camera3D" parent="PitchPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 1.2, 6.4)
