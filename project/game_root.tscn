@@ -3,13 +3,13 @@
 [ext_resource type="Script" path="res://multiplayer/game_server.gd" id="1_8wnkg"]
 [ext_resource type="Script" path="res://multiplayer/game_client.gd" id="2_ajfj8"]
 
-[node name="Root" type="Node"]
+[node name="GameRoot" type="Node"]
 
-[node name="Server" type="Node" parent="." node_paths=PackedStringArray("world_spawner")]
+[node name="GameServer" type="Node" parent="." node_paths=PackedStringArray("world_spawner")]
 script = ExtResource("1_8wnkg")
 world_spawner = NodePath("../WorldSpawner")
 
-[node name="Client" type="Node" parent="."]
+[node name="GameClient" type="Node" parent="."]
 script = ExtResource("2_ajfj8")
 
 [node name="WorldSpawner" type="MultiplayerSpawner" parent="."]
