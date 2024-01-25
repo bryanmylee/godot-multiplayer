@@ -13,5 +13,4 @@ world_spawner = NodePath("../WorldSpawner")
 script = ExtResource("2_ko2it")
 
 [node name="WorldSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("res://world/game_world.tscn")
 spawn_path = NodePath(".")
