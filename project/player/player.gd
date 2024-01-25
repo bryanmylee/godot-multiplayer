@@ -22,8 +22,8 @@ func _rollback_tick(delta: float, _tick: int, _is_fresh: bool) -> void:
 
 
 func orientation(_delta: float) -> void:
-	pitch_pivot.rotation.x -= controller.delta_pitch
-	yaw_pivot.rotation.y -= controller.delta_yaw
+	pitch_pivot.rotation.x = controller.pitch
+	yaw_pivot.rotation.y = controller.yaw
 
 
 func movement(delta: float) -> void:

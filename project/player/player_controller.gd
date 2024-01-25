@@ -21,13 +21,9 @@ var is_crouching := false
 var is_running := false
 var direction := Vector2.ZERO
 var just_jumped := false
-var delta_pitch := 0.0
-var delta_yaw := 0.0
+var pitch := 0.0
+var yaw := 0.0
 #endregion
-
-
-var _curr_tick_delta_pitch := 0.0
-var _curr_tick_delta_yaw := 0.0
 
 
 func _ready() -> void:
@@ -55,8 +51,9 @@ func _input(event: InputEvent) -> void:
 func _handle_mouse_motion(event: InputEventMouseMotion) -> void:
 	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		return
-	_curr_tick_delta_pitch += event.relative.y * mouse_sensitivity_y
-	_curr_tick_delta_yaw += event.relative.x * mouse_sensitivity_x
+	pitch -= event.relative.y * mouse_sensitivity_y
+	pitch = clampf(pitch, min_pitch_angle, max_pitch_angle)
+	yaw -= event.relative.x * mouse_sensitivity_x
 
 
 func _handle_mouse_button(_event: InputEventMouseButton) -> void:
@@ -71,11 +68,7 @@ func _gather_input() -> void:
 	is_crouching = Input.is_action_pressed("mod_crouch")
 	is_running = Input.is_action_pressed("mod_run")
 	direction = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
-	delta_pitch = _curr_tick_delta_pitch
-	delta_yaw = _curr_tick_delta_yaw
 
 
 func _clear_input() -> void:
 	just_jumped = false
-	_curr_tick_delta_pitch = 0.0
-	_curr_tick_delta_yaw = 0.0
