@@ -27,7 +27,7 @@ script = ExtResource("1_pnolb")
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("4_w5wxv")
 root = NodePath("..")
-state_properties = Array[String]([":global_transform", ":velocity"])
+state_properties = Array[String]([":global_transform", ":velocity", "PitchPivot:global_transform"])
 input_properties = Array[String](["Controller:is_crouching", "Controller:is_running", "Controller:just_jumped", "Controller:direction", "Controller:pitch", "Controller:yaw"])
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
