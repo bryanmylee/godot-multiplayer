@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://dygqpiqxq8leo"]
 
-[ext_resource type="Script" path="res://world/game_world.gd" id="1_itc23"]
+[ext_resource type="Script" path="res://game/world/game_world.gd" id="1_itc23"]
 [ext_resource type="Material" uid="uid://7k6o3sk5f7jg" path="res://assets/grids/Dark/texture_01.tres" id="2_dfi1h"]
 [ext_resource type="Material" uid="uid://cjsbjufs8a6h7" path="res://assets/grids/Orange/texture_02.tres" id="3_475hy"]
 

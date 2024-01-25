@@ -1,16 +1,16 @@
 [gd_scene load_steps=3 format=3 uid="uid://dqoqll4di5jv8"]
 
-[ext_resource type="Script" path="res://multiplayer/game_server.gd" id="1_8wnkg"]
-[ext_resource type="Script" path="res://multiplayer/game_client.gd" id="2_ajfj8"]
+[ext_resource type="Script" path="res://multiplayer/game_server.gd" id="1_yjbcm"]
+[ext_resource type="Script" path="res://multiplayer/game_client.gd" id="2_ko2it"]
 
-[node name="GameRoot" type="Node"]
+[node name="Game" type="Node"]
 
 [node name="GameServer" type="Node" parent="." node_paths=PackedStringArray("world_spawner")]
-script = ExtResource("1_8wnkg")
+script = ExtResource("1_yjbcm")
 world_spawner = NodePath("../WorldSpawner")
 
 [node name="GameClient" type="Node" parent="."]
-script = ExtResource("2_ajfj8")
+script = ExtResource("2_ko2it")
 
 [node name="WorldSpawner" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("res://world/game_world.tscn")
