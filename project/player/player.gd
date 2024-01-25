@@ -2,7 +2,7 @@ extends CharacterBody3D
 class_name Player
 
 func _enter_tree() -> void:
-	set_multiplayer_authority(Program.game_authority_id)
+	set_multiplayer_authority(1)
 
 
 @onready var id_provider := $IdentityProvider as IdentityProvider

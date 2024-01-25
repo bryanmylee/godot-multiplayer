@@ -10,9 +10,7 @@ static func client_log(args: Array, tags := []):
 	if tags.any(func (t): return FILTERED_TAGS.get(t, false)):
 		return
 	
-	var id_str := "client(authority)(" + str(Program.client.peer_id) + "): " \
-		if Program.is_game_authority and Program.client.peer_id != 0 \
-		else "client(" + str(Program.client.peer_id) + "): "
+	var id_str := "client(" + str(Program.client.peer_id) + "): "
 	
 	var log_str := id_str + "".join(args)
 	

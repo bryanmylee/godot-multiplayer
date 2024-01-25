@@ -35,7 +35,6 @@ func rpc_id_with_return(
 #endregion
 
 
-# Emitted when the RTC network mesh is configured and `Program.game_authority_id` is properly configured.
 signal game_network_ready
 
 

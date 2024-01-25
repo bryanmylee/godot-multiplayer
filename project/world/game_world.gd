@@ -7,7 +7,7 @@ class_name GameWorld
 
 func _enter_tree() -> void:
 	Program.world = self
-	set_multiplayer_authority(Program.game_authority_id)
+	set_multiplayer_authority(1)
 
 
 """
@@ -22,7 +22,7 @@ func spawn_player(opts: Dictionary) -> Result: # Result<Player>
 	"""
 	@param opts: SpawnPlayerOptions
 	"""
-	if not Program.is_game_authority:
+	if not multiplayer.is_server():
 		return Result.Err("authority-only method")
 	
 	var player_id = opts.player_id
@@ -44,7 +44,7 @@ func spawn_player(opts: Dictionary) -> Result: # Result<Player>
 
 
 func unspawn_player(player_id: int) -> Result: # Result<Player>
-	if not Program.is_game_authority:
+	if not multiplayer.is_server():
 		return Result.Err("authority-only method")
 	
 	var player_result := Option.new(

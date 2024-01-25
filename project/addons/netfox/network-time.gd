@@ -296,8 +296,7 @@ func start():
 		_logger.debug("Client #%s is now on time!" % [pid])
 	)
 	
-	# PATCH: replaced `multiplayer.is_server()` with `Program.is_game_authority`.
-	if not Program.is_game_authority:
+	if not multiplayer.is_server():
 		NetworkTimeSynchronizer.start()
 		await NetworkTimeSynchronizer.on_sync
 		_tick = _remote_tick
@@ -306,8 +305,7 @@ func start():
 		_active = true
 		after_sync.emit()
 		
-		# PATCH: replaced static `1` authority with `Program.game_authority_id`.
-		_submit_sync_success.rpc_id(Program.game_authority_id)
+		_submit_sync_success.rpc_id(1)
 	else:
 		_active = true
 		_initial_sync_done = true
@@ -332,8 +330,7 @@ func is_initial_sync_done() -> bool:
 ##
 ## Using this from a client is considered an error.
 func is_client_synced(peer_id: int) -> bool:
-	# PATCH: replaced `multiplayer.is_server()` with `Program.is_game_authority`.
-	if not Program.is_game_authority:
+	if not multiplayer.is_server():
 		_logger.error("Trying to check if client is synced from another client!")
 		return false
 	else:

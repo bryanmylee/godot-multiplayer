@@ -119,8 +119,7 @@ func get_rtt(id: int, sample_id: int = -1) -> float:
 
 func _sync_time_loop(interval: float):
 	while true:
-		# PATCH: replaced static `1` authority with `Program.game_authority_id`.
-		var sync_result = await sync_time(Program.game_authority_id)
+		var sync_result = await sync_time(1)
 		var rtt = sync_result[1]
 		var new_time = sync_result[2]
 
