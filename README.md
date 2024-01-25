@@ -1,6 +1,6 @@
 # Server Authoritative Multiplayer
 
-A sample project with matchmaking and server authority.
+A minimal Godot project with cross-platform authentication, matchmaking, and server-authoritative multiplayer.
 
 # Network Architecture
 
