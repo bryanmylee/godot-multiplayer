@@ -28,6 +28,13 @@ NetworkRollback="*res://addons/netfox/rollback/network-rollback.gd"
 
 gdscript/warnings/integer_division=0
 
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/netfox.internals/plugin.cfg", "res://addons/netfox/plugin.cfg")
