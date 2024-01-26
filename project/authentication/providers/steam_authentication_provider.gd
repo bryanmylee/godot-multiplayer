@@ -1,5 +1,9 @@
-extends Authentication
-class_name SteamAuthentication
+extends AuthenticationProvider
+class_name SteamAuthenticationProvider
+
+
+func _init() -> void:
+	name = "Steam"
 
 
 func initialize() -> Result:
@@ -11,7 +15,6 @@ func initialize() -> Result:
 		return Result.Err("Steam's API could not be initialized.\nEnsure that Steam is running.")
 	print("Steam API initialized")
 
-	provider = AuthenticationProvider.STEAM
 	user_id = str(Steam.getSteamID())
 	user_name = Steam.getPersonaName()
 	print("Logged in with Steam as ", user_name)
