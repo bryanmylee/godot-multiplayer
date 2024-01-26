@@ -29,21 +29,29 @@ var main_provider: AuthenticationProvider :
 
 
 func initialize_default() -> Result:
-	var provider: AuthenticationProvider
 	match OS.get_name():
 		"Windows", "macOS", "Linux", "FreeBSD", "NetBSD", "OpenBSD", "BSD":
-			provider = add_provider(ProviderName.STEAM)
+			return add_provider(ProviderName.STEAM)
 		"Android":
-			provider = add_provider(ProviderName.GOOGLE_PLAY_GAMES)
+			return add_provider(ProviderName.GOOGLE_PLAY_GAMES)
 		"iOS":
-			provider = add_provider(ProviderName.APPLE_GAME_CENTER)
+			return add_provider(ProviderName.APPLE_GAME_CENTER)
 		"Web":
-			provider = add_provider(ProviderName.OPEN_ID)
-	return provider.initialize()
+			return add_provider(ProviderName.OPEN_ID)
+		_:
+			return Result.Err("No matching platform")
 
 
-func add_provider(pname: ProviderName) -> AuthenticationProvider:
+func add_provider(pname: ProviderName) -> Result:
+	"""
+	@returns Result<AuthenticationProvider>
+	"""
 	var script = PROVIDER_SCRIPT[pname]
 	var provider := load(script).new() as AuthenticationProvider
+	
+	var init_result := provider.initialize()
+	if init_result.is_err():
+		return init_result
+	
 	providers_node.add_child(provider, true)
-	return provider
+	return Result.Ok(provider)
