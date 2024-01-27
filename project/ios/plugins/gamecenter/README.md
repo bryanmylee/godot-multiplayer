@@ -6,11 +6,26 @@ In addition to setting up Game Center in Godot, Game Center has to be [configure
 
 To do so, create the app on the [Apps](https://appstoreconnect.apple.com/apps) page and enable the Game Center capability.
 
+## Architecture
+
+The GameCenter plugin revolves around an event polling system. Events are sent to the iOS plugin via method calls, and events are received from the plugin via `get_pending_event_count` and `pop_pending_event`.
+
 ## Methods
 
 ### Authorization
 
-`authenticate()` - Performs user authentication.  
+`authenticate()` - Performs user authentication. Generates a new `authentication` event.
+
+```json
+{
+  "type": "authentication",
+  "result": "ok",
+  "alias": "eatingdumplings",
+  "displayName": "eatingdumplings",
+  "player_id": "T:_48001ab8bf56c9fdcdc242bac5db3b0d"
+}
+```
+
 `is_authenticated()` - Returns authentication state.
 
 ### GameCenter methods
