@@ -14,3 +14,6 @@ export/linux/*
 !export/linux/.gitkeep
 export/ios/*
 !export/ios/.gitkeep
+
+# External plugin source files
+godot-ios-plugins/
