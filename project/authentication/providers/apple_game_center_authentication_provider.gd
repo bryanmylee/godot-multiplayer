@@ -14,4 +14,6 @@ func initialize() -> Result:
 		return Result.Err("GameCenter not available")
 	game_center = Engine.get_singleton("GameCenter")
 
-	return Result.Err("Apple Game Center not yet implemented")
+	print(game_center.authenticate())
+
+	return Result.Ok(null)
