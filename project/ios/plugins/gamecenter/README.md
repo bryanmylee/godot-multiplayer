@@ -2,7 +2,9 @@
 
 ## Setup
 
-In addition to setting up Godot for Game Center, Game Cemter has to be [configured in App Store Connect](https://developer.apple.com/documentation/gamekit/enabling_and_configuring_game_center/).
+In addition to setting up Game Center in Godot, Game Center has to be [configured in App Store Connect](https://developer.apple.com/documentation/gamekit/enabling_and_configuring_game_center/).
+
+To do so, create the app on the [Apps](https://appstoreconnect.apple.com/apps) page and enable the Game Center capability.
 
 ## Methods
 
