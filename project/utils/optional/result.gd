@@ -313,6 +313,15 @@ func or_else(op: Callable) -> Result:
 		return self
 	return op.call(_value)
 
+## Converts `Result` into an immediately resolved `Promise`.
+func to_promise() -> Promise:
+	return Promise.new(func (resolve, reject):
+		if _is_ok:
+			resolve.call(_value)
+		else:
+			reject.call(_value)
+	)
+
 
 # ----------------------------------------------------------------
 # ** Util **
