@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 Program="*res://program.gd"
+ServiceManager="*res://services/service_manager.gd"
 GameNetwork="*res://multiplayer/game_network.gd"
 NetworkTime="*res://addons/netfox/network-time.gd"
 NetworkTimeSynchronizer="*res://addons/netfox/network-time-synchronizer.gd"

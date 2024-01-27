@@ -15,7 +15,7 @@ const PROVIDER_SCRIPT := {
 	ProviderName.OPEN_ID: "res://authentication/providers/open_id_authentication_provider.gd",
 }
 
-@onready var providers_node := $Providers
+var providers_node: Node
 
 var providers: Array[AuthenticationProvider] :
 	get:
@@ -26,6 +26,12 @@ var providers: Array[AuthenticationProvider] :
 var main_provider: AuthenticationProvider :
 	get:
 		return providers[0]
+
+
+func _ready():
+	providers_node = Node.new()
+	providers_node.name = "Providers"
+	add_child(providers_node)
 
 
 func initialize_default() -> Result:
@@ -52,6 +58,7 @@ func add_provider(pname: ProviderName) -> Result:
 	var script = PROVIDER_SCRIPT[pname]
 	var provider := load(script).new() as AuthenticationProvider
 	providers_node.add_child(provider, true)
+	provider.owner = providers_node
 	
 	var init_result := await provider.initialize()
 	if init_result.is_err():
