@@ -13,13 +13,6 @@ extends Node
 ## [param is_authenticated]: Indicates if the user is authenticated or not.
 signal user_authenticated(is_authenticated: bool)
 
-## This signal was emitted after calling the [method sign_in] method, but it's not emitted
-## anymore. Instead, the [signal user_authenticated] signal is emitted now.[br]
-## [br]
-## [param is_signed_in]: Indicates if the user is signed in or not.
-## @deprecated
-signal user_signed_in(is_signed_in: bool)
-
 func _ready() -> void:
 	_connect_signals()
 

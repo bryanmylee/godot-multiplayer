@@ -129,7 +129,7 @@ func search_player() -> void:
 ## data and attempt to fetch the latest data from the server. Send it set to [code]true[/code]
 ## the first time, and [code]false[/code] in subsequent calls, or when you want
 ## to clear the cache.
-func load_current_player(force_reload: bool) -> void:
+func load_current_player(force_reload := false) -> void:
 	if GodotPlayGamesServices.android_plugin:
 		GodotPlayGamesServices.android_plugin.loadCurrentPlayer(force_reload)
 
