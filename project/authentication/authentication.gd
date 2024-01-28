@@ -1,5 +1,4 @@
 extends Node
-class_name Authentication
 
 enum ProviderName {
 	STEAM = 0,

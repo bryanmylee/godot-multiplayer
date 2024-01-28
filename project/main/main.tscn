@@ -1,13 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://cgkoqyjqisd00"]
+[gd_scene load_steps=2 format=3 uid="uid://cgkoqyjqisd00"]
 
 [ext_resource type="Script" path="res://main/main.gd" id="1_7xfwy"]
-[ext_resource type="Script" path="res://authentication/authentication.gd" id="2_31oyg"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_7xfwy")
-
-[node name="Authentication" type="Node" parent="."]
-script = ExtResource("2_31oyg")
 
 [node name="UI" type="Control" parent="."]
 layout_mode = 3
