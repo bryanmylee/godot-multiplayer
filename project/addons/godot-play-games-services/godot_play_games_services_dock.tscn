@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://addons/godot-play-games-services/dock.gd" id="1_k0q71"]
 
-[node name="Godot Play Game Services" type="PanelContainer"]
+[node name="Godot Play Games Services" type="PanelContainer"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0

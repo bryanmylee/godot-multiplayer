@@ -55,7 +55,7 @@ func _remove_autoloads() -> void:
 	remove_autoload_singleton(SNAPSHOTS_AUTOLOAD)
 
 class AndroidExportPlugin extends EditorExportPlugin:
-	var _plugin_name = "GodotPlayGamesServices"
+	var _plugin_name = "godot-play-games-services"
 
 	func _supports_platform(platform):
 		if platform is EditorExportPlatformAndroid:

@@ -17,3 +17,19 @@ Godot does not respect `$JAVA_HOME`, so we have to manually link JDK before buil
 ```
 sudo ln -sfn /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk
 ```
+
+## Configuring Google Play Games Services
+
+We rely on the [`godot-play-game-services`](https://github.com/Iakobs/godot-play-game-services) Android plugin for Google Play Games integration, with tweaks to the source code to better integrate with our codebase.
+
+To enable the plugin, [set up Google Play Games Services](https://developers.google.com/games/services/console/enabling). The rough steps to follow on the guide are:
+
+1. create a Play Games Services project
+2. create OAuth consent screen in Google Cloud Platform
+3. create credentials
+4. add the Play Games Services SDK to your APK to use the APIs
+5. add testers to your project
+
+When the application ID is generated, fill it in on the "Godot Play Games Services" dock menu.
+
+After that, we can build the debug / release version of the application.
