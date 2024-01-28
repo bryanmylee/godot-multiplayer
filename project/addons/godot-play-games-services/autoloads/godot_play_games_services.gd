@@ -22,7 +22,7 @@ var android_plugin: Object
 var json_marshaller := JsonMarshaller.new()
 
 func _ready() -> void:
-	var plugin_name := "GodotPlayGamesServices"
+	var plugin_name := "GodotPlayGameServices" # This type is compiled into `bin/` so we cannot rename this without re-compiling.
 	
 	if not android_plugin:
 		if Engine.has_singleton(plugin_name):
