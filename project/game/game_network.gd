@@ -28,7 +28,7 @@ func rpc_id_with_return(
 		
 		await get_tree().create_timer(TIMEOUT).timeout
 		reject.call(
-			"client(" + str(Program.client.peer_id) \
+			"client(" + str(Program.game_client.peer_id) \
 			+ "): timeout on rpc_id_with_return(" + rpc_fn.get_method() + ")"
 		)
 	)

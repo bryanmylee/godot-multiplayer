@@ -24,7 +24,7 @@ var providers: Array[AuthenticationProvider] :
 
 var main_provider: AuthenticationProvider :
 	get:
-		return providers[0]
+		return providers.front() if providers.size() > 0 else null
 
 
 func _ready() -> void:
@@ -37,6 +37,9 @@ func initialize_default() -> Result:
 	"""
 	@returns Result<AuthenticationProvider>
 	"""
+	if main_provider != null:
+		return Result.Err("Main authentication provider already initialized")
+	
 	match OS.get_name():
 		"Windows", "macOS", "Linux", "FreeBSD", "NetBSD", "OpenBSD", "BSD":
 			return await add_provider(ProviderName.STEAM)

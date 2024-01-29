@@ -6,7 +6,7 @@ class_name GameWorld
 
 
 func _enter_tree() -> void:
-	Program.world = self
+	Program.game_world = self
 	set_multiplayer_authority(1)
 
 
@@ -17,7 +17,7 @@ type SpawnPlayerOptions = {
 	position?: Vector3;
 }
 """
-const DEFAULT_PLAYER_SCENE := "res://player/player.tscn"
+const DEFAULT_PLAYER_SCENE := "res://game/player/player.tscn"
 func spawn_player(opts: Dictionary) -> Result: # Result<Player>
 	"""
 	@param opts: SpawnPlayerOptions

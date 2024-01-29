@@ -1,15 +1,28 @@
 extends Node
 class_name Main
 
-@onready var user_name_label := $UI/Container/UserName as Label
-@onready var user_id_label := $UI/Container/UserId as Label
+@onready var transition := $SceneTransition as SceneTransition
 
 
 func _ready() -> void:
+	Program.main = self
+
+	if Program.is_dedicated_server:
+		await load_game_screen()
+		return
+	
 	var auth_result := await Authentication.initialize_default()
 	if auth_result.is_err():
 		print(auth_result.unwrap_err())
-		user_name_label.text = auth_result.unwrap_err()
 	else:
-		user_name_label.text = Authentication.main_provider.user_name
-		user_id_label.text = Authentication.main_provider.user_id
+		await load_debug_auth_screen()
+
+
+func load_debug_auth_screen() -> void:
+	var auth_debug_screen := preload("res://screens/debug_auth.tscn").instantiate()
+	await transition.fade_to(auth_debug_screen)
+
+
+func load_game_screen() -> void:
+	var game_screen := preload("res://game/game.tscn").instantiate()
+	await transition.fade_to(game_screen)

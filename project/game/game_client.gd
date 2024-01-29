@@ -13,29 +13,27 @@ const _DEFAULT_SERVER_PORT := 9000
 var env_server_port := OS.get_environment("SERVER_PORT")
 var server_port := int(env_server_port) if env_server_port else _DEFAULT_SERVER_PORT
 
-## We use this in place of `multiplayer.get_unique_id()` for more customization and static access via `Program.client`.
+## We use this in place of `multiplayer.get_unique_id()` for more customization and static access via `Program.game_client`.
 var peer_id := 0
 var peer := WebSocketMultiplayerPeer.new()
 
 
-func _enter_tree() -> void:
-	Program.client = self
+func _init() -> void:
+	name = "GameClient"
 
 
-func _ready() -> void:
-	start()
+func start() -> Result:
+	var protocol := "wss://" if Program.ssl_enabled else "ws://"
+	var address := protocol + server_host + ":" + str(server_port)
+	Logger.client_log(["starting client connection to game server at: ", address], ["init"])
+	var start_result := Result.from_gderr(peer.create_client(address))
 
 	multiplayer.multiplayer_peer = peer
 	multiplayer.connected_to_server.connect(_handle_connected_to_server)
 	multiplayer.connection_failed.connect(_handle_server_connection_failed)
 	multiplayer.server_disconnected.connect(_handle_server_disconnected)
 
-
-func start() -> Result:
-	var protocol := "wss://" if Program.ssl_enabled else "ws://"
-	var address := protocol + server_host + ":" + str(server_port)
-	Logger.client_log(["connecting to game server at: ", address], ["init"])
-	return Result.from_gderr(peer.create_client(address))
+	return start_result
 
 
 #region Network

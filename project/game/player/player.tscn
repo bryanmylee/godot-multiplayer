@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" path="res://game/player/player.gd" id="1_l1f46"]
 [ext_resource type="Script" path="res://game/player/player_id.gd" id="1_pnolb"]
-[ext_resource type="PackedScene" uid="uid://beq47521ote8e" path="res://game/player/player_controller.tscn" id="3_ml5lm"]
 [ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="4_i8n27"]
 [ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="4_w5wxv"]
+[ext_resource type="Script" path="res://game/player/player_controller.gd" id="5_7ffyq"]
 [ext_resource type="Material" uid="uid://bpr3anu11g4t4" path="res://assets/grids/Light/texture_02.tres" id="6_4q0k3"]
 [ext_resource type="Material" uid="uid://7k6o3sk5f7jg" path="res://assets/grids/Dark/texture_01.tres" id="7_f6ubg"]
 
@@ -35,7 +35,9 @@ script = ExtResource("4_i8n27")
 root = NodePath("..")
 properties = Array[String]([":global_transform", "PitchPivot:global_transform"])
 
-[node name="Controller" parent="." instance=ExtResource("3_ml5lm")]
+[node name="Controller" type="Node" parent="." node_paths=PackedStringArray("player_id")]
+script = ExtResource("5_7ffyq")
+player_id = NodePath("../PlayerId")
 
 [node name="Model" type="Node3D" parent="."]
 
