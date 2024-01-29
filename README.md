@@ -8,6 +8,12 @@ A minimal Godot project with cross-platform authentication, matchmaking, and ser
 
 We use a central Linux server that serves as the first contact for game clients. The central server coordinates game clients to services like matchmaking and game servers.
 
+## Authentication Server
+
+Different platforms require different authentication strategies, including Steam, Apple Game Center, Google Play Games Services, and OAuth 2.0. All authentication strategies are consolidated and managed by our authentication server.
+
+Refer to the [authentication document](project/authentication/README.md).
+
 ## Game Server
 
 Every game is run in a Docker container on a game server. A single game server can therefore host multiple games by running multiple containers bound to different ports selected by the matchmaking server.
@@ -21,25 +27,20 @@ An NGINX proxy provides TLS by forwarding ports defined below:
 | `80`                  | `443`                  | HTTP      | The container-spawning API. |
 | `19000-19249`         | `9000-9249`            | WebSocket | The game server.            |
 
-## Variables
-
-### Program
-
-The universal interface for both servers and clients.
-
-| Variable  | Description                        | Default value |
-| --------- | ---------------------------------- | ------------- |
-| `VERSION` | The semver version of the program. | `0.0.1`       |
-
-### Server
+### Environment variables
 
 | Variable         | Description                                                | Default value |
 | ---------------- | ---------------------------------------------------------- | ------------- |
+| `VERSION`        | The semver version of the program.                         | `0.0.1`       |
 | `SERVER_ID`      | The unique ID to identify the server in logs.              | `randi()`     |
 | `PORT`           | The port that the server listens for clients on.           | `8910`        |
 | `SERVER_TIMEOUT` | How long the server will wait for a response from clients. | `5.0`         |
 
-### Client
+## Game Client
+
+The game has exports for Windows, macOS, Linux, iOS, Android, and the Web.
+
+### Environment variables
 
 | Variable         | Description                                                   | Default value |
 | ---------------- | ------------------------------------------------------------- | ------------- |
@@ -53,7 +54,12 @@ The universal interface for both servers and clients.
 - [x] Server Authoritative Synchronization
 - [x] WebSocket Multiplayer Setup
 - [x] Game Server Deployment
-- [ ] Authentication
+- [ ] Client-side Authentication
+  - [x] Steam for Desktop
+  - [x] Apple Game Center for iOS
+  - [x] Google Play Games for Android
+  - [ ] OAuth 2.0 / OpenID for Web
+- [ ] Server-side Authentication
 - [ ] Matchmaking
 
 # Design considerations

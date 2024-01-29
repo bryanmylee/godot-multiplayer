@@ -14,13 +14,13 @@ This generates a keystore with keystore user `androiddebugkey` and keystore pass
 
 Godot does not respect `$JAVA_HOME`, so we have to manually link JDK before building Android .
 
-```
+```bash
 sudo ln -sfn /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk
 ```
 
 ## Configuring Google Play Games Services
 
-We rely on the [`godot-play-game-services`](https://github.com/Iakobs/godot-play-game-services) Android plugin for Google Play Games integration, with tweaks to the source code to better integrate with our codebase.
+We rely on a custom form of the [`godot-play-games-services`](https://github.com/bryanmylee/godot-play-games-services) Android plugin for Google Play Games integration, with tweaks to the source code to better integrate with our codebase.
 
 To enable the plugin, [set up Google Play Games Services](https://developers.google.com/games/services/console/enabling). The rough steps to follow on the guide are:
 
