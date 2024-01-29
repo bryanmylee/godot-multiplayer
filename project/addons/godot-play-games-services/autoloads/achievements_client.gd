@@ -25,13 +25,13 @@ signal achievements_loaded(achievements: Array[PlayGamesAchievement])
 signal achievement_revealed(is_revealed: bool, achievement_id: String)
 
 ## Achievement type.
-enum Type {
+enum PlayGamesAchievementType {
 	TYPE_STANDARD = 0, ## A standard achievement.
 	TYPE_INCREMENTAL = 1 ## An incremental achievement.
 }
 
 ## Achievement state.
-enum State {
+enum PlayGamesAchievementState {
 	STATE_UNLOCKED = 0, ## An unlocked achievement.
 	STATE_REVEALED = 1, ## A revealed achievement.
 	STATE_HIDDEN = 2 ## A hidden achievement.
@@ -113,8 +113,8 @@ class PlayGamesAchievement:
 	var achievement_name: String ## The achievement name.
 	var description: String ## The description of the achievement.
 	var player: PlayGamesPlayersClient.PlayGamesPlayer ## The player associated to this achievement.
-	var type: Type ## The achievement type.
-	var state: State ## The achievement state.
+	var type: PlayGamesAchievementType ## The achievement type.
+	var state: PlayGamesAchievementState ## The achievement state.
 	var xp_value: int ## The XP value of this achievement.
 	var revealed_image_uri: String ## A URI that can be used to load the achievement's revealed image icon.
 	var unlocked_image_uri: String ## A URI that can be used to load the achievement's unlocked image icon.
@@ -142,8 +142,8 @@ class PlayGamesAchievement:
 		if dictionary.has("name"): achievement_name = dictionary.name
 		if dictionary.has("description"): description = dictionary.description
 		if dictionary.has("player"): player = PlayGamesPlayersClient.PlayGamesPlayer.new(dictionary.player)
-		if dictionary.has("type"): type = Type[dictionary.type]
-		if dictionary.has("state"): state = State[dictionary.state]
+		if dictionary.has("type"): type = PlayGamesAchievementType[dictionary.type]
+		if dictionary.has("state"): state = PlayGamesAchievementState[dictionary.state]
 		if dictionary.has("xpValue"): xp_value = dictionary.xpValue
 		if dictionary.has("revealedImageUri"): revealed_image_uri = dictionary.revealedImageUri
 		if dictionary.has("unlockedImageUri"): unlocked_image_uri = dictionary.unlockedImageUri
@@ -160,8 +160,8 @@ class PlayGamesAchievement:
 		result.append("achievement_name: %s" % achievement_name)
 		result.append("description: %s" % description)
 		result.append("player: {%s}" % str(player))
-		result.append("type: %s" % Type.find_key(type))
-		result.append("state: %s" % State.find_key(state))
+		result.append("type: %s" % PlayGamesAchievementType.find_key(type))
+		result.append("state: %s" % PlayGamesAchievementState.find_key(state))
 		result.append("xp_value: %s" % xp_value)
 		result.append("revealed_image_uri: %s" % revealed_image_uri)
 		result.append("unlocked_image_uri: %s" % unlocked_image_uri)

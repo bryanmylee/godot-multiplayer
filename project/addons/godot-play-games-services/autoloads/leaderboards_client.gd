@@ -16,7 +16,7 @@ signal score_submitted(is_submitted: bool, leaderboard_id: String)
 ## [param leaderboard_id]: The leaderboard id.[br]
 ## [param score]: The score of the player. It can be null if there is an error
 ## retrieving it.
-signal score_loaded(leaderboard_id: String, score: PlayGamesScore)
+signal score_loaded(leaderboard_id: String, score: PlayGamesLeaderboardScore)
 
 ## Signal emitted after calling the [method load_all_leaderboards] method.[br]
 ## [br]
@@ -31,20 +31,20 @@ signal all_leaderboards_loaded(leaderboards: Array[PlayGamesLeaderboard])
 signal leaderboard_loaded(leaderboard: PlayGamesLeaderboard)
 
 ## Time span for leaderboards.
-enum PlayGamesTimeSpan {
+enum PlayGamesLeaderboardTimeSpan {
 	TIME_SPAN_DAILY = 0, ## A leaderboard that resets everyday.
 	TIME_SPAN_WEEKLY = 1, ## A leaderboard that resets every week.
 	TIME_SPAN_ALL_TIME = 2 ## A leaderboard that never resets.
 }
 
 ## Collection type for leaderboards.
-enum PlayGamesCollection {
+enum PlayGamesLeaderboardCollection {
 	COLLECTION_PUBLIC = 0, ## A public leaderboard.
 	COLLECTION_FRIENDS = 3 ## A leaderboard only with friends.
 }
 
 ## Score order for leadeboards.
-enum PlayGamesScoreOrder {
+enum PlayGamesLeaderboardScoreOrder {
 	SCORE_ORDER_LARGER_IS_BETTER = 1, ## Scores are sorted in descending order.
 	SCORE_ORDER_SMALLER_IS_BETTER = 0 ## Scores are sorted in ascending order.
 }
@@ -59,7 +59,7 @@ func _connect_signals() -> void:
 		)
 		GodotPlayGamesServices.android_plugin.scoreLoaded.connect(func(leaderboard_id: String, json_data: String):
 			var safe_dictionary := GodotPlayGamesServices.json_marshaller.safe_parse_dictionary(json_data)
-			score_loaded.emit(leaderboard_id, PlayGamesScore.new(safe_dictionary))
+			score_loaded.emit(leaderboard_id, PlayGamesLeaderboardScore.new(safe_dictionary))
 		)
 		GodotPlayGamesServices.android_plugin.allLeaderboardsLoaded.connect(func(leaderboards_json: String):
 			var safe_array := GodotPlayGamesServices.json_marshaller.safe_parse_array(leaderboards_json)
@@ -88,8 +88,8 @@ func show_leaderboard(leaderboard_id: String) -> void:
 ## Use this method to show a specific leaderboard for a given time span in a new screen.[br]
 ## [br]
 ## [param leaderboard_id]: The leaderboard id.[br]
-## [param time_span]: The time span for the leaderboard. See the [enum PlayGamesTimeSpan] enum.
-func show_leaderboard_for_time_span(leaderboard_id: String, time_span: PlayGamesTimeSpan) -> void:
+## [param time_span]: The time span for the leaderboard. See the [enum PlayGamesLeaderboardTimeSpan] enum.
+func show_leaderboard_for_time_span(leaderboard_id: String, time_span: PlayGamesLeaderboardTimeSpan) -> void:
 	if GodotPlayGamesServices.android_plugin:
 		GodotPlayGamesServices.android_plugin.showLeaderboardForTimeSpan(leaderboard_id, time_span)
 
@@ -97,12 +97,12 @@ func show_leaderboard_for_time_span(leaderboard_id: String, time_span: PlayGames
 ## collection type in a new screen.[br]
 ## [br]
 ## [param leaderboard_id]: The leaderboard id.[br]
-## [param time_span]: The time span for the leaderboard. See the [enum PlayGamesTimeSpan] enum.[br]
-## [param collection]: The collection type for the leaderboard. See the [enum PlayGamesCollection] enum.
+## [param time_span]: The time span for the leaderboard. See the [enum PlayGamesLeaderboardTimeSpan] enum.[br]
+## [param collection]: The collection type for the leaderboard. See the [enum PlayGamesLeaderboardCollection] enum.
 func show_leaderboard_for_time_span_and_collection(
 	leaderboard_id: String,
-	time_span: PlayGamesTimeSpan,
-	collection: PlayGamesCollection
+	time_span: PlayGamesLeaderboardTimeSpan,
+	collection: PlayGamesLeaderboardCollection
 ) -> void:
 	if GodotPlayGamesServices.android_plugin:
 		GodotPlayGamesServices.android_plugin.showLeaderboardForTimeSpanAndCollection(leaderboard_id, time_span, collection)
@@ -125,12 +125,12 @@ func submit_score(leaderboard_id: String, score: int) -> void:
 ## The method emits the [signal score_loaded] signal.[br]
 ## [br]
 ## [param leaderboard_id]: The leaderboard id.[br]
-## [param time_span]: The time span for the leaderboard. See the [enum PlayGamesTimeSpan] enum.[br]
-## [param collection]: The collection type for the leaderboard. See the [enum PlayGamesCollection] enum.
+## [param time_span]: The time span for the leaderboard. See the [enum PlayGamesLeaderboardTimeSpan] enum.[br]
+## [param collection]: The collection type for the leaderboard. See the [enum PlayGamesLeaderboardCollection] enum.
 func load_player_score(
 	leaderboard_id: String,
-	time_span: PlayGamesTimeSpan,
-	collection: PlayGamesCollection
+	time_span: PlayGamesLeaderboardTimeSpan,
+	collection: PlayGamesLeaderboardCollection
 ) -> void:
 	if GodotPlayGamesServices.android_plugin:
 		GodotPlayGamesServices.android_plugin.loadPlayerScore(leaderboard_id, time_span, collection)
@@ -162,7 +162,7 @@ func load_leaderboard(leaderboard_id: String, force_reload: bool) -> void:
 		GodotPlayGamesServices.android_plugin.loadLeaderboard(leaderboard_id, force_reload)
 
 ## The score of a player for a specific leaderboard.
-class PlayGamesScore:
+class PlayGamesLeaderboardScore:
 	var display_rank: String ## Formatted string for the rank of the player.
 	var display_score: String ## Formatted string for the score of the player.
 	var rank: int ## Rank of the player.
@@ -208,9 +208,9 @@ class PlayGamesLeaderboard:
 	var leaderboard_id: String ## The leaderboard id.
 	var display_name: String ## The display name of the leaderboard.
 	var icon_image_uri: String ## The URI to the leaderboard icon image.
-	var score_order: PlayGamesScoreOrder ## The sorting order of the leaderboard, based on the score.
+	var score_order: PlayGamesLeaderboardScoreOrder ## The sorting order of the leaderboard, based on the score.
 	## A list of variants of this leaderboard, based on the combination of the
-	## leaderboard [enum PlayGamesTimeSpan] aPlayGamesCollectionollection].
+	## leaderboard [enum PlayGamesLeaderboardTimeSpan] aPlayGamesCollectionollection].
 	var variants: Array[PlayGamesLeaderboardVariant] = []
 	
 	## Constructor that creates a PlayGamesLeaderboard from a [Dictionary] containing the
@@ -219,7 +219,7 @@ class PlayGamesLeaderboard:
 		if dictionary.has("leaderboardId"): leaderboard_id = dictionary.leaderboardId
 		if dictionary.has("displayName"): display_name = dictionary.displayName
 		if dictionary.has("iconImageUri"): icon_image_uri = dictionary.iconImageUri
-		if dictionary.has("scoreOrder"): score_order = PlayGamesScoreOrder.get(dictionary.scoreOrder)
+		if dictionary.has("scoreOrder"): score_order = PlayGamesLeaderboardScoreOrder.get(dictionary.scoreOrder)
 		if dictionary.has("variants"):
 			for variant: Dictionary in dictionary.variants:
 				variants.append(PlayGamesLeaderboardVariant.new(variant))
@@ -230,14 +230,14 @@ class PlayGamesLeaderboard:
 		result.append("leaderboard_id: %s" % leaderboard_id)
 		result.append("display_name: %s" % display_name)
 		result.append("icon_image_uri: %s" % icon_image_uri)
-		result.append("score_order: %s" % PlayGamesScoreOrder.find_key(score_order))
+		result.append("score_order: %s" % PlayGamesLeaderboardScoreOrder.find_key(score_order))
 		
 		for variant: PlayGamesLeaderboardVariant in variants:
 			result.append("{%s}" % str(variant))
 		
 		return ", ".join(result)
 
-## A specific variant of [enum PlayGamesTimeSpan] aPlayGamesCollectionollection] for a leaderboard.
+## A specific variant of [enum PlayGamesLeaderboardTimeSpan] aPlayGamesCollectionollection] for a leaderboard.
 class PlayGamesLeaderboardVariant:
 	var display_player_rank: String ## The formatted rank of the player for this variant.
 	var display_player_score: String ## The formatted score of the player for this variant.
@@ -246,8 +246,8 @@ class PlayGamesLeaderboardVariant:
 	var player_score_tag: String ## The score tag of the player for this variant.
 	var raw_player_score: int ## The score of the player for this variant.
 	var has_player_info: bool ## Whether or not this variant contains score information for the player.
-	var collection: PlayGamesCollection ## The type of [enum PlayGamesCollection] of this variant.
-	var time_span: PlayGamesTimeSpan ## The type of [enum PlayGamesTimeSpan] of this variant.
+	var collection: PlayGamesLeaderboardCollection ## The type of [enum PlayGamesLeaderboardCollection] of this variant.
+	var time_span: PlayGamesLeaderboardTimeSpan ## The type of [enum PlayGamesLeaderboardTimeSpan] of this variant.
 	
 	## Constructor that creates a PlayGamesLeaderboardVariant from a [Dictionary] containting
 	## the properties.
@@ -259,8 +259,8 @@ class PlayGamesLeaderboardVariant:
 		if dictionary.has("playerScoreTag"): player_score_tag = dictionary.playerScoreTag
 		if dictionary.has("rawPlayerScore"): raw_player_score = dictionary.rawPlayerScore
 		if dictionary.has("hasPlayerInfo"): has_player_info = dictionary.hasPlayerInfo
-		if dictionary.has("collection"): collection = PlayGamesCollection.get(dictionary.collection)
-		if dictionary.has("timeSpan"): time_span = PlayGamesTimeSpan.get(dictionary.timeSpan)
+		if dictionary.has("collection"): collection = PlayGamesLeaderboardCollection.get(dictionary.collection)
+		if dictionary.has("timeSpan"): time_span = PlayGamesLeaderboardTimeSpan.get(dictionary.timeSpan)
 	
 	func _to_string() -> String:
 		var result := PackedStringArray()
