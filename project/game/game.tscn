@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://dqoqll4di5jv8"]
 
-[ext_resource type="Script" path="res://multiplayer/game_server.gd" id="1_yjbcm"]
-[ext_resource type="Script" path="res://multiplayer/game_client.gd" id="2_ko2it"]
+[ext_resource type="Script" path="res://game/game_server.gd" id="1_yjbcm"]
+[ext_resource type="Script" path="res://game/game_client.gd" id="2_ko2it"]
 
 [node name="Game" type="Node"]
 

@@ -1,5 +1,5 @@
 extends Node
-class_name IdentityProvider
+class_name PlayerId
 
 var id:
 	get: return get_parent().name.to_int()

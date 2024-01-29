@@ -5,7 +5,7 @@ func _enter_tree() -> void:
 	set_multiplayer_authority(1)
 
 
-@onready var id_provider := $IdentityProvider as IdentityProvider
+@onready var player_id := $PlayerId as PlayerId
 @onready var controller := $Controller as PlayerController
 @onready var camera := $PitchPivot/Camera
 @onready var pitch_pivot := $PitchPivot as Node3D
@@ -13,7 +13,7 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
-	camera.current = id_provider.is_local_player
+	camera.current = player_id.is_local_player
 
 
 func _rollback_tick(delta: float, _tick: int, _is_fresh: bool) -> void:

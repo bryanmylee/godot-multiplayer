@@ -2,7 +2,7 @@ extends Node
 class_name PlayerController
 
 @export_group("Dependencies")
-@export var id_provider: IdentityProvider
+@export var player_id: PlayerId
 
 
 @export_group("Settings")
@@ -13,7 +13,7 @@ class_name PlayerController
 
 
 func _enter_tree() -> void:
-	set_multiplayer_authority(id_provider.id)
+	set_multiplayer_authority(player_id.id)
 
 
 #region Synchronized State
@@ -27,9 +27,9 @@ var yaw := 0.0
 
 
 func _ready() -> void:
-	set_process(id_provider.is_local_player)
-	set_process_input(id_provider.is_local_player)
-	if id_provider.is_local_player:
+	set_process(player_id.is_local_player)
+	set_process_input(player_id.is_local_player)
+	if player_id.is_local_player:
 		NetworkTime.before_tick_loop.connect(_gather_input)
 		NetworkTime.after_tick_loop.connect(_clear_input)
 
