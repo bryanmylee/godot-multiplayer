@@ -11,7 +11,7 @@ const PROVIDER_SCRIPT := {
 	ProviderName.STEAM: "res://authentication/providers/steam_authentication_provider.gd",
 	ProviderName.GOOGLE_PLAY_GAMES: "res://authentication/providers/google_play_games_authentication_provider.gd",
 	ProviderName.APPLE_GAME_CENTER: "res://authentication/providers/apple_game_center_authentication_provider.gd",
-	ProviderName.OAUTH2: "res://authentication/providers/open2_authentication_provider.gd",
+	ProviderName.OAUTH2: "res://authentication/providers/oauth2/oauth2_authentication_provider.gd",
 }
 
 var providers_node: Node
