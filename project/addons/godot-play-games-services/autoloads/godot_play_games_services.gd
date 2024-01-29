@@ -1,4 +1,4 @@
-# class_name GodotPlayGamesServices
+# class_name GodotPlayGamesService
 extends Node
 ## Main Autoload of the plugin, which contains a reference to the android plugin itself.
 ##
@@ -22,7 +22,7 @@ var android_plugin: Object
 var json_marshaller := JsonMarshaller.new()
 
 func _ready() -> void:
-	var plugin_name := "GodotPlayGameServices" # This type is compiled into `bin/` so we cannot rename this without re-compiling.
+	var plugin_name := "godot-play-games-services"
 	
 	if not android_plugin:
 		if Engine.has_singleton(plugin_name):
