@@ -27,7 +27,7 @@ var main_provider: AuthenticationProvider :
 		return providers[0]
 
 
-func _ready():
+func _ready() -> void:
 	providers_node = Node.new()
 	providers_node.name = "Providers"
 	add_child(providers_node)

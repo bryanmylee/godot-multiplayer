@@ -13,7 +13,7 @@ func get_service(sname: String) -> Service:
 	return services_node.find_child(sname) as Service
 
 
-func _ready():
+func _ready() -> void:
 	services_node = Node.new()
 	services_node.name = "Services"
 	add_child(services_node)
@@ -21,7 +21,7 @@ func _ready():
 	initialize_default_services()
 
 
-func initialize_default_services():
+func initialize_default_services() -> void:
 	match OS.get_name():
 		"Windows", "macOS", "Linux", "FreeBSD", "NetBSD", "OpenBSD", "BSD":
 			initialize_service("res://services/steam_service.gd")
