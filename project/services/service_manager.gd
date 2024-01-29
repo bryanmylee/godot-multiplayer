@@ -22,6 +22,8 @@ func _ready() -> void:
 
 
 func initialize_default_services() -> void:
+	if Program.is_dedicated_server:
+		return
 	match OS.get_name():
 		"Windows", "macOS", "Linux", "FreeBSD", "NetBSD", "OpenBSD", "BSD":
 			initialize_service("res://services/steam_service.gd")
