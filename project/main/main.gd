@@ -19,8 +19,8 @@ func _ready() -> void:
 
 
 func load_debug_auth_screen() -> void:
-	var auth_debug_screen := preload("res://screens/debug_auth.tscn").instantiate()
-	await transition.fade_to(auth_debug_screen)
+	var debug_auth_screen := preload("res://screens/debug_auth.tscn").instantiate()
+	await transition.fade_to(debug_auth_screen)
 
 
 func load_game_screen() -> void:
