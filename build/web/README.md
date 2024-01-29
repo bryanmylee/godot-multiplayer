@@ -1,13 +1,13 @@
-# Server Build
+# Web Client Build
 
 ## Building the image
 
 Make sure to have Docker installed.
 
-To build the game server image, run the command below from the repository root:
+To build the web client image, run the command below from the repository root:
 
 ```bash
-docker build --platform linux/x86_64 --tag {custom_tag} -f build/server/Dockerfile export/server
+docker build --platform linux/x86_64 --tag {custom_tag} -f build/web/Dockerfile export/web
 ```
 
 ## Pushing images to Docker Hub
@@ -26,13 +26,13 @@ Run a container with the latest version of the image and it will be pulled autom
 
 ## Running containers with images
 
-The game server should run on the rang of ports from `19000-19249`, which will be forwarded to `9000-9249` by NGINX. Refer to the [Game Server NGINX configuration](.././../server/nginx/game_server.nginx).
+The web client should run on port `10443`, which will be forwarded to `443` by NGINX. Refer to the [Web Client NGINX configuration](.././../server/nginx/web_client.nginx).
 
 Certain parts of the application are controlled via environment variables. Pass them into the container with `-e` / `--env`.
 
 ```bash
-docker run --detach --name {name} --publish 19000:9000 \
-	--env SERVER_TIMEOUT=10.0 \
-	--env SERVER_ID=5432 \
+docker run --detach --name {name} --publish 10443:9000 \
+	--env CLIENT_TIMEOUT=10.0 \
+	--env SERVER_HOST="multiplayer-test.bryanmylee.com" \
 	{custom_tag}
 ```

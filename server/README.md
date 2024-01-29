@@ -25,36 +25,9 @@ sudo apt-get install -y certbot python3-certbot-nginx
 
 Certbot automatically configures NGINX for SSL/TLS by modifying the `server` block in the configuration that contains a `server_name` directive using the domain name we request a certificate for.
 
-To start, create an NGINX configuration. Replace `{domain}` in the example below.
+To start, create an NGINX configuration with the templates in [`nginx`](nginx). Replace `{domain}` in the examples.
 
-```nginx
-# /etc/nginx/sites-available/{domain}
-server {
-        # Forward WebSocket connection requests.
-        listen [::]:9000-9249;
-        listen 9000-9249;
-        server_name {domain};
-
-        location / {
-                proxy_set_header        Host $host;
-                proxy_set_header        X-Real-IP $remote_addr;
-                proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_set_header        X-Forwarded-Proto $scheme;
-
-                # Fix the "It appears that your reverse proxy set up is broken" error.
-                proxy_pass              http://127.0.0.1:1$server_port;
-                # Prevent dropped WebSocket connections.
-                proxy_read_timeout      1d;
-
-                # Forward the WebSocket upgrade request.
-                proxy_http_version      1.1;
-                proxy_set_header        Upgrade $http_upgrade;
-                proxy_set_header        Connection "upgrade";
-        }
-}
-```
-
-> Note that we can have multiple `server {}` blocks as long as their `listen` configurations do not overlap.
+> Note that we can have multiple `server {...}` blocks as long as their `listen` configurations do not overlap. This allows us to run multiple services on one server machine. _However, for Certbot configuration, it's best to set up one block first_.
 
 Enable the site by creating a symlink of the config in `/etc/nginx/sites-enabled/`.
 
@@ -91,7 +64,7 @@ With Certbot v1.21.0, a schedule will already be created to automatically renew 
 
 After the certificate is issued, update the NGINX configuraton to make sure the reconfiguration is correct.
 
-We expect the configuration to be similar to:
+For the game server, we expect the final configuration to be similar to:
 
 ```nginx
 server {
@@ -135,6 +108,8 @@ server {
 }
 ```
 
+> If there are multiple server blocks for multiple services on the same domain name, each block should have the same `ssl_certificate`, `ssl_certificate_key`, `include`, and `ssl_dhparam` fields created by Certbot, and each `listen` field should have the `ssl` option enabled.
+
 Check the configuration one last time, then reload NGINX.
 
 ```bash
@@ -146,6 +121,7 @@ nginx -t && nginx -s reload
 Once the services are behind NGINX's TLS proxy, make sure to expose the ports on the firewall.
 
 ```bash
+sudo ufw allow 443/tcp
 sudo ufw allow 9000:9249/tcp
 ```
 
