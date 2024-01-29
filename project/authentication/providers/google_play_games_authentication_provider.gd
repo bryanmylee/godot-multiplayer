@@ -14,10 +14,9 @@ func initialize() -> Result:
 	var is_authenticated = await PlayGamesSignInClient.user_authenticated
 	if not is_authenticated:
 		PlayGamesSignInClient.sign_in()
-	var sign_in_success = await PlayGamesSignInClient.user_authenticated
-
-	if not sign_in_success:
-		return Result.Err("failed to sign in with Google Play Games")
+		var sign_in_success = await PlayGamesSignInClient.user_authenticated
+		if not sign_in_success:
+			return Result.Err("failed to sign in with Google Play Games")
 	
 	PlayGamesPlayersClient.load_current_player(true)
 	player = await PlayGamesPlayersClient.current_player_loaded

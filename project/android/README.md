@@ -33,3 +33,9 @@ To enable the plugin, [set up Google Play Games Services](https://developers.goo
 When the application ID is generated, fill it in on the "Godot Play Games Services" dock menu.
 
 After that, we can build the debug / release version of the application.
+
+### Testing Google Play Games Services
+
+For Play Games Services to work on a debug build (using a debug keystore for signing), we need to include the emails being used for testing as Play Games Services testers.
+
+Go to [Google Play Console](https://play.google.com/console/u/0/developers) → Play Games Services → Setup and management → Testers and add any emails to be used for testing.
