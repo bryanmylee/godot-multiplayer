@@ -1,4 +1,4 @@
-# class_name PlayGamesPlayersClient
+class_name PlayGamesPlayersClient
 extends Node
 ## Client with player functionality.
 ##
@@ -38,25 +38,30 @@ enum PlayGamesPlayerFriendStatus {
 	UNKNOWN = -1 ## The currently signed in player's friend status with this player is unknown.
 }
 
+var core: PlayGamesServicesCore
+
+func _init(_core: PlayGamesServicesCore):
+	core = _core
+
 func _ready() -> void:
 	_connect_signals()
 
 func _connect_signals() -> void:
-	if GodotPlayGamesServices.android_plugin:
-		GodotPlayGamesServices.android_plugin.friendsLoaded.connect(func(friends_json: String):
-			var safe_array := GodotPlayGamesServices.json_marshaller.safe_parse_array(friends_json)
+	if core.android_plugin:
+		core.android_plugin.friendsLoaded.connect(func(friends_json: String):
+			var safe_array := core.json_marshaller.safe_parse_array(friends_json)
 			var friends: Array[PlayGamesPlayer] = []
 			for dictionary: Dictionary in safe_array:
 				friends.append(PlayGamesPlayer.new(dictionary))
 			
 			friends_loaded.emit(friends)
 		)
-		GodotPlayGamesServices.android_plugin.playerSearched.connect(func(friend_json: String):
-			var safe_dictionary := GodotPlayGamesServices.json_marshaller.safe_parse_dictionary(friend_json)
+		core.android_plugin.playerSearched.connect(func(friend_json: String):
+			var safe_dictionary := core.json_marshaller.safe_parse_dictionary(friend_json)
 			player_searched.emit(PlayGamesPlayer.new(safe_dictionary))
 		)
-		GodotPlayGamesServices.android_plugin.currentPlayerLoaded.connect(func(friend_json: String):
-			var safe_dictionary := GodotPlayGamesServices.json_marshaller.safe_parse_dictionary(friend_json)
+		core.android_plugin.currentPlayerLoaded.connect(func(friend_json: String):
+			var safe_dictionary := core.json_marshaller.safe_parse_dictionary(friend_json)
 			current_player_loaded.emit(PlayGamesPlayer.new(safe_dictionary))
 		)
 
@@ -74,8 +79,8 @@ func _connect_signals() -> void:
 ## list, and this is set to true, a new window will open asking the user for permission 
 ## to their friends list.
 func load_friends(page_size: int, force_reload: bool, ask_for_permission: bool) -> void:
-	if GodotPlayGamesServices.android_plugin:
-		GodotPlayGamesServices.android_plugin.loadFriends(
+	if core.android_plugin:
+		core.android_plugin.loadFriends(
 			page_size,
 			force_reload,
 			ask_for_permission
@@ -86,8 +91,8 @@ func load_friends(page_size: int, force_reload: bool, ask_for_permission: bool) 
 ## [br]
 ## [param other_player_id]: The player ID of the player to compare with.
 func compare_profile(other_player_id: String) -> void:
-	if GodotPlayGamesServices.android_plugin:
-		GodotPlayGamesServices.android_plugin.compareProfile(other_player_id)
+	if core.android_plugin:
+		core.android_plugin.compareProfile(other_player_id)
 
 ## Displays a screen where the user can see a comparison of their own profile
 ## against another player's profile.[br]
@@ -106,8 +111,8 @@ func compare_profile_with_alternative_name_hints(
 	other_player_in_game_name: String,
 	current_player_in_game_name: String
 ) -> void:
-	if GodotPlayGamesServices.android_plugin:
-		GodotPlayGamesServices.android_plugin.compareProfileWithAlternativeNameHints(
+	if core.android_plugin:
+		core.android_plugin.compareProfileWithAlternativeNameHints(
 			other_player_id,
 			other_player_in_game_name,
 			current_player_in_game_name
@@ -117,8 +122,8 @@ func compare_profile_with_alternative_name_hints(
 ## a player, then the [signal player_searched] signal will be emitted, returning
 ## the selected player.
 func search_player() -> void:
-	if GodotPlayGamesServices.android_plugin:
-		GodotPlayGamesServices.android_plugin.searchPlayer()
+	if core.android_plugin:
+		core.android_plugin.searchPlayer()
 
 ## Use this method and subscribe to the emitted signal to receive the currently
 ## signed in player.[br]
@@ -130,8 +135,8 @@ func search_player() -> void:
 ## the first time, and [code]false[/code] in subsequent calls, or when you want
 ## to clear the cache.
 func load_current_player(force_reload := false) -> void:
-	if GodotPlayGamesServices.android_plugin:
-		GodotPlayGamesServices.android_plugin.loadCurrentPlayer(force_reload)
+	if core.android_plugin:
+		core.android_plugin.loadCurrentPlayer(force_reload)
 
 ## Player information.
 class PlayGamesPlayer:

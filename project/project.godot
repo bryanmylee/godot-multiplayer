@@ -25,12 +25,6 @@ GameNetwork="*res://game/game_network.gd"
 NetworkTime="*res://addons/netfox/network-time.gd"
 NetworkTimeSynchronizer="*res://addons/netfox/network-time-synchronizer.gd"
 NetworkRollback="*res://addons/netfox/rollback/network-rollback.gd"
-GodotPlayGamesServices="*res://addons/godot-play-games-services/autoloads/godot_play_games_services.gd"
-PlayGamesSignInClient="*res://addons/godot-play-games-services/autoloads/sign_in_client.gd"
-PlayGamesAchievementsClient="*res://addons/godot-play-games-services/autoloads/achievements_client.gd"
-PlayGamesLeaderboardsClient="*res://addons/godot-play-games-services/autoloads/leaderboards_client.gd"
-PlayGamesPlayersClient="*res://addons/godot-play-games-services/autoloads/players_client.gd"
-PlayGamesSnapshotsClient="*res://addons/godot-play-games-services/autoloads/snapshots_client.gd"
 
 [debug]
 

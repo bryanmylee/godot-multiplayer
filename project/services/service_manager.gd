@@ -28,7 +28,7 @@ func initialize_default_services() -> void:
 		"Windows", "macOS", "Linux", "FreeBSD", "NetBSD", "OpenBSD", "BSD":
 			initialize_service("res://services/steam_service.gd")
 		"Android":
-			pass
+			initialize_service("res://services/google_play_games_service.gd")
 		"iOS":
 			initialize_service("res://services/apple_game_center_service.gd")
 		"Web":

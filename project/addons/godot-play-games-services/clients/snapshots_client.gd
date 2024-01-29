@@ -1,4 +1,4 @@
-# class_name PlayGamesSnapshotsClient
+class_name PlayGamesSnapshotsClient
 extends Node
 ## Client with save and load games functionality.
 ##
@@ -26,16 +26,21 @@ signal conflict_emitted(conflict: PlayGamesSnapshotConflict)
 ## Constant passed to the [method show_saved_games] method to not limit the number of displayed saved files.  
 const DISPLAY_LIMIT_NONE := -1
 
+var core: PlayGamesServicesCore
+
+func _init(_core: PlayGamesServicesCore):
+	core = _core
+
 func _ready() -> void:
-	if GodotPlayGamesServices.android_plugin:
-		GodotPlayGamesServices.android_plugin.gameSaved.connect(
+	if core.android_plugin:
+		core.android_plugin.gameSaved.connect(
 			func(is_saved: bool, save_data_name: String, save_data_description: String):
 				game_saved.emit(is_saved, save_data_name, save_data_description)
 		)
-		GodotPlayGamesServices.android_plugin.gameLoaded.connect(func(dictionary: Dictionary):
+		core.android_plugin.gameLoaded.connect(func(dictionary: Dictionary):
 			game_loaded.emit(PlayGamesSnapshot.new(dictionary))
 		)
-		GodotPlayGamesServices.android_plugin.conflictEmitted.connect(func(dictionary: Dictionary):
+		core.android_plugin.conflictEmitted.connect(func(dictionary: Dictionary):
 			conflict_emitted.emit(PlayGamesSnapshotConflict.new(dictionary))
 		)
 
@@ -52,8 +57,8 @@ func show_saved_games(
 	allow_delete: bool, 
 	max_snapshots: int
 ) -> void:
-	if GodotPlayGamesServices.android_plugin:
-		GodotPlayGamesServices.android_plugin.showSavedGames(title, allow_add_button, allow_delete, max_snapshots)
+	if core.android_plugin:
+		core.android_plugin.showSavedGames(title, allow_add_button, allow_delete, max_snapshots)
 
 ## Saves game data to the Google Cloud.[br]
 ## [br]
@@ -70,8 +75,8 @@ func save_game(
 	played_time_millis: int = 0,
 	progress_value: int = 0,
 ) -> void:
-	if GodotPlayGamesServices.android_plugin:
-		GodotPlayGamesServices.android_plugin.saveGame(file_name, description, save_data, played_time_millis, progress_value)
+	if core.android_plugin:
+		core.android_plugin.saveGame(file_name, description, save_data, played_time_millis, progress_value)
 
 ## Loads game data from the Google Cloud.[br]
 ## [br]
@@ -79,8 +84,8 @@ func save_game(
 ## [br]
 ## [param fileName]: The name of the save file. Must be between 1 and 100 non-URL-reserved charactes (a-z, A-Z, 0-9, or the symbols "-", ".", "_", or "~").
 func load_game(file_name: String):
-	if GodotPlayGamesServices.android_plugin:
-		GodotPlayGamesServices.android_plugin.loadGame(file_name)
+	if core.android_plugin:
+		core.android_plugin.loadGame(file_name)
 
 ## A snapshot.
 class PlayGamesSnapshot:
