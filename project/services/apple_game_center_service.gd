@@ -11,7 +11,7 @@ func _init() -> void:
 func initialize() -> Result:
 	if not Engine.has_singleton("GameCenter"):
 		set_process(false)
-		return Result.Err("GameCenter not available")
+		return Result.Err("Game Center not available")
 	
 	game_center = Engine.get_singleton("GameCenter")
 	print("Game Center initialized")
