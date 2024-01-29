@@ -8,6 +8,8 @@ A minimal Godot project with cross-platform authentication, matchmaking, and ser
 
 We use a central Linux server that serves as the first contact for game clients. The central server coordinates game clients to services like matchmaking and game servers.
 
+Refer to the [server setup document](server/README.md).
+
 ## Authentication Server
 
 Different platforms require different authentication strategies, including Steam, Apple Game Center, Google Play Games Services, and OAuth 2.0. All authentication strategies are consolidated and managed by our authentication server.
