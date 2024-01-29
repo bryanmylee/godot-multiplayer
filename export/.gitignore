@@ -1,0 +1,15 @@
+# Build files 
+server/*
+!server/.gitkeep
+web/*
+!web/.gitkeep
+windows/*
+!windows/.gitkeep
+macos/*
+!macos/.gitkeep
+linux/*
+!linux/.gitkeep
+ios/*
+!ios/.gitkeep
+android/*
+!android/.gitkeep
