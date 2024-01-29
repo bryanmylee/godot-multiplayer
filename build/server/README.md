@@ -32,7 +32,6 @@ Certain parts of the application are controlled via environment variables. Pass 
 
 ```bash
 docker run --detach --name {name} --publish 19000:9000 \
-	--env SERVER_TIMEOUT=10.0 \
 	--env SERVER_ID=5432 \
 	{custom_tag}
 ```

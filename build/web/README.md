@@ -32,7 +32,6 @@ Certain parts of the application are controlled via environment variables. Pass 
 
 ```bash
 docker run --detach --name {name} --publish 10443:9000 \
-	--env CLIENT_TIMEOUT=10.0 \
 	--env SERVER_HOST="multiplayer-test.bryanmylee.com" \
 	{custom_tag}
 ```

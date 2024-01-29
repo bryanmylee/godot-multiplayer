@@ -8,10 +8,6 @@ var port := int(env_port) if env_port else _DEFAULT_PORT
 var env_id := OS.get_environment("SERVER_ID")
 var id := int(env_id) if env_id else randi()
 
-const _DEFAULT_TIMEOUT := 5.0
-var env_timeout := OS.get_environment("SERVER_TIMEOUT")
-var timeout := float(env_timeout) if env_timeout else _DEFAULT_TIMEOUT
-
 var peer := WebSocketMultiplayerPeer.new()
 var world_spawner: MultiplayerSpawner
 

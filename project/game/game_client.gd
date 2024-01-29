@@ -1,10 +1,6 @@
 extends Node
 class_name GameClient
 
-const _DEFAULT_TIMEOUT := 5.0
-var env_timeout := OS.get_environment("CLIENT_TIMEOUT")
-var timeout := float(env_timeout) if env_timeout else _DEFAULT_TIMEOUT
-
 const _DEFAULT_SERVER_HOST := "127.0.0.1"
 var env_server_host := OS.get_environment("SERVER_HOST")
 var server_host := env_server_host if env_server_host else _DEFAULT_SERVER_HOST
