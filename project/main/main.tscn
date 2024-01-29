@@ -31,8 +31,10 @@ vertical_alignment = 1
 
 [node name="UserName" type="Label" parent="UI/Container"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 32
 horizontal_alignment = 1
 
 [node name="UserId" type="Label" parent="UI/Container"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 32
 horizontal_alignment = 1
