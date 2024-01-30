@@ -14,6 +14,7 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	camera.current = player_id.is_local_player
+	player_id.platform_changed.connect(_set_body_material)
 
 
 func _rollback_tick(delta: float, _tick: int, _is_fresh: bool) -> void:
@@ -59,3 +60,28 @@ func _force_update_slide_collision() -> void:
 	velocity = Vector3.ZERO
 	move_and_slide()
 	velocity = old_velocity
+
+
+@export_group("Platform Materials")
+@export var desktop_material: Material
+@export var android_material: Material
+@export var ios_material: Material
+@export var web_material: Material
+@export var xr_material: Material
+
+
+func _set_body_material(platform: String) -> void:
+	var mesh := $Model/BodyMesh as MeshInstance3D
+	var material: Material
+	match platform:
+		"Windows", "macOS", "Linux", "FreeBSD", "NetBSD", "OpenBSD", "BSD":
+			material = desktop_material
+		"Android":
+			material = android_material
+		"iOS":
+			material = ios_material
+		"Web":
+			material = web_material
+		_:
+			material = desktop_material
+	mesh.material_override = material
