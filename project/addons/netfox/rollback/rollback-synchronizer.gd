@@ -60,7 +60,7 @@ func process_settings():
 	_nodes = _nodes.filter(func(it): return NetworkRollback.is_rollback_aware(it))
 	_nodes.erase(self)
 
-	_record_initial_tick(NetworkTime.local_tick)
+	_record_initial_tick(NetworkTime.tick)
 
 func _ready():
 	process_settings()
