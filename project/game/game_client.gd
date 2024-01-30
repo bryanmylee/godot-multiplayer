@@ -1,6 +1,7 @@
 extends Node
 class_name GameClient
 
+# const _DEFAULT_SERVER_HOST := "multiplayer-test.bryanmylee.com"
 const _DEFAULT_SERVER_HOST := "127.0.0.1"
 var env_server_host := OS.get_environment("SERVER_HOST")
 var server_host := env_server_host if env_server_host else _DEFAULT_SERVER_HOST
@@ -36,7 +37,6 @@ func start() -> Result:
 func _handle_connected_to_server() -> void:
 	peer_id = multiplayer.get_unique_id()
 	Logger.client_log(["connected to server"], ["init"])
-	GameNetwork.game_network_ready.emit()
 
 
 func _handle_server_connection_failed() -> void:

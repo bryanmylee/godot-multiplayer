@@ -25,8 +25,8 @@ func start() -> Result:
 
 	multiplayer.multiplayer_peer = peer
 	multiplayer.peer_connected.connect(_handle_peer_connected)
+	NetworkTime.after_client_sync.connect(_handle_peer_time_synced)
 	multiplayer.peer_disconnected.connect(_handle_peer_disconnected)
-	GameNetwork.game_network_ready.emit()
 
 	return start_result
 
@@ -34,12 +34,16 @@ func start() -> Result:
 #region Network
 func _handle_peer_connected(peer_id: int) -> void:
 	Logger.server_log(["client connected: ", peer_id], ["network"])
+
+
+func _handle_peer_time_synced(peer_id: int) -> void:
 	var spawn_result := Program.game_world.spawn_player({
 		"player_id": peer_id,
 	})
-	print(spawn_result)
 	if spawn_result.is_err():
 		Logger.server_log(["failed to spawn player(", peer_id, "): ", spawn_result.unwrap_err()], ["game"])
+	else:
+		Logger.server_log(["spawned player(", peer_id, ")"], ["game"])
 
 
 func _handle_peer_disconnected(peer_id: int) -> void:

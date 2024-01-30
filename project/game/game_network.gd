@@ -33,10 +33,3 @@ func rpc_id_with_return(
 		)
 	)
 #endregion
-
-
-signal game_network_ready
-
-
-func _ready() -> void:
-	game_network_ready.connect(NetworkTime.start)
