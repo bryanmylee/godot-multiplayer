@@ -1,0 +1,30 @@
+[gd_scene load_steps=2 format=3 uid="uid://ompcdbu6exdr"]
+
+[ext_resource type="Script" path="res://multiplayer/network_debug_overlay.gd" id="1_y387s"]
+
+[node name="NetworkDebugOverlay" type="MarginContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+script = ExtResource("1_y387s")
+
+[node name="Fields" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="ServerRTT" type="HBoxContainer" parent="Fields"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Fields/ServerRTT"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Server RTT: "
+
+[node name="Value" type="Label" parent="Fields/ServerRTT"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
