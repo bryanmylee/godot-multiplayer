@@ -4,6 +4,9 @@ const TIMEOUT := 5.0
 
 
 #region RPC Helpers
+## [codeblock]
+## @returns Promise<T, String>
+## [/codeblock]
 func rpc_id_with_return(
 	peer_id: int,
 	response_signal: Signal,

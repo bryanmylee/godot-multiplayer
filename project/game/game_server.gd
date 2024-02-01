@@ -17,6 +17,9 @@ func _init(_world_spawner: MultiplayerSpawner) -> void:
 	world_spawner = _world_spawner
 
 
+## [codeblock]
+## @returns Result<null, int>
+## [/codeblock]
 func start() -> Result:
 	Logger.server_log(["starting server on: ", port], ["init"])
 	var start_result := Result.from_gderr(peer.create_server(port))
@@ -55,6 +58,9 @@ func _handle_peer_disconnected(peer_id: int) -> void:
 
 
 const DEFAULT_WORLD_SCENE := "res://game/world/game_world.tscn"
+## [codeblock]
+## @returns Result<null, int>
+## [/codeblock]
 func load_world(world_scene := DEFAULT_WORLD_SCENE) -> Result:
 	var game_world = load(world_scene).instantiate()
 	if not game_world is GameWorld:

@@ -18,4 +18,4 @@ func initialize() -> Result:
 	user_name = auth_data.displayName
 	print("Logged in with Game Center as ", user_name)
 
-	return auth_result
+	return Result.Ok(null)

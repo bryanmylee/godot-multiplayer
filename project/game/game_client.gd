@@ -19,6 +19,9 @@ func _init() -> void:
 	name = "GameClient"
 
 
+## [codeblock]
+## @returns Result<null, int>
+## [/codeblock]
 func start() -> Result:
 	var protocol := "wss://" if Program.ssl_enabled else "ws://"
 	var address := protocol + server_host + ":" + str(server_port)

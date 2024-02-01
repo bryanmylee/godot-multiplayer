@@ -35,6 +35,9 @@ func initialize_default_services() -> void:
 			pass
 
 
+## [codeblock]
+## @returns Result<null, int>
+## [/codeblock]
 func initialize_service(service_path: String) -> Result:
 	var service := load(service_path).new() as Service
 	services_node.add_child(service)
