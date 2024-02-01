@@ -90,6 +90,10 @@ const AUTOLOADS = [
 	{
 		"name": "NetworkEvents",
 		"path": ROOT + "/network-events.gd"
+	},
+	{
+		"name": "NetworkPerformance",
+		"path": ROOT + "/network-performance.gd"
 	}
 ]
 
@@ -105,6 +109,12 @@ const TYPES = [
 		"base": "Node",
 		"script": ROOT + "/tick-interpolator.gd",
 		"icon": ROOT + "/icons/tick-interpolator.svg"
+	},
+	{
+		"name": "StateSynchronizer",
+		"base": "Node",
+		"script": ROOT + "/state-synchronizer.gd",
+		"icon": ROOT + "/icons/rollback-interpolator.svg"
 	},
 ]
 

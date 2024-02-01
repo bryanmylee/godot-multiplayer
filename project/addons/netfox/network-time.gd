@@ -1,8 +1,7 @@
 extends Node
 ## This class handles timing.
 ##
-## @tutorial(Ticking in sync): https://foxssake.github.io/netfox/tutorials/ticking-in-sync/
-## @tutorial(NetworkTime Guide): https://foxssake.github.io/netfox/guides/network-time/
+## @tutorial(NetworkTime Guide): https://foxssake.github.io/netfox/netfox/guides/network-time/
 
 ## Number of ticks per second.
 ##
@@ -269,9 +268,9 @@ var _local_tick: int = 0
 
 # Cache the synced clients, as the rpc call itself may arrive multiple times
 # ( for some reason? )
-var _synced_clients = {}
+var _synced_clients: Dictionary = {}
 
-static var _logger = _NetfoxLogger.for_netfox("NetworkTime")
+static var _logger: _NetfoxLogger = _NetfoxLogger.for_netfox("NetworkTime")
 
 ## Start NetworkTime.
 ##
