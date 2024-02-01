@@ -10,18 +10,17 @@ func _enter_tree() -> void:
 	set_multiplayer_authority(1)
 
 
-"""
-type SpawnPlayerOptions = {
-	player_id: int;
-	scene_path?: String;
-	position?: Vector3;
-}
-"""
 const DEFAULT_PLAYER_SCENE := "res://game/player/player.tscn"
-func spawn_player(opts: Dictionary) -> Result: # Result<Player>
-	"""
-	@param opts: SpawnPlayerOptions
-	"""
+## [codeblock]
+## @param opts {
+##   player_id: int
+##   scene_path?: String
+##   position?: Vector3
+## }
+##
+## @returns Result<Player>
+## [/codeblock]
+func spawn_player(opts: Dictionary) -> Result:
 	if not multiplayer.is_server():
 		return Result.Err("authority-only method")
 	
@@ -43,7 +42,10 @@ func spawn_player(opts: Dictionary) -> Result: # Result<Player>
 	return Result.Ok(player)
 
 
-func unspawn_player(player_id: int) -> Result: # Result<Player>
+## [codeblock]
+## @returns Result<Player>
+## [/codeblock]
+func unspawn_player(player_id: int) -> Result:
 	if not multiplayer.is_server():
 		return Result.Err("authority-only method")
 	

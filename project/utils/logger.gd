@@ -1,6 +1,8 @@
 class_name Logger
 
-"Dict<bool>"
+## [codeblock]
+## Dict<bool>
+## [/codeblock]
 const FILTERED_TAGS := {
 	"webrtc": true,
 }

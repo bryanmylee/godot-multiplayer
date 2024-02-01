@@ -27,16 +27,16 @@ func _process(_delta: float) -> void:
 		pending_event.emit(event)
 
 
+## [codeblock]
+## @returns Promise<{
+##   type: "authentication"
+##   result: "ok"
+##   alias: String
+##   displayName: String;
+##   player_id: String;
+## }, String>
+## [/codeblock]
 func authenticate() -> Promise:
-	"""
-	@returns Promise<{
-		type: "authentication";
-		result: "ok";
-		alias: String;
-		displayName: String;
-		player_id: String;
-	}, String>
-	"""
 	game_center.authenticate()
 
 	return Promise.new(func (resolve, reject):

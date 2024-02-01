@@ -33,10 +33,10 @@ func _ready() -> void:
 	add_child(providers_node)
 
 
+## [codeblock]
+## @returns Result<AuthenticationProvider>
+## [/codeblock]
 func initialize_default() -> Result:
-	"""
-	@returns Result<AuthenticationProvider>
-	"""
 	if main_provider != null:
 		return Result.Err("Main authentication provider already initialized")
 	
@@ -53,10 +53,10 @@ func initialize_default() -> Result:
 			return Result.Err("No matching platform")
 
 
+## [codeblock]
+## @returns Result<AuthenticationProvider>
+## [/codeblock]
 func add_provider(pname: ProviderName) -> Result:
-	"""
-	@returns Result<AuthenticationProvider>
-	"""
 	var script = PROVIDER_SCRIPT[pname]
 	var provider := load(script).new() as AuthenticationProvider
 	providers_node.add_child(provider, true)
