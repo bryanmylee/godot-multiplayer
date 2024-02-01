@@ -5,11 +5,11 @@
 [ext_resource type="Material" uid="uid://cw6w2fsecaa35" path="res://assets/grids/Green/texture_02.tres" id="3_p6lko"]
 [ext_resource type="Material" uid="uid://dms64ug0egyy4" path="res://assets/grids/Red/texture_02.tres" id="4_4ofpa"]
 [ext_resource type="Script" path="res://addons/netfox/tick-interpolator.gd" id="4_i8n27"]
-[ext_resource type="Script" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="4_w5wxv"]
 [ext_resource type="Script" path="res://game/player/player_controller.gd" id="5_7ffyq"]
 [ext_resource type="Material" uid="uid://cjsbjufs8a6h7" path="res://assets/grids/Orange/texture_02.tres" id="5_vxpw3"]
 [ext_resource type="Material" uid="uid://bpr3anu11g4t4" path="res://assets/grids/Light/texture_02.tres" id="6_4q0k3"]
 [ext_resource type="Material" uid="uid://7k6o3sk5f7jg" path="res://assets/grids/Dark/texture_01.tres" id="7_f6ubg"]
+[ext_resource type="Script" path="res://addons/netfox/state-synchronizer.gd" id="11_34c0s"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_uwxnw"]
 material = ExtResource("6_4q0k3")
@@ -31,11 +31,10 @@ xr_material = ExtResource("7_f6ubg")
 
 [node name="PlayerId" parent="." instance=ExtResource("2_0l5uf")]
 
-[node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
-script = ExtResource("4_w5wxv")
+[node name="StateSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("11_34c0s")
 root = NodePath("..")
-state_properties = Array[String]([":global_transform", ":velocity", "PitchPivot:global_transform"])
-input_properties = Array[String](["Controller:is_crouching", "Controller:is_running", "Controller:just_jumped", "Controller:direction", "Controller:pitch", "Controller:yaw"])
+properties = Array[String]([":global_transform", ":velocity", "PitchPivot:global_transform"])
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("4_i8n27")

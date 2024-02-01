@@ -1,7 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://dqoqll4di5jv8"]
+[gd_scene load_steps=2 format=3 uid="uid://dqoqll4di5jv8"]
 
 [ext_resource type="Script" path="res://game/game.gd" id="1_y4vy4"]
-[ext_resource type="PackedScene" uid="uid://ompcdbu6exdr" path="res://multiplayer/network_debug_overlay.tscn" id="2_iedva"]
 
 [node name="Game" type="Node"]
 script = ExtResource("1_y4vy4")
@@ -9,5 +8,3 @@ script = ExtResource("1_y4vy4")
 [node name="WorldSpawner" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("res://game/world/game_world.tscn")
 spawn_path = NodePath(".")
-
-[node name="NetworkDebugOverlay" parent="." instance=ExtResource("2_iedva")]

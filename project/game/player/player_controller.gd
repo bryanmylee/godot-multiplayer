@@ -12,10 +12,6 @@ class_name PlayerController
 @export var mouse_sensitivity_x := 0.0008
 
 
-func _enter_tree() -> void:
-	set_multiplayer_authority(player_id.id)
-
-
 #region Synchronized State
 var is_crouching := false
 var is_running := false

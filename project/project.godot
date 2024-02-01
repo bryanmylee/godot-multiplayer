@@ -26,6 +26,7 @@ NetworkTime="*res://addons/netfox/network-time.gd"
 NetworkTimeSynchronizer="*res://addons/netfox/network-time-synchronizer.gd"
 NetworkRollback="*res://addons/netfox/rollback/network-rollback.gd"
 NetworkEvents="*res://addons/netfox/network-events.gd"
+NetworkPerformance="*res://addons/netfox/network-performance.gd"
 
 [debug]
 
