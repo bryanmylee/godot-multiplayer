@@ -20,14 +20,14 @@ Server-authoritative multiplayer is usually implemented with **input prediction 
 For example, assuming P1, P2, P3 have a server latency of 2, 5, and 10 ticks, and that input is unpredictable (thereby always triggering rollbacks), for a single tick:
 
 1. `t=0`: P1, P2, P3 send input to the server
-2. `t=2`: the server receives `A1(t=0)`; server **rolls back 2 ticks**; sends `S1(t=0)` to P2 and P3
-3. `t=5`: the server receives `A2(t=0)`; server **rolls back 5 ticks**; sends `S2(t=0)` to P1 and P3
-4. `t=7`: P1 receives `S2(t=0)`, P2 receives `S1(t=0)`; P1 and P2 **roll back 7 ticks**
-5. `t=10`: the server receives `A3(t=0)`; server **rolls back 10 ticks**; sends `S3(t=0)` to P1 and P2
-6. `t=12`: P1 receives `S3(t=0)`, P3 receives `S1(t=0)`; P1 and P3 **roll back 12 ticks**
-7. `t=15`: P2 receives `S3(t=0)`, P3 receives `S2(t=0)`; P2 and P3 **roll back 15 ticks**
+2. `t=2`: the server receives `A1(t=0)`; server **rolls back and predicts past 2 ticks**; sends `S1(t=0..2)` to P2 and P3
+3. `t=5`: the server receives `A2(t=0)`; server **rolls back and predicts past 5 ticks**; sends `S2(t=0..5)` to P1 and P3
+4. `t=7`: P1 receives `S2(t=0..5)`, P2 receives `S1(t=0..2)`; P1 and P2 **roll back past 7 ticks**; P1 predicts `S2(t=6..7)`, P2 predicts `S1(t=3..7)`.
+5. `t=10`: the server receives `A3(t=0)`; server **rolls back and predicts past 10 ticks**; sends `S3(t=0..10)` to P1 and P2
+6. `t=12`: P1 receives `S3(t=0..10)`, P3 receives `S1(t=0..2)`; P1 and P3 **roll back past 12 ticks**; P1 predicts `S3(t=11..12)`, P3 predicts `S1(t=3..12)`
+7. `t=15`: P2 receives `S3(t=0..10)`, P3 receives `S2(t=0..5)`; P2 and P3 **roll back past 15 ticks**; P2 predicts `S3(t=11..15)`, P3 predicts `S2(t=6..15)`
 
-The number of processing ticks per network tick is proportional to `N^2 x K` where `N` is the number of players and `K` is the maximum latency between two clients. If latency is unstable or high on any client, all clients suffer. If the number of players increases, the number of rollbacks increase quadratically. If input is dynamic and unpredictable, the percentage of ticks that have to be rolled back increases.
+The number of processing ticks per network tick is proportional to `N x K` where `N` is the number of players and `K` is the maximum latency between two clients. If latency is unstable or high on any client, all clients suffer. If the number of players increases, the number of rollbacks increase quadratically. If input is dynamic and unpredictable, the percentage of ticks that have to be rolled back increases.
 
 ## Solving these issues with local synchronization
 
@@ -43,7 +43,7 @@ Using the same example above, assuming P1, P2, P3 have a server latency of 2, 5,
 6. `t=12`: P1 receives `S3(t=10)` as `S3(t=12)`, P3 receives `S1(t=2)` as `S1(t=12)`
 7. `t=15`: P2 receives `S3(t=10)` as `S3(t=15)`, P3 receives `S2(t=5)` as `S2(t=15)`
 
-The fundamental difference of authoritative local sync versus input prediction with rollback is that network latency is accepted. This approach keeps the number of processing ticks per network tick constant, eliminates latency cascades, and ensures that only server-verified state is broadcasted to the network.
+The fundamental difference of authoritative local sync versus input prediction with rollback is that network latency is accepted. This approach keeps the number of processing ticks per network tick proportional to each client's individual latency `k`, eliminates latency cascades, and ensures that only server-verified state is broadcasted to the network.
 
 ## Syncing local state on state drift
 
@@ -52,3 +52,27 @@ Because game state is intrinsically inconsistent across the network due to laten
 A client with server latency `k` and max history of `Q` at tick time `t` will have `states[t-Q:t]`, input history `inputs[t-Q:t]`, and `verified_state(t-k)`.
 
 If `state(t-k)` is not consistent with `verified_state(t-k)`, then sync `state(t)` to `verified_state(t-k) + inputs[t-k:t]`.
+
+## Sequence of events
+
+For an originating tick `k` on client:
+
+1. `before_tick_loop`, for all clients `x`, gather input for control `Ax(k)`
+2. `on_tick`, for all clients `x`, apply `Ax(k)` to state `Sx(k)` to produce predicted state `S*x(k+1)`
+3. `after_tick_loop`, for all clients `x`, send `Ax(k)` to server
+
+For the server handling the request at tick `k1`:
+
+1. for any originating tick `j`, server receives input `Ax(j)` and treats it as `Ax(k1)`
+2. `on_tick`, for all clients `x`, server applies `Ax(k1)` to `S(k1)` to produce `S(k1+1)`
+3. `after_tick_loop`, server broadcasts `S(k1+1)` to all players `x`
+
+On all peers handling the response at tick `k2`:
+
+1. `before_tick_loop`, client `x` receives `S(k1+1)`
+2. `on_tick`, client `x` reads node states `Sy(k1+1)` for all nodes `y` in `S(k1+1)`
+3. `on_tick`, if `x != y`, treat `Sy(k1+1)` as confirmed `Sy(k2)`
+4. `on_tick`, if `x == y`, check `S*x(k1+1)` against `Sx(k1+1)`
+5. `on_tick`, if `k1+1 < k2 - Q`, tick is too late and we have no history, ignore
+6. `on_tick`, if `S*x(k1+1) is_approx_equal Sx(k1+1)`, confirm `S*x(k1+1)` as `Sx(k1+1)`
+7. `on_tick`, otherwise, confirm `Sx(k1+1)` and resimulate `S*x(k1+2..k2+1)` with `Ax(k1+1..k2)`
