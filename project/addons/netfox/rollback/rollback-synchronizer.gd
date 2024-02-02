@@ -137,7 +137,7 @@ func _record_tick(tick: int):
 			# Broadcast as new state
 			_latest_state = max(_latest_state, tick)
 			_states[tick] = PropertySnapshot.merge(_states.get(tick, {}), broadcast)
-			rpc("_submit_state", broadcast, tick)
+			_submit_state.rpc(broadcast, tick)
 	
 	# Record state for specified tick ( current + 1 )
 	if not _record_state_props.is_empty() and tick > _latest_state:
@@ -175,7 +175,7 @@ func _after_tick(_delta, _tick):
 	if not _auth_input_props.is_empty():
 		var input = PropertySnapshot.extract(_auth_input_props)
 		_inputs[NetworkTime.tick] = input
-		rpc("_submit_input", input, NetworkTime.tick)
+		_submit_input.rpc(input, NetworkTime.tick)
 	
 	while _states.size() > NetworkRollback.history_limit:
 		_states.erase(_states.keys().min())
