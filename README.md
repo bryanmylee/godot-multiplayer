@@ -59,6 +59,7 @@ The game has exports for Windows, macOS, Linux, iOS, Android, and the Web.
   - [x] Apple Game Center for iOS
   - [x] Google Play Games for Android
   - [ ] OAuth 2.0 / OpenID for Web
+- [ ] Scalable Server-Authoritative Multiplayer
 - [ ] Server-side Authentication
 - [ ] Matchmaking
 

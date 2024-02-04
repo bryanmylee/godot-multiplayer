@@ -63,16 +63,16 @@ For an originating tick `k` on client:
 
 For the server handling the request at tick `k1`:
 
-1. for any originating tick `j`, server receives input `Ax(j)` and treats it as `Ax(k1)`
+1. for any originating tick `k`, server receives input `Ax(k)` and treats it as `Ax(k1)`
 2. `on_tick`, for all clients `x`, server applies `Ax(k1)` to `S(k1)` to produce `S(k1+1)`
-3. `after_tick_loop`, server broadcasts `S(k1+1)` to all players `x`
+3. `after_tick_loop`, for all clients `x`, for other clients `y`, server broadcasts `Sx(k1+1)` to `y` but `Sx(k+1)` to `x`
 
 On all peers handling the response at tick `k2`:
 
-1. `before_tick_loop`, client `x` receives `S(k1+1)`
-2. `on_tick`, client `x` reads node states `Sy(k1+1)` for all nodes `y` in `S(k1+1)`
+1. `before_tick_loop`, client `x` receives either `S(k+1)` or `S(k1+1)`
+2. `on_tick`, client `x` reads node states `Sy(k1+1)` for all nodes `y` in `S(k1+1)` and `Sx(k+1)` for itself
 3. `on_tick`, if `x != y`, treat `Sy(k1+1)` as confirmed `Sy(k2)`
-4. `on_tick`, if `x == y`, check `S*x(k1+1)` against `Sx(k1+1)`
-5. `on_tick`, if `k1+1 < k2 - Q`, tick is too late and we have no history, ignore
-6. `on_tick`, if `S*x(k1+1) is_approx_equal Sx(k1+1)`, confirm `S*x(k1+1)` as `Sx(k1+1)`
-7. `on_tick`, otherwise, confirm `Sx(k1+1)` and resimulate `S*x(k1+2..k2+1)` with `Ax(k1+1..k2)`
+4. `on_tick`, if `x == y`, check `S*x(k+1)` against `Sx(k+1)`
+5. `on_tick`, if `k+1 < k2 - Q`, tick is too late and we have no history, ignore
+6. `on_tick`, if `S*x(k+1) is_approx_equal Sx(k+1)`, confirm `S*x(k+1)` as `Sx(k+1)`
+7. `on_tick`, otherwise, confirm `Sx(k+1)` and resimulate `S*x(k+2..k2+1)` with `Ax(k+1..k2)`

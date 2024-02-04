@@ -2,10 +2,6 @@ extends CharacterBody3D
 class_name Player
 
 
-func _enter_tree() -> void:
-	set_multiplayer_authority(player_id.id)
-
-
 @onready var player_id := $PlayerId as PlayerId
 @onready var controller := $Controller as PlayerController
 @onready var camera := $PitchPivot/Camera
@@ -16,10 +12,9 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	camera.current = player_id.is_local_player
 	player_id.platform_changed.connect(_set_body_material)
-	NetworkTime.before_tick.connect(_before_tick)
 
 
-func _before_tick(delta: float, _tick: int) -> void:
+func _verified_tick(delta: float, _tick: int) -> void:
 	orientation(delta)
 	movement(delta)
 

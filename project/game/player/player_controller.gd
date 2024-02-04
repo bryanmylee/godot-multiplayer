@@ -1,6 +1,11 @@
 extends Node
 class_name PlayerController
 
+
+func _enter_tree() -> void:
+	set_multiplayer_authority(player_id.id)
+
+
 @export_group("Dependencies")
 @export var player_id: PlayerId
 
@@ -23,11 +28,21 @@ var yaw := 0.0
 
 
 func _ready() -> void:
-	set_process(player_id.is_local_player)
-	set_process_input(player_id.is_local_player)
-	if player_id.is_local_player:
+	set_process(is_multiplayer_authority())
+	set_process_input(is_multiplayer_authority())
+	if is_multiplayer_authority():
 		NetworkTime.before_tick_loop.connect(_gather_input)
 		NetworkTime.after_tick_loop.connect(_clear_input)
+
+
+func _gather_input() -> void:
+	is_crouching = Input.is_action_pressed("mod_crouch")
+	is_running = Input.is_action_pressed("mod_run")
+	direction = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+
+
+func _clear_input() -> void:
+	just_jumped = false
 
 
 func _process(_delta: float) -> void:
@@ -58,13 +73,3 @@ func _handle_mouse_button(_event: InputEventMouseButton) -> void:
 
 func escape_mouse_capture() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-
-
-func _gather_input() -> void:
-	is_crouching = Input.is_action_pressed("mod_crouch")
-	is_running = Input.is_action_pressed("mod_run")
-	direction = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
-
-
-func _clear_input() -> void:
-	just_jumped = false
