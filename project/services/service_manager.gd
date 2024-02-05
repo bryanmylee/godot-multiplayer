@@ -32,7 +32,7 @@ func initialize_default_services() -> void:
 		"iOS":
 			initialize_service("res://services/apple_game_center_service.gd")
 		"Web":
-			pass
+			initialize_service("res://services/web_oauth2/web_oauth2_service.gd")
 
 
 ## [codeblock]

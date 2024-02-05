@@ -4,14 +4,14 @@ enum ProviderName {
 	STEAM = 0,
 	GOOGLE_PLAY_GAMES = 1,
 	APPLE_GAME_CENTER = 2,
-	OAUTH2 = 3,
+	WEB_OAUTH2 = 3,
 }
 
 const PROVIDER_SCRIPT := {
 	ProviderName.STEAM: "res://authentication/providers/steam_authentication_provider.gd",
 	ProviderName.GOOGLE_PLAY_GAMES: "res://authentication/providers/google_play_games_authentication_provider.gd",
 	ProviderName.APPLE_GAME_CENTER: "res://authentication/providers/apple_game_center_authentication_provider.gd",
-	ProviderName.OAUTH2: "res://authentication/providers/oauth2/oauth2_authentication_provider.gd",
+	ProviderName.WEB_OAUTH2: "res://authentication/providers/web_oauth2_authentication_provider.gd",
 }
 
 var providers_node: Node
@@ -48,7 +48,7 @@ func initialize_default() -> Result:
 		"iOS":
 			return await add_provider(ProviderName.APPLE_GAME_CENTER)
 		"Web":
-			return await add_provider(ProviderName.OAUTH2)
+			return await add_provider(ProviderName.WEB_OAUTH2)
 		_:
 			return Result.Err("No matching platform")
 
