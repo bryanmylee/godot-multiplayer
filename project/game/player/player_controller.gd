@@ -2,10 +2,6 @@ extends Node
 class_name PlayerController
 
 
-func _enter_tree() -> void:
-	set_multiplayer_authority(player_id.id)
-
-
 @export_group("Dependencies")
 @export var player_id: PlayerId
 

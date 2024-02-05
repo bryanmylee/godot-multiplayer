@@ -10,40 +10,49 @@ func _enter_tree() -> void:
 	set_multiplayer_authority(1)
 
 
+func _ready() -> void:
+	player_spawner.spawn_function = _handle_spawn_player
+
+
+## [codeblock]
+## @param opts SpawnPlayerOptions
+## [/codeblock]
+func _handle_spawn_player(opts) -> Node:
+	var scene_path = opts.get("scene_path", DEFAULT_PLAYER_SCENE)
+	var player = load(scene_path).instantiate()
+	if not player is Player:
+		print("Node(" + scene_path + ") is not a `Player` instance")
+		return null
+
+	player.set_multiplayer_authority(opts.player_id)
+	player.name = str(opts.player_id)
+	var spawn_position = opts.get("position", Vector3(randf_range(-10, 10), 0, randf_range(-10, 10)))
+	player.position = spawn_position
+	return player
+
+
 const DEFAULT_PLAYER_SCENE := "res://game/player/player.tscn"
 ## [codeblock]
-## @param opts {
+## @param opts SpawnPlayerOptions {
 ##   player_id: int
 ##   scene_path?: String
 ##   position?: Vector3
 ## }
 ##
-## @returns Result<Player>
+## @returns Result<Player, String>
 ## [/codeblock]
 func spawn_player(opts: Dictionary) -> Result:
 	if not multiplayer.is_server():
 		return Result.Err("authority-only method")
-	
-	var player_id = opts.player_id
-	Logger.server_log(["spawning player: ", player_id], ["game", "world"])
-
-	var scene_path = opts.get("scene_path", DEFAULT_PLAYER_SCENE)
-	var player = load(scene_path).instantiate()
-	if not player is Player:
-		return Result.Err("Node(" + scene_path + ") is not a `Player` instance")
-	
-	player.name = str(player_id)
-	
-	var spawn_position = opts.get("position", Vector3(randf_range(-10, 10), 0, randf_range(-10, 10)))
-	player.position = spawn_position
-	
-	player_spawner.add_child(player, true)
-	player.owner = player_spawner
-	return Result.Ok(player)
+	Logger.server_log(["spawning player: ", opts.player_id])
+	var spawned := player_spawner.spawn(opts)
+	if spawned == null:
+		return Result.Err("Failed to spawn player %d" % [opts.player_id])
+	return Result.Ok(spawned)
 
 
 ## [codeblock]
-## @returns Result<Player>
+## @returns Result<Player, String>
 ## [/codeblock]
 func unspawn_player(player_id: int) -> Result:
 	if not multiplayer.is_server():

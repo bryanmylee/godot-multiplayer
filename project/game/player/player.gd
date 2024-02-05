@@ -11,10 +11,11 @@ class_name Player
 
 func _ready() -> void:
 	camera.current = player_id.is_local_player
+	_set_body_material(player_id.platform)
 	player_id.platform_changed.connect(_set_body_material)
 
 
-func _verified_tick(delta: float, _tick: int) -> void:
+func _network_process(delta: float, _tick: int) -> void:
 	orientation(delta)
 	movement(delta)
 

@@ -8,8 +8,8 @@
 [ext_resource type="Script" path="res://game/player/player_controller.gd" id="5_7ffyq"]
 [ext_resource type="Material" uid="uid://cjsbjufs8a6h7" path="res://assets/grids/Orange/texture_02.tres" id="5_vxpw3"]
 [ext_resource type="Material" uid="uid://bpr3anu11g4t4" path="res://assets/grids/Light/texture_02.tres" id="6_4q0k3"]
+[ext_resource type="Script" path="res://addons/netfox/state-synchronizer.gd" id="7_eqbbg"]
 [ext_resource type="Material" uid="uid://7k6o3sk5f7jg" path="res://assets/grids/Dark/texture_01.tres" id="7_f6ubg"]
-[ext_resource type="Script" path="res://multiplayer/verification-synchronizer.gd" id="8_1nau5"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_uwxnw"]
 material = ExtResource("6_4q0k3")
@@ -29,19 +29,17 @@ ios_material = ExtResource("4_4ofpa")
 web_material = ExtResource("5_vxpw3")
 xr_material = ExtResource("7_f6ubg")
 
-[node name="PlayerId" parent="." instance=ExtResource("2_0l5uf")]
-
-[node name="VerificationSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root", "input_root")]
-script = ExtResource("8_1nau5")
+[node name="StateSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
+script = ExtResource("7_eqbbg")
 root = NodePath("..")
-state_properties = Array[String]([":global_transform", ":velocity", "PitchPivot:global_transform"])
-input_root = NodePath("../Controller")
-input_properties = Array[String]([":is_crouching", ":is_running", ":just_jumped", ":direction", ":pitch", ":yaw"])
+properties = Array[String]([":global_transform", ":velocity", "PitchPivot:global_transform"])
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("4_i8n27")
 root = NodePath("..")
 properties = Array[String]([":global_transform", "PitchPivot:global_transform"])
+
+[node name="PlayerId" parent="." instance=ExtResource("2_0l5uf")]
 
 [node name="Controller" type="Node" parent="." node_paths=PackedStringArray("player_id")]
 script = ExtResource("5_7ffyq")
