@@ -11,8 +11,6 @@ class_name Player
 
 func _ready() -> void:
 	camera.current = player_id.is_local_player
-	_set_body_material(player_id.platform)
-	player_id.platform_changed.connect(_set_body_material)
 
 
 func _network_process(delta: float, _tick: int) -> void:
@@ -58,6 +56,10 @@ func _force_update_slide_collision() -> void:
 	velocity = Vector3.ZERO
 	move_and_slide()
 	velocity = old_velocity
+
+
+func _on_player_id_platform_changed(platform: String) -> void:
+	_set_body_material(platform)
 
 
 @export_group("Platform Materials")
