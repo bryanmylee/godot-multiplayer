@@ -116,6 +116,12 @@ const TYPES = [
 		"script": ROOT + "/state-synchronizer.gd",
 		"icon": ROOT + "/icons/rollback-interpolator.svg"
 	},
+	{
+		"name": "VerificationSynchronizer",
+		"base": "Node",
+		"script": ROOT + "/verification/state-synchronizer.gd",
+		"icon": ROOT + "/icons/rollback-interpolator.svg"
+	},
 ]
 
 func _enter_tree():
