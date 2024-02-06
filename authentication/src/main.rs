@@ -42,7 +42,7 @@ fn initialize_db_pool() -> DbPool {
     let manager = r2d2::ConnectionManager::<PgConnection>::new(db_url);
     r2d2::Pool::builder()
         .build(manager)
-        .expect("DATABASE_URL should be a valid Postgres connection string")
+        .expect("The database URL should be a valid Postgres connection string")
 }
 
 fn get_db_url() -> String {

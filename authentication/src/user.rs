@@ -23,7 +23,7 @@ pub fn config_service(cfg: &mut web::ServiceConfig) {
     cfg.service(get_user_by_id).service(find_user);
 }
 
-#[get("/{user_id}")]
+#[get("/{user_id}/")]
 async fn get_user_by_id(
     pool: web::Data<DbPool>,
     path: web::Path<Uuid>,
