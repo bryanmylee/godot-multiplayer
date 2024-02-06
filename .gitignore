@@ -8,3 +8,6 @@
 # Secrets
 secrets/*
 !secrets/.gitkeep
+
+# Build logs
+build.log
