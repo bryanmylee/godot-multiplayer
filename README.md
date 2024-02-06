@@ -54,12 +54,12 @@ The game has exports for Windows, macOS, Linux, iOS, Android, and the Web.
 - [x] Server Authoritative Synchronization
 - [x] WebSocket Multiplayer Setup
 - [x] Game Server Deployment
-- [ ] Client-side Authentication
+- [x] Client-side Authentication
   - [x] Steam for Desktop
   - [x] Apple Game Center for iOS
   - [x] Google Play Games for Android
-  - [ ] OAuth 2.0 / OpenID for Web
-- [ ] Scalable Server-Authoritative Multiplayer
+  - [x] OAuth 2.0 / OpenID for Web
+- [ ] ~~Scalable Server-Authoritative Multiplayer~~
 - [ ] Server-side Authentication
 - [ ] Matchmaking
 
