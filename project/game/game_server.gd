@@ -1,7 +1,7 @@
 extends Node
 class_name GameServer
 
-const _DEFAULT_PORT := 9000
+const _DEFAULT_PORT := 19000
 var env_port := OS.get_environment("PORT")
 var port := int(env_port) if env_port else _DEFAULT_PORT
 

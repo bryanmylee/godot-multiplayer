@@ -1,0 +1,46 @@
+services:
+  game_server:
+    platform: linux/x86_64
+    build:
+      dockerfile: build/server/Dockerfile
+      target: final
+    ports:
+      - 19000:9000
+    depends_on:
+      authentication:
+        condition: service_started
+
+  authentication:
+    build:
+      context: authentication
+      target: final
+    ports:
+      - 18000:8000
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16
+    restart: always
+    user: postgres
+    secrets:
+      - db-password
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/db-password
+    expose:
+      - 5432
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db-data:
+
+secrets:
+  db-password:
+    file: secrets/db-password.txt

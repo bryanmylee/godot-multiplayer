@@ -119,7 +119,7 @@ const TYPES = [
 	{
 		"name": "VerificationSynchronizer",
 		"base": "Node",
-		"script": ROOT + "/verification/state-synchronizer.gd",
+		"script": ROOT + "/verification/verification-synchronizer.gd",
 		"icon": ROOT + "/icons/rollback-interpolator.svg"
 	},
 ]
