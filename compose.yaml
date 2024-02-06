@@ -14,6 +14,14 @@ services:
     build:
       context: authentication
       target: final
+    secrets:
+      - db-password
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/db-password
+      POSTGRES_DB: postgres
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
     ports:
       - 18000:8000
     depends_on:
