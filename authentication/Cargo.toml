@@ -7,4 +7,14 @@ edition = "2021"
 
 [dependencies]
 actix-web = "4.5.1"
+diesel = { version = "2.1.4", features = [
+  "postgres",
+  "r2d2",
+  "chrono",
+  "uuid",
+] }
+dotenvy = "0.15.7"
 env_logger = "0.11.1"
+is_empty = "0.2.0"
+serde = { version = "1.0.196", features = ["derive"] }
+uuid = { version = "1.7.0", features = ["v4", "fast-rng", "serde"] }
