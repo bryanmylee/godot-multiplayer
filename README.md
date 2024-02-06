@@ -10,11 +10,17 @@ We use a central Linux server that serves as the first contact for game clients.
 
 Refer to the [server setup document](server/README.md).
 
-## Authentication Server
+## Authentication
 
 Different platforms require different authentication strategies, including Steam, Apple Game Center, Google Play Games Services, and OAuth 2.0. All authentication strategies are consolidated and managed by our authentication server.
 
-Refer to the [authentication document](project/authentication/README.md).
+Refer to the [client-side authentication document](project/authentication/README.md) or the [authentication server document](authentication/README.md).
+
+An NGINX proxy provides TLS by forwarding ports defined below:
+
+| Internal service port | External port with TLS | Protocol | Description             |
+| --------------------- | ---------------------- | -------- | ----------------------- |
+| `18000`               | `8000`                 | HTTP     | The authentication API. |
 
 ## Game Server
 

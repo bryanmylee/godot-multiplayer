@@ -7,7 +7,7 @@ Make sure to have Docker installed.
 To build the game server image, run the command below from the repository root:
 
 ```bash
-docker build --platform linux/x86_64 --tag {custom_tag} -f build/server/Dockerfile export/server
+docker build --platform linux/x86_64 --tag {custom_tag} -f build/server/Dockerfile .
 ```
 
 ## Pushing images to Docker Hub
