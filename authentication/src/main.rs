@@ -1,7 +1,8 @@
 use actix_web::{get, middleware, web, App, HttpServer, Responder};
 use authentication::{auth, user, DbPool};
+use chrono::Duration;
 use diesel::{r2d2, PgConnection};
-use std::{env, time::Duration};
+use std::env;
 
 #[get("/")]
 async fn hello() -> impl Responder {
@@ -92,9 +93,9 @@ fn get_jwt_config() -> auth::JwtConfig {
 
     let expires_in_seconds = std::env::var("JWT_EXPIRES_IN")
         .ok()
-        .and_then(|p| p.parse::<u64>().ok())
+        .and_then(|p| p.parse::<i64>().ok())
         .unwrap_or(3600);
-    let expires_in = Duration::from_secs(expires_in_seconds);
+    let expires_in = Duration::seconds(expires_in_seconds);
 
     auth::JwtConfig { secret, expires_in }
 }

@@ -1,13 +1,13 @@
-use actix_web::{error, post, web, HttpResponse, Responder};
+use crate::{
+    auth::{generate_jwt_token, JwtConfig},
+    user::{InsertUser, User},
+    DbError, DbPool,
+};
+use actix_web::{cookie, error, post, web, HttpResponse, Responder};
 use actix_web_httpauth::extractors::bearer::BearerAuth;
 use diesel::RunQueryDsl;
 use reqwest::StatusCode;
 use serde::Deserialize;
-
-use crate::{
-    user::{InsertUser, User},
-    DbError, DbPool,
-};
 
 pub fn config_service(cfg: &mut web::ServiceConfig) {
     cfg.service(sign_in);
@@ -46,6 +46,7 @@ impl From<UserInfoResponse> for User {
 async fn sign_in(
     pool: web::Data<DbPool>,
     authorization: BearerAuth,
+    jwt_config: web::Data<JwtConfig>,
 ) -> actix_web::Result<impl Responder> {
     let token = authorization.token();
     let client = reqwest::Client::new();
@@ -67,7 +68,7 @@ async fn sign_in(
         )),
     }?;
 
-    let added_user = web::block(move || {
+    let user = web::block(move || {
         let mut conn = pool.get()?;
 
         use crate::schema::user::dsl::*;
@@ -83,5 +84,15 @@ async fn sign_in(
     .await?
     .map_err(error::ErrorInternalServerError::<DbError>)?;
 
-    Ok(HttpResponse::Ok().json(added_user))
+    let token = generate_jwt_token(&user, &jwt_config);
+
+    let sign_in_cookie = cookie::Cookie::build("token", token.to_owned())
+        .path("/")
+        .max_age(cookie::time::Duration::seconds(
+            jwt_config.expires_in.num_seconds(),
+        ))
+        .http_only(true)
+        .finish();
+
+    Ok(HttpResponse::Ok().cookie(sign_in_cookie).json(user))
 }
