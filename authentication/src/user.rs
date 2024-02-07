@@ -1,22 +1,22 @@
-use crate::{DbError, DbPool};
+use crate::{diesel_insertable, DbError, DbPool};
 use actix_web::{error, get, web, HttpResponse, Responder};
 use diesel::prelude::*;
 use is_empty::IsEmpty;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, Debug, Clone, Queryable, Selectable, Insertable, AsChangeset)]
-#[diesel(table_name = crate::schema::user)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct User {
-    #[serde(default)]
-    pub id: Uuid,
-    pub email: Option<String>,
-    pub email_verified: bool,
-    pub locale: Option<String>,
-    pub oauth2_id: Option<String>,
-    pub oauth2_name: Option<String>,
-    pub oauth2_picture_url: Option<String>,
+diesel_insertable! {
+    #[derive(Serialize, Deserialize, Debug, Clone, Identifiable, Queryable, Selectable, Insertable, AsChangeset)]
+    #[diesel(table_name = crate::schema::user)]
+    #[diesel(check_for_backend(diesel::pg::Pg))]
+    pub struct User {
+        pub email: Option<String>,
+        pub email_verified: bool,
+        pub locale: Option<String>,
+        pub oauth2_id: Option<String>,
+        pub oauth2_name: Option<String>,
+        pub oauth2_picture_url: Option<String>,
+    }
 }
 
 pub fn config_service(cfg: &mut web::ServiceConfig) {
@@ -30,9 +30,7 @@ async fn get_user_by_id(
 ) -> actix_web::Result<impl Responder> {
     let user_id = path.into_inner();
 
-    // Use `web::block` to offload blocking Diesel queries without blocking server thread.
     let user = web::block(move || {
-        // Obtaining a connection from the pool is also potentially blocking.
         let mut conn = pool.get()?;
 
         use crate::schema::user::dsl::*;

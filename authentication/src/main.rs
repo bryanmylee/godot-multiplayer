@@ -1,5 +1,5 @@
 use actix_web::{get, middleware, web, App, HttpServer, Responder};
-use authentication::{user, DbPool};
+use authentication::{oauth2, user, DbPool};
 use diesel::{r2d2, PgConnection};
 use std::env;
 
@@ -28,6 +28,7 @@ async fn main() -> std::io::Result<()> {
             ))
             .service(hello)
             .service(web::scope("/user").configure(user::config_service))
+            .service(web::scope("/oauth2").configure(oauth2::config_service))
     })
     .bind((HOST, PORT))?
     .run()
