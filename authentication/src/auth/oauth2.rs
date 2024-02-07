@@ -10,7 +10,7 @@ use crate::{
 };
 
 pub fn config_service(cfg: &mut web::ServiceConfig) {
-    cfg.service(register_oauth2_user);
+    cfg.service(sign_in);
 }
 
 const USER_INFO_REQUEST_URI: &'static str = "https://www.googleapis.com/userinfo/v2/me";
@@ -42,8 +42,8 @@ impl From<UserInfoResponse> for User {
     }
 }
 
-#[post("/register/")]
-async fn register_oauth2_user(
+#[post("/sign_in/")]
+async fn sign_in(
     pool: web::Data<DbPool>,
     authorization: BearerAuth,
 ) -> actix_web::Result<impl Responder> {

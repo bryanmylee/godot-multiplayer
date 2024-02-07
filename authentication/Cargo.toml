@@ -17,6 +17,7 @@ diesel = { version = "2.1.4", features = [
 dotenvy = "0.15.7"
 env_logger = "0.11.1"
 is_empty = "0.2.0"
+jsonwebtoken = "9.2.0"
 paste = "1.0.14"
 reqwest = { version = "0.11.24", features = ["json"] }
 serde = { version = "1.0.196", features = ["derive"] }

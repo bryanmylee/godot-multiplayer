@@ -1,6 +1,6 @@
 use diesel::{r2d2, PgConnection};
 
-pub mod oauth2;
+pub mod auth;
 pub mod schema;
 pub mod user;
 

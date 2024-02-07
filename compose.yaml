@@ -16,12 +16,14 @@ services:
       target: final
     secrets:
       - db-password
+      - jwt-secret
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD_FILE: /run/secrets/db-password
       POSTGRES_DB: postgres
       POSTGRES_HOST: db
       POSTGRES_PORT: 5432
+      JWT_SECRET_FILE: /run/secrets/jwt-secret
     ports:
       - 18000:8000
     depends_on:
@@ -54,3 +56,5 @@ volumes:
 secrets:
   db-password:
     file: secrets/db-password.txt
+  jwt-secret:
+    file: secrets/jwt-secret.txt

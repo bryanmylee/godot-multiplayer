@@ -1,7 +1,7 @@
 use actix_web::{get, middleware, web, App, HttpServer, Responder};
-use authentication::{oauth2, user, DbPool};
+use authentication::{auth, user, DbPool};
 use diesel::{r2d2, PgConnection};
-use std::env;
+use std::{env, time::Duration};
 
 #[get("/")]
 async fn hello() -> impl Responder {
@@ -18,17 +18,19 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     let pool = initialize_db_pool();
+    let jwt_config = get_jwt_config();
 
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(pool.clone()))
+            .app_data(web::Data::new(jwt_config.clone()))
             .wrap(middleware::Logger::default())
             .wrap(middleware::NormalizePath::new(
                 middleware::TrailingSlash::Always,
             ))
             .service(hello)
+            .service(web::scope("/auth").configure(auth::config_service))
             .service(web::scope("/user").configure(user::config_service))
-            .service(web::scope("/oauth2").configure(oauth2::config_service))
     })
     .bind((HOST, PORT))?
     .run()
@@ -57,9 +59,8 @@ fn get_db_url() -> String {
     let password = if let Ok(password_text) = password_text {
         password_text
     } else {
-        let Ok(password_file) = password_file else {
-            panic!("Expected either POSTGRES_PASSWORD or POSTGRES_PASSWORD_FILE to be set");
-        };
+        let password_file = password_file
+            .expect("Expected either POSTGRES_PASSWORD or POSTGRES_PASSWORD_FILE to be set");
 
         use std::fs;
         fs::read_to_string(password_file)
@@ -72,4 +73,28 @@ fn get_db_url() -> String {
     let port = std::env::var("POSTGRES_PORT").unwrap_or("5432".to_string());
 
     format!("postgres://{user}:{password}@{host}:{port}/{db}")
+}
+
+fn get_jwt_config() -> auth::JwtConfig {
+    let secret_text = std::env::var("JWT_SECRET");
+    let secret_file = std::env::var("JWT_SECRET_FILE");
+
+    let secret = if let Ok(secret_text) = secret_text {
+        secret_text
+    } else {
+        let secret_file =
+            secret_file.expect("Expected either JWT_SECRET or JWT_SECRET_FILE to be set");
+
+        use std::fs;
+        fs::read_to_string(secret_file)
+            .expect("The file at JWT_SECRET_FILE should contain the JWT signing secret")
+    };
+
+    let expires_in_seconds = std::env::var("JWT_EXPIRES_IN")
+        .ok()
+        .and_then(|p| p.parse::<u64>().ok())
+        .unwrap_or(3600);
+    let expires_in = Duration::from_secs(expires_in_seconds);
+
+    auth::JwtConfig { secret, expires_in }
 }
