@@ -24,6 +24,7 @@ services:
       POSTGRES_HOST: db
       POSTGRES_PORT: 5432
       JWT_SECRET_FILE: /run/secrets/jwt-secret
+      ALLOWED_ORIGINS: "http://localhost:8060,https://multiplayer-test.bryanmylee.com"
     ports:
       - 18000:8000
     depends_on:
