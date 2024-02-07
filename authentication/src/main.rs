@@ -106,7 +106,9 @@ fn get_cors_config() -> Cors {
     let cors = Cors::permissive().supports_credentials();
 
     if let Ok(origins) = env::var("ALLOWED_ORIGINS") {
-        origins.split(",").fold(cors, |cors, origin| cors.allowed_origin(origin))
+        origins
+            .split(",")
+            .fold(cors, |cors, origin| cors.allowed_origin(origin))
     } else {
         cors
     }
