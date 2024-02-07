@@ -30,7 +30,7 @@ func fetch(
 		):
 			http_request.queue_free()
 			if result != HTTPRequest.RESULT_SUCCESS:
-				return reject.call("unsuccessful http request: %s" % result)
+				return reject.call("unsuccessful http request: HTTPRequest.Result %s" % result)
 			return resolve.call({
 				"result": result,
 				"response_code": response_code,

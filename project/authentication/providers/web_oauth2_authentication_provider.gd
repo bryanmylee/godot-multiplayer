@@ -23,3 +23,27 @@ func initialize() -> Result:
 	user_name = user_info.name
 	
 	return Result.Ok(null)
+
+
+const AUTH_SERVER_SIGN_IN_PATH := "/auth/oauth2/sign_in"
+func server_sign_in() -> Result:
+	var access_token_result := oauth.get_local_access_token()
+	if access_token_result.is_none():
+		return Result.Err("access_token not loaded")
+	var access_token = access_token_result.unwrap()
+	
+	var request_result: Result = await HTTPUtils.fetch(
+		Program.AUTH_SERVER_URI + AUTH_SERVER_SIGN_IN_PATH,
+		["Authorization: Bearer %s" % access_token],
+		HTTPClient.METHOD_POST,
+	).settled
+	
+	if not request_result.is_ok():
+		return request_result
+	
+	var response = request_result.unwrap()
+	if response.response_code != HTTPClient.RESPONSE_OK:
+		return Result.Err("failed to get data from Google's user info endpoint: %s" % response.response_code)
+	
+	var body_text: String = response.body.get_string_from_utf8()
+	return Result.Ok(JSON.parse_string(body_text))

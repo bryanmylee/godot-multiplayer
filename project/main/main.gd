@@ -11,9 +11,19 @@ func _ready() -> void:
 		await load_game_screen()
 		return
 	
-	var auth_result := await Authentication.initialize_default()
-	if auth_result.is_err():
-		print(auth_result.unwrap_err())
+	var provider_result := await Authentication.initialize_main_provider()
+	if provider_result.is_err():
+		print(provider_result.unwrap_err())
+		return
+	var provider: AuthenticationProvider = provider_result.unwrap()
+
+	var sign_in_result := await provider.server_sign_in()
+	if sign_in_result.is_err():
+		print(sign_in_result.unwrap_err())
+		return
+	var sign_in_data = sign_in_result.unwrap()
+	print("Signed in to server!\n", sign_in_data)
+
 	await load_debug_auth_screen()
 
 

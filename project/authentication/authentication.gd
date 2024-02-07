@@ -36,9 +36,9 @@ func _ready() -> void:
 ## [codeblock]
 ## @returns Result<AuthenticationProvider>
 ## [/codeblock]
-func initialize_default() -> Result:
+func initialize_main_provider() -> Result:
 	if main_provider != null:
-		return Result.Err("Main authentication provider already initialized")
+		return Result.Err("main authentication provider already initialized")
 	
 	match OS.get_name():
 		"Windows", "macOS", "Linux", "FreeBSD", "NetBSD", "OpenBSD", "BSD":
@@ -50,7 +50,7 @@ func initialize_default() -> Result:
 		"Web":
 			return await add_provider(ProviderName.WEB_OAUTH2)
 		_:
-			return Result.Err("No matching platform")
+			return Result.Err("no matching platform")
 
 
 ## [codeblock]

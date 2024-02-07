@@ -47,7 +47,7 @@ func spawn_player(opts: Dictionary) -> Result:
 	Logger.server_log(["spawning player: ", opts.player_id])
 	var spawned := player_spawner.spawn(opts)
 	if spawned == null:
-		return Result.Err("Failed to spawn player %d" % [opts.player_id])
+		return Result.Err("failed to spawn player %d" % [opts.player_id])
 	return Result.Ok(spawned)
 
 
