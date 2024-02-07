@@ -10,7 +10,7 @@ func _init() -> void:
 
 func initialize() -> Result:
 	oauth.consume_access_token_from_hash()
-	var token_result := oauth.get_access_token()
+	var token_result := oauth.get_local_access_token()
 	if token_result.is_none():
 		oauth.reload_access_token_into_hash()
 	

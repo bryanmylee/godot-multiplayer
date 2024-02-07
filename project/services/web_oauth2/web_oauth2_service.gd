@@ -11,15 +11,7 @@ const REQUIRED_SCOPES := [
 	"https://www.googleapis.com/auth/userinfo.profile",
 	# "https://www.googleapis.com/auth/youtube.readonly",
 ]
-
-## [codeblock]
-## The amount of data returned depends on the `userinfo.*` scopes granted above.
-## @returns UserInfo
-## [/codeblock]
-const USER_INFO_REQUEST_URI := "https://www.googleapis.com/userinfo/v2/me"
 #endregion
-
-var redirect_address := "http://localhost:8060/tmp_js_export.html"
 
 
 func _init() -> void:
@@ -31,18 +23,20 @@ func reload_access_token_into_hash() -> void:
 	if not OS.has_feature("web"):
 		print("The JavaScriptBridge singleton is not available")
 		return
+
+	var current_uri = JavaScriptBridge.eval("window.location.origin + window.location.pathname;")
 	
 	var query_params = [
 		"include_granted_scopes=true",
 		"response_type=token",
 		"scope=%s" % " ".join(REQUIRED_SCOPES),
-		"redirect_uri=%s" % redirect_address,
+		"redirect_uri=%s" % current_uri,
 		"client_id=%s" % CLIENT_ID,
 	]
 
-	var auth_code_request_url = AUTH_URI + "?" + "&".join(query_params)
+	var request_url = AUTH_URI + "?" + "&".join(query_params)
 	
-	JavaScriptBridge.eval("window.open('%s', '_blank').focus(); window.close();" % auth_code_request_url)
+	JavaScriptBridge.eval("window.open('%s', '_blank').focus(); window.close();" % request_url)
 
 
 ## Consume the access token received on the location hash into local storage.
@@ -55,20 +49,26 @@ func consume_access_token_from_hash() -> void:
 	const params = new URLSearchParams(window.location.hash.slice(1));
 	if (params.has('access_token')) {
 		window.localStorage.setItem('access_token', params.get('access_token'));
+		params.delete('access_token');
 		if (params.has('expires_in')) {
 			const expiryDurationSeconds = params.get('expires_in');
 			const expiresAtMs = +(new Date()) + expiryDurationSeconds * 1000;
 			window.localStorage.setItem('access_token_expires_at', expiresAtMs);
+			params.delete('expires_in');
 		}
-		window.history.replaceState(undefined, undefined, '#');
+		params.delete('token_type');
+		params.delete('scope');
+		params.delete('authuser');
+		params.delete('prompt');
 	}
+	window.history.replaceState(undefined, undefined, '#' + params.toString());
 	""")
 
 
 ## [codeblock]
 ## @returns Option<String>
 ## [/codeblock]
-func get_access_token() -> Option:
+func get_local_access_token() -> Option:
 	if not OS.has_feature("web"):
 		print("The JavaScriptBridge singleton is not available")
 		return Option.None()
@@ -79,6 +79,8 @@ func get_access_token() -> Option:
 	return Option.Some(token)
 
 
+const USER_INFO_REQUEST_URI := "https://www.googleapis.com/userinfo/v2/me"
+## The amount of data returned depends on the `userinfo.*` scopes granted above.
 ## [codeblock]
 ## @returns Result<UserInfo {
 ##   id: String
@@ -92,7 +94,7 @@ func get_access_token() -> Option:
 ## }, String>
 ## [/codeblock]
 func get_user_info() -> Result:
-	var access_token_result := get_access_token()
+	var access_token_result := get_local_access_token()
 	if access_token_result.is_none():
 		return Result.Err("access_token not loaded")
 	var access_token = access_token_result.unwrap()
