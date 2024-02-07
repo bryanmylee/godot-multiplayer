@@ -13,8 +13,6 @@ pub fn config_service(cfg: &mut web::ServiceConfig) {
     cfg.service(sign_in);
 }
 
-const USER_INFO_REQUEST_URI: &'static str = "https://www.googleapis.com/userinfo/v2/me";
-
 #[derive(Deserialize)]
 #[allow(dead_code)]
 struct UserInfoResponse {
@@ -47,6 +45,8 @@ struct SignInSuccess {
     server_token: String,
     user: User,
 }
+
+const USER_INFO_REQUEST_URI: &'static str = "https://www.googleapis.com/userinfo/v2/me";
 
 #[post("/sign_in/")]
 async fn sign_in(
