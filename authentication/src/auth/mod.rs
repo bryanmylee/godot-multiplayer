@@ -17,7 +17,7 @@ pub fn config_service(cfg: &mut web::ServiceConfig) {
 
 #[post("/sign_out/")]
 async fn sign_out(_: JwtMiddleware) -> impl Responder {
-    let logout_cookie = cookie::Cookie::build("token", "")
+    let logout_cookie = cookie::Cookie::build("server_token", "")
         .path("/")
         .max_age(cookie::time::Duration::seconds(-1))
         .http_only(true)

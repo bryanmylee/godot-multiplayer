@@ -7,7 +7,7 @@ use actix_web::{cookie, error, post, web, HttpResponse, Responder};
 use actix_web_httpauth::extractors::bearer::BearerAuth;
 use diesel::RunQueryDsl;
 use reqwest::StatusCode;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 pub fn config_service(cfg: &mut web::ServiceConfig) {
     cfg.service(sign_in);
@@ -40,6 +40,12 @@ impl From<UserInfoResponse> for User {
         }
         .into()
     }
+}
+
+#[derive(Serialize)]
+struct SignInSuccess {
+    server_token: String,
+    user: User,
 }
 
 #[post("/sign_in/")]
@@ -86,7 +92,7 @@ async fn sign_in(
 
     let token = generate_jwt_token(&user, &jwt_config);
 
-    let sign_in_cookie = cookie::Cookie::build("token", token.to_owned())
+    let sign_in_cookie = cookie::Cookie::build("server_token", token.to_owned())
         .path("/")
         .max_age(cookie::time::Duration::seconds(
             jwt_config.expires_in.num_seconds(),
@@ -94,5 +100,10 @@ async fn sign_in(
         .http_only(true)
         .finish();
 
-    Ok(HttpResponse::Ok().cookie(sign_in_cookie).json(user))
+    Ok(HttpResponse::Ok()
+        .cookie(sign_in_cookie)
+        .json(SignInSuccess {
+            server_token: token,
+            user,
+        }))
 }
