@@ -98,36 +98,18 @@ func get_user_info() -> Result:
 	if access_token_result.is_none():
 		return Result.Err("access_token not loaded")
 	var access_token = access_token_result.unwrap()
-
-
-	var http_request := HTTPRequest.new()
-	http_request.accept_gzip = false
-	add_child(http_request)
-
-	var request_handler := Promise.new(func(resolve, reject):
-		http_request.request_completed.connect(func (
-			result: int,
-			response_code: int,
-			_headers: PackedStringArray,
-			body: PackedByteArray,
-		):
-			http_request.queue_free()
-			if result != HTTPRequest.RESULT_SUCCESS:
-				return reject.call("unsuccessful http request: %s" % result)
-			if response_code != HTTPClient.RESPONSE_OK:
-				return reject.call("non-200 response code received: %s" % response_code)
-			var body_text := body.get_string_from_utf8()
-			var body_json = JSON.parse_string(body_text)
-			return resolve.call(body_json)
-		)
-	)
-
-	var request_result := Result.from_gderr(http_request.request(
+	
+	var request_result: Result = await HTTPUtils.fetch(
 		USER_INFO_REQUEST_URI, ["Authorization: Bearer %s" % access_token]
-	))
-
+	).settled
+	
 	if request_result.is_err():
 		push_error(request_result.unwrap_err())
 		return request_result
 	
-	return await request_handler.settled
+	var response = request_result.unwrap()
+	if response.response_code != HTTPClient.RESPONSE_OK:
+		return Result.Err("failed to get data from Google's user info endpoint: %s" % response.response_code)
+	
+	var body_text: String = response.body.get_string_from_utf8()
+	return Result.Ok(JSON.parse_string(body_text))

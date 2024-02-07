@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 Program="*res://program.gd"
+HTTPUtils="*res://utils/http_utils.gd"
 RPCUtils="*res://utils/rpc_utils.gd"
 ServiceManager="*res://services/service_manager.gd"
 Authentication="*res://authentication/authentication.gd"
