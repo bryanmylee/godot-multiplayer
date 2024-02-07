@@ -39,20 +39,12 @@ An NGINX proxy provides TLS by forwarding ports defined below:
 
 | Variable    | Description                                      | Default value |
 | ----------- | ------------------------------------------------ | ------------- |
-| `VERSION`   | The semver version of the program.               | `0.0.1`       |
 | `SERVER_ID` | The unique ID to identify the server in logs.    | `randi()`     |
 | `PORT`      | The port that the server listens for clients on. | `9000`        |
 
 ## Game Client
 
 The game has exports for Windows, macOS, Linux, iOS, Android, and the Web.
-
-### Environment variables
-
-| Variable      | Description                           | Default value |
-| ------------- | ------------------------------------- | ------------- |
-| `SERVER_HOST` | The server host to connect to.        | `"127.0.0.1"` |
-| `SERVER_PORT` | The port on the server to connect to. | `9000`        |
 
 # Roadmap
 

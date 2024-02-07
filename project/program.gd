@@ -1,9 +1,9 @@
 extends Node
 
 var is_dedicated_server := "--server" in OS.get_cmdline_args()
-# var ssl_enabled := true
-var ssl_enabled := not OS.is_debug_build()
-var version := OS.get_environment("VERSION")
+const SSL_ENABLED := false
+const AUTH_SERVER_URI := "http://localhost:8000"
+
 
 var main: Main
 

@@ -31,7 +31,5 @@ The web client should run on port `10443`, which will be forwarded to `443` by N
 Certain parts of the application are controlled via environment variables. Pass them into the container with `-e` / `--env`.
 
 ```bash
-docker run --detach --name {name} --publish 10443:9000 \
-	--env SERVER_HOST="multiplayer-test.bryanmylee.com" \
-	{custom_tag}
+docker run --detach --name {name} --publish 10443:9000 {custom_tag}
 ```
