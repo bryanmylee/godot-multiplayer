@@ -9,13 +9,14 @@ use std::future::{ready, Ready};
 use uuid::Uuid;
 
 mod oauth2;
+pub mod provider;
 
 pub fn config_service(cfg: &mut web::ServiceConfig) {
     cfg.service(sign_out)
         .service(web::scope("/oauth2").configure(oauth2::config_service));
 }
 
-#[post("/sign_out/")]
+#[post("/sign-out/")]
 async fn sign_out(_: JwtMiddleware) -> impl Responder {
     let logout_cookie = cookie::Cookie::build("server_token", "")
         .path("/")
@@ -30,14 +31,6 @@ async fn sign_out(_: JwtMiddleware) -> impl Responder {
 pub struct JwtConfig {
     pub secret: String,
     pub expires_in: Duration,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub enum Provider {
-    OAuth2,
-    Steam,
-    GooglePlayGames,
-    AppleGameCenter,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

@@ -18,6 +18,7 @@ macro_rules! diesel_insertable {
         $(#[$attr:meta])*
         $vis:vis struct $Name:ident {}
     ) => {
+            #[derive(::diesel::prelude::Identifiable)]
             #[derive($($path),+)]
             $(#[$attr])*
             $vis struct $Name {
@@ -32,6 +33,7 @@ macro_rules! diesel_insertable {
         }
     ) => {
         ::paste::paste! {
+            #[derive(::diesel::prelude::Identifiable)]
             #[derive($($path),+)]
             $(#[$attr])*
             $vis struct $Name {
@@ -41,12 +43,12 @@ macro_rules! diesel_insertable {
 
             #[derive(::diesel::prelude::Insertable)]
             $(#[$attr])*
-            $vis struct [<Insert $Name>] {
+            $vis struct [<$Name Insert>] {
                 $($field_vis $field : $FieldType), *
             }
 
-            impl From<[<Insert $Name>]> for $Name {
-                fn from(value: [<Insert $Name>]) -> Self {
+            impl From<[<$Name Insert>]> for $Name {
+                fn from(value: [<$Name Insert>]) -> Self {
                     Self {
                         id: Uuid::new_v4(),
                         $($field: value.$field),*
@@ -54,7 +56,7 @@ macro_rules! diesel_insertable {
                 }
             }
 
-            impl From<$Name> for [<Insert $Name>] {
+            impl From<$Name> for [<$Name Insert>] {
                 fn from(value: $Name) -> Self {
                     Self {
                         $($field: value.$field),*
