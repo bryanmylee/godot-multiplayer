@@ -1,7 +1,7 @@
-use crate::{auth::provider::AuthProvider, diesel_insertable, schema, DbError, DbPool};
+use crate::db::{DbError, DbPool};
+use crate::{auth::provider::AuthProvider, diesel_insertable, schema};
 use actix_web::{error, get, web, HttpResponse, Responder};
 use diesel::prelude::*;
-use is_empty::IsEmpty;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -63,38 +63,3 @@ async fn get_user_by_id(
         None => HttpResponse::NotFound().body(format!("No user found with id {id_to_find}")),
     })
 }
-
-#[derive(Deserialize, IsEmpty)]
-struct FindUserQueryParams {
-    email: Option<String>,
-}
-
-// #[get("/")]
-// async fn find_user(
-//     pool: web::Data<DbPool>,
-//     params: web::Query<FindUserQueryParams>,
-// ) -> actix_web::Result<impl Responder> {
-//     if params.is_empty() {
-//         return Ok(HttpResponse::BadRequest().body("At least one query parameter is required"));
-//     }
-
-//     // Use `web::block` to offload blocking Diesel queries without blocking server thread.
-//     let user = web::block(move || {
-//         // Obtaining a connection from the pool is also potentially blocking.
-//         let mut conn = pool.get()?;
-
-//         use crate::schema::user::dsl::*;
-//         let mut query = user.into_boxed();
-//         if let Some(_email) = &params.email {
-//             query = query.filter(email.eq(_email));
-//         }
-//         Ok(query.first::<User>(&mut conn).optional()?)
-//     })
-//     .await?
-//     .map_err(error::ErrorInternalServerError::<DbError>)?;
-
-//     Ok(match user {
-//         Some(user) => HttpResponse::Ok().json(user),
-//         None => HttpResponse::NotFound().body(format!("No user found")),
-//     })
-// }
