@@ -54,10 +54,29 @@ macro_rules! diesel_insertable {
                 }
             }
 
+            impl From<&[<$Name Insert>]> for $Name {
+                fn from(value: &[<$Name Insert>]) -> Self {
+                    let cloned = value.clone();
+                    Self {
+                        id: Uuid::new_v4(),
+                        $($field: cloned.$field),*
+                    }
+                }
+            }
+
             impl From<$Name> for [<$Name Insert>] {
                 fn from(value: $Name) -> Self {
                     Self {
                         $($field: value.$field),*
+                    }
+                }
+            }
+
+            impl From<&$Name> for [<$Name Insert>] {
+                fn from(value: &$Name) -> Self {
+                    let cloned = value.clone();
+                    Self {
+                        $($field: cloned.$field),*
                     }
                 }
             }
