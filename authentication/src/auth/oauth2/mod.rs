@@ -1,9 +1,9 @@
+mod google_provider;
+mod sign_in;
+
 use self::google_provider::{GoogleUserInfoService, RealGoogleUserInfoService};
 use actix_web::web;
 use std::sync::Arc;
-
-mod google_provider;
-mod sign_in;
 
 pub fn config_service(cfg: &mut web::ServiceConfig) {
     let google_user_info_service =

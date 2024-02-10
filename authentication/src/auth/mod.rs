@@ -1,9 +1,9 @@
-use actix_web::{cookie, post, web, HttpResponse, Responder};
-
 pub mod identity;
 mod oauth2;
 pub mod provider;
 pub mod token;
+
+use actix_web::{cookie, post, web, HttpResponse, Responder};
 
 pub fn config_service(cfg: &mut web::ServiceConfig) {
     cfg.service(sign_out)
