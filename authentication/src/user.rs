@@ -15,7 +15,6 @@ diesel_insertable! {
 }
 
 pub fn config_service(cfg: &mut web::ServiceConfig) {
-    // cfg.service(get_user_by_id).service(find_user);
     cfg.service(get_user_by_id);
 }
 
