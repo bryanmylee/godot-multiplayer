@@ -1,5 +1,5 @@
 use actix_web::{get, middleware, web, App, HttpServer, Responder};
-use authentication::{auth, config, user};
+use authentication::{auth, config, db, user};
 use std::env;
 
 #[get("/")]
@@ -16,12 +16,12 @@ async fn main() -> std::io::Result<()> {
     env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
     env_logger::init();
 
-    let pool = config::initialize_db_pool(&config::get_db_url());
+    db::init();
     let identity_config = config::get_identity_config();
 
     HttpServer::new(move || {
         App::new()
-            .app_data(web::Data::new(pool.clone()))
+            .app_data(web::Data::new(db::get_pool()))
             .app_data(web::Data::new(identity_config.clone()))
             .wrap(middleware::NormalizePath::new(
                 middleware::TrailingSlash::Always,

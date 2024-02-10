@@ -1,18 +1,7 @@
-use crate::{auth, DbPool};
+use crate::auth;
 use actix_cors::Cors;
 use chrono::Duration;
-use diesel::{r2d2, PgConnection};
 use std::env;
-
-/// Initialize a database connection pool based on the `DATABASE_URL` environment variable.
-///
-/// See more: <https://docs.rs/diesel/latest/diesel/r2d2/index.html>.
-pub fn initialize_db_pool(db_url: &str) -> DbPool {
-    let manager = r2d2::ConnectionManager::<PgConnection>::new(db_url);
-    r2d2::Pool::builder()
-        .build(manager)
-        .expect("The database URL should be a valid Postgres connection string")
-}
 
 pub fn get_db_url() -> String {
     let url = env::var("POSTGRES_URL");
