@@ -6,9 +6,13 @@ lazy_static::lazy_static! {
 
 #[cfg(test)]
 pub fn init() {
+    use crate::db;
+
     let mut initiated = INITIATED.lock().unwrap();
     if !*initiated {
         dotenvy::dotenv().ok();
+        db::init();
+
         *initiated = true;
     }
 }

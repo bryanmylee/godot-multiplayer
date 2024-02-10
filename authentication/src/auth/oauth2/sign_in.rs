@@ -96,6 +96,7 @@ mod tests {
     use actix_web::{http::header::AUTHORIZATION, test, web, App};
     use reqwest::StatusCode;
     use std::sync::Arc;
+    use uuid::Uuid;
 
     use super::*;
 
@@ -110,7 +111,9 @@ mod tests {
             }
         }
 
-        let pool = web::Data::new(db::initialize_db_pool(&config::get_db_url()));
+        crate::test::init();
+
+        let pool = web::Data::new(db::get_pool());
         let identity_config = web::Data::new(config::get_identity_config());
         let google_user_info_service =
             web::Data::from(Arc::new(NeverGoogleUserInfoService) as Arc<dyn GoogleUserInfoService>);
@@ -150,7 +153,9 @@ mod tests {
             }
         }
 
-        let pool = web::Data::new(db::initialize_db_pool(&config::get_db_url()));
+        crate::test::init();
+
+        let pool = web::Data::new(db::get_pool());
         let identity_config = web::Data::new(config::get_identity_config());
         let google_user_info_service = web::Data::from(
             Arc::new(NewUserGoogleUserInfoService) as Arc<dyn GoogleUserInfoService>
@@ -179,27 +184,50 @@ mod tests {
 
     #[actix_web::test]
     async fn test_existing_user_should_sign_in() {
+        lazy_static::lazy_static! {
+            static ref EXISTING_USER_INFO: GoogleUserInfo = GoogleUserInfo {
+                id: "existing".to_string(),
+                email: Some("example@existing.com".to_string()),
+                verified_email: true,
+                name: Some("John".to_string()),
+                family_name: None,
+                given_name: Some("John".to_string()),
+                locale: None,
+                picture: None,
+            };
+
+            static ref EXISTING_USER: User = User {
+                id: Uuid::new_v4(),
+                name: Some("John".to_string()),
+            };
+        }
+
         struct ExistingGoogleUserInfoService;
 
         #[async_trait::async_trait]
         impl GoogleUserInfoService for ExistingGoogleUserInfoService {
             async fn get_info(&self, _token: &str) -> Result<GoogleUserInfo, error::Error> {
-                Ok(GoogleUserInfo {
-                    id: "existing".to_string(),
-                    email: Some("example@existing.com".to_string()),
-                    verified_email: true,
-                    family_name: None,
-                    given_name: None,
-                    name: None,
-                    locale: None,
-                    picture: None,
-                })
+                Ok(EXISTING_USER_INFO.clone())
             }
         }
 
         crate::test::init();
 
-        let pool = web::Data::new(db::initialize_db_pool(&config::get_db_url()));
+        let pool = db::get_pool();
+        {
+            let mut conn = pool.get().expect("Failed to get a database connection");
+            diesel::insert_into(schema::user::table)
+                .values(EXISTING_USER.clone())
+                .execute(&mut conn)
+                .expect("Failed to insert user");
+
+            diesel::insert_into(schema::auth_provider::table)
+                .values(EXISTING_USER_INFO.into_provider_insert(&EXISTING_USER))
+                .execute(&mut conn)
+                .expect("Failed to insert provider");
+        }
+
+        let pool = web::Data::new(pool);
         let identity_config = web::Data::new(config::get_identity_config());
         let google_user_info_service = web::Data::from(
             Arc::new(ExistingGoogleUserInfoService) as Arc<dyn GoogleUserInfoService>
@@ -223,6 +251,8 @@ mod tests {
         assert!(resp.status().is_success());
 
         let body: SignInResult = test::read_body_json(resp).await;
-        assert_eq!(body, SignInResult::PendingLinkOrCreate);
+        assert!(std::matches!(body, SignInResult::Success(success) if {
+            success.user.user == EXISTING_USER.clone()
+        }));
     }
 }
