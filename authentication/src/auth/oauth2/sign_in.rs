@@ -92,143 +92,137 @@ async fn sign_in(
 mod tests {
     use crate::auth::oauth2::google_provider::GoogleUserInfo;
     use crate::config;
+    use crate::db;
     use actix_web::{http::header::AUTHORIZATION, test, web, App};
     use reqwest::StatusCode;
     use std::sync::Arc;
 
     use super::*;
 
-    mod sign_in {
-        use crate::db;
+    #[actix_web::test]
+    async fn test_no_google_token_should_be_unauthorized() {
+        struct NeverGoogleUserInfoService;
 
-        use super::*;
-
-        #[actix_web::test]
-        async fn test_no_google_token_should_be_unauthorized() {
-            struct NeverGoogleUserInfoService;
-
-            #[async_trait::async_trait]
-            impl GoogleUserInfoService for NeverGoogleUserInfoService {
-                async fn get_info(&self, _token: &str) -> Result<GoogleUserInfo, error::Error> {
-                    panic!("Unreachable code")
-                }
+        #[async_trait::async_trait]
+        impl GoogleUserInfoService for NeverGoogleUserInfoService {
+            async fn get_info(&self, _token: &str) -> Result<GoogleUserInfo, error::Error> {
+                panic!("Unreachable code")
             }
-
-            let pool = web::Data::new(db::initialize_db_pool(&config::get_db_url()));
-            let identity_config = web::Data::new(config::get_identity_config());
-            let google_user_info_service = web::Data::from(
-                Arc::new(NeverGoogleUserInfoService) as Arc<dyn GoogleUserInfoService>
-            );
-
-            let app = test::init_service(
-                App::new()
-                    .app_data(pool)
-                    .app_data(identity_config)
-                    .app_data(google_user_info_service)
-                    .service(sign_in),
-            )
-            .await;
-
-            let req = test::TestRequest::post().uri("/sign-in/").to_request();
-
-            let resp = test::call_service(&app, req).await;
-            assert_eq!(resp.status(), StatusCode::UNAUTHORIZED);
         }
 
-        #[actix_web::test]
-        async fn test_non_existing_sign_in_should_be_pending_link_or_create() {
-            struct NewUserGoogleUserInfoService;
+        let pool = web::Data::new(db::initialize_db_pool(&config::get_db_url()));
+        let identity_config = web::Data::new(config::get_identity_config());
+        let google_user_info_service =
+            web::Data::from(Arc::new(NeverGoogleUserInfoService) as Arc<dyn GoogleUserInfoService>);
 
-            #[async_trait::async_trait]
-            impl GoogleUserInfoService for NewUserGoogleUserInfoService {
-                async fn get_info(&self, _token: &str) -> Result<GoogleUserInfo, error::Error> {
-                    Ok(GoogleUserInfo {
-                        id: "examplenonexistent".to_string(),
-                        email: Some("example@nonexistent.com".to_string()),
-                        verified_email: false,
-                        family_name: None,
-                        given_name: None,
-                        name: None,
-                        locale: None,
-                        picture: None,
-                    })
-                }
+        let app = test::init_service(
+            App::new()
+                .app_data(pool)
+                .app_data(identity_config)
+                .app_data(google_user_info_service)
+                .service(sign_in),
+        )
+        .await;
+
+        let req = test::TestRequest::post().uri("/sign-in/").to_request();
+
+        let resp = test::call_service(&app, req).await;
+        assert_eq!(resp.status(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[actix_web::test]
+    async fn test_non_existing_sign_in_should_be_pending_link_or_create() {
+        struct NewUserGoogleUserInfoService;
+
+        #[async_trait::async_trait]
+        impl GoogleUserInfoService for NewUserGoogleUserInfoService {
+            async fn get_info(&self, _token: &str) -> Result<GoogleUserInfo, error::Error> {
+                Ok(GoogleUserInfo {
+                    id: "examplenonexistent".to_string(),
+                    email: Some("example@nonexistent.com".to_string()),
+                    verified_email: false,
+                    family_name: None,
+                    given_name: None,
+                    name: None,
+                    locale: None,
+                    picture: None,
+                })
             }
-
-            let pool = web::Data::new(db::initialize_db_pool(&config::get_db_url()));
-            let identity_config = web::Data::new(config::get_identity_config());
-            let google_user_info_service = web::Data::from(
-                Arc::new(NewUserGoogleUserInfoService) as Arc<dyn GoogleUserInfoService>
-            );
-
-            let app = test::init_service(
-                App::new()
-                    .app_data(pool)
-                    .app_data(identity_config)
-                    .app_data(google_user_info_service)
-                    .service(sign_in),
-            )
-            .await;
-
-            let req = test::TestRequest::post()
-                .insert_header((AUTHORIZATION, "Bearer mock"))
-                .uri("/sign-in/")
-                .to_request();
-
-            let resp = test::call_service(&app, req).await;
-            assert!(resp.status().is_success());
-
-            let body: SignInResult = test::read_body_json(resp).await;
-            assert_eq!(body, SignInResult::PendingLinkOrCreate);
         }
 
-        #[actix_web::test]
-        async fn test_existing_user_should_sign_in() {
-            struct ExistingGoogleUserInfoService;
+        let pool = web::Data::new(db::initialize_db_pool(&config::get_db_url()));
+        let identity_config = web::Data::new(config::get_identity_config());
+        let google_user_info_service = web::Data::from(
+            Arc::new(NewUserGoogleUserInfoService) as Arc<dyn GoogleUserInfoService>
+        );
 
-            #[async_trait::async_trait]
-            impl GoogleUserInfoService for ExistingGoogleUserInfoService {
-                async fn get_info(&self, _token: &str) -> Result<GoogleUserInfo, error::Error> {
-                    Ok(GoogleUserInfo {
-                        id: "existing".to_string(),
-                        email: Some("example@existing.com".to_string()),
-                        verified_email: true,
-                        family_name: None,
-                        given_name: None,
-                        name: None,
-                        locale: None,
-                        picture: None,
-                    })
-                }
+        let app = test::init_service(
+            App::new()
+                .app_data(pool)
+                .app_data(identity_config)
+                .app_data(google_user_info_service)
+                .service(sign_in),
+        )
+        .await;
+
+        let req = test::TestRequest::post()
+            .insert_header((AUTHORIZATION, "Bearer mock"))
+            .uri("/sign-in/")
+            .to_request();
+
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+
+        let body: SignInResult = test::read_body_json(resp).await;
+        assert_eq!(body, SignInResult::PendingLinkOrCreate);
+    }
+
+    #[actix_web::test]
+    async fn test_existing_user_should_sign_in() {
+        struct ExistingGoogleUserInfoService;
+
+        #[async_trait::async_trait]
+        impl GoogleUserInfoService for ExistingGoogleUserInfoService {
+            async fn get_info(&self, _token: &str) -> Result<GoogleUserInfo, error::Error> {
+                Ok(GoogleUserInfo {
+                    id: "existing".to_string(),
+                    email: Some("example@existing.com".to_string()),
+                    verified_email: true,
+                    family_name: None,
+                    given_name: None,
+                    name: None,
+                    locale: None,
+                    picture: None,
+                })
             }
-
-            crate::test::init();
-
-            let pool = web::Data::new(db::initialize_db_pool(&config::get_db_url()));
-            let identity_config = web::Data::new(config::get_identity_config());
-            let google_user_info_service = web::Data::from(
-                Arc::new(ExistingGoogleUserInfoService) as Arc<dyn GoogleUserInfoService>
-            );
-
-            let app = test::init_service(
-                App::new()
-                    .app_data(pool)
-                    .app_data(identity_config)
-                    .app_data(google_user_info_service)
-                    .service(sign_in),
-            )
-            .await;
-
-            let req = test::TestRequest::post()
-                .insert_header((AUTHORIZATION, "Bearer mock"))
-                .uri("/sign-in/")
-                .to_request();
-
-            let resp = test::call_service(&app, req).await;
-            assert!(resp.status().is_success());
-
-            let body: SignInResult = test::read_body_json(resp).await;
-            assert_eq!(body, SignInResult::PendingLinkOrCreate);
         }
+
+        crate::test::init();
+
+        let pool = web::Data::new(db::initialize_db_pool(&config::get_db_url()));
+        let identity_config = web::Data::new(config::get_identity_config());
+        let google_user_info_service = web::Data::from(
+            Arc::new(ExistingGoogleUserInfoService) as Arc<dyn GoogleUserInfoService>
+        );
+
+        let app = test::init_service(
+            App::new()
+                .app_data(pool)
+                .app_data(identity_config)
+                .app_data(google_user_info_service)
+                .service(sign_in),
+        )
+        .await;
+
+        let req = test::TestRequest::post()
+            .insert_header((AUTHORIZATION, "Bearer mock"))
+            .uri("/sign-in/")
+            .to_request();
+
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+
+        let body: SignInResult = test::read_body_json(resp).await;
+        assert_eq!(body, SignInResult::PendingLinkOrCreate);
     }
 }
