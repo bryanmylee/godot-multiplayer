@@ -11,10 +11,11 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 diesel_insertable! {
-    #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Queryable, Selectable, Insertable, AsChangeset, Associations)]
+    #[derive(Queryable, Selectable, Insertable, AsChangeset, Associations)]
     #[diesel(belongs_to(User))]
     #[diesel(table_name = schema::auth_provider)]
     #[diesel(check_for_backend(Pg))]
+    #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
     pub struct AuthProvider {
         pub user_id: Uuid,
         pub order: i16,
@@ -26,6 +27,23 @@ diesel_insertable! {
         pub user_name: Option<String>,
         pub picture_url: Option<String>,
         pub locale: Option<String>,
+    }
+}
+
+impl Default for AuthProviderInsert {
+    fn default() -> Self {
+        AuthProviderInsert {
+            user_id: Uuid::new_v4(),
+            order: 0,
+            provider_id: "".to_string(),
+            provider_type: AuthProviderType::OAuth2,
+            email: None,
+            email_verified: false,
+            user_name: None,
+            display_name: None,
+            picture_url: None,
+            locale: None,
+        }
     }
 }
 

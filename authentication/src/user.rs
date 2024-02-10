@@ -27,6 +27,12 @@ pub struct UserWithAuthProviders {
     pub providers: Vec<AuthProvider>,
 }
 
+impl Default for UserInsert {
+    fn default() -> Self {
+        UserInsert { name: None }
+    }
+}
+
 #[get("/{user_id}/")]
 async fn get_user_by_id(
     pool: web::Data<DbPool>,
