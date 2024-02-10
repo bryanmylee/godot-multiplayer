@@ -6,9 +6,10 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 diesel_insertable! {
-    #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Queryable, Selectable, Insertable)]
+    #[derive(Queryable, Selectable, Insertable, AsChangeset)]
     #[diesel(table_name = crate::schema::user)]
     #[diesel(check_for_backend(diesel::pg::Pg))]
+    #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
     pub struct User {
         pub name: Option<String>,
     }
