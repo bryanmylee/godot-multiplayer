@@ -19,7 +19,8 @@ pub fn config_service(cfg: &mut web::ServiceConfig) {
     cfg.service(get_user_by_id);
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Clone, Serialize)]
+#[cfg_attr(test, derive(Deserialize, PartialEq))]
 pub struct UserWithAuthProviders {
     #[serde(flatten)]
     pub user: User,

@@ -327,12 +327,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-trait"
+version = "0.1.77"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c980ee35e870bd1a4d2c8294d4c04d0499e67bca1e4b5cefcc693c2fa00caea9"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.48",
+]
+
+[[package]]
 name = "authentication"
 version = "0.1.0"
 dependencies = [
  "actix-cors",
  "actix-web",
  "actix-web-httpauth",
+ "async-trait",
  "chrono",
  "diesel",
  "diesel-derive-enum",

@@ -16,14 +16,14 @@ services:
       target: final
     secrets:
       - db-password
-      - jwt-secret
+      - identity-secret
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD_FILE: /run/secrets/db-password
       POSTGRES_DB: postgres
       POSTGRES_HOST: db
       POSTGRES_PORT: 5432
-      JWT_SECRET_FILE: /run/secrets/jwt-secret
+      IDENTITY_SECRET_FILE: /run/secrets/identity-secret
       ALLOWED_ORIGINS: "http://localhost:8060,https://multiplayer-test.bryanmylee.com"
     ports:
       - 18000:8000
@@ -57,5 +57,5 @@ volumes:
 secrets:
   db-password:
     file: secrets/db-password.txt
-  jwt-secret:
-    file: secrets/jwt-secret.txt
+  identity-secret:
+    file: secrets/identity-secret.txt
