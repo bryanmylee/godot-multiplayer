@@ -2,6 +2,7 @@ use crate::auth::identity::IdentityConfig;
 use crate::auth::oauth2::google_provider::{GoogleUserInfo, GoogleUserInfoService};
 use crate::auth::provider::{AuthProvider, AuthProviderChangeset, AuthProviderType};
 use crate::auth::token::BearerToken;
+use crate::auth::SignInSuccess;
 use crate::db::{DbConnection, DbPool};
 use crate::schema;
 use crate::user::{User, UserInsert, UserWithAuthProviders};
@@ -17,13 +18,6 @@ use uuid::Uuid;
 pub enum SignInResult {
     Success(SignInSuccess),
     PendingLinkOrCreate(Vec<UserWithAuthProviders>),
-}
-
-#[derive(Debug, Clone, Serialize)]
-#[cfg_attr(test, derive(serde::Deserialize, PartialEq))]
-pub struct SignInSuccess {
-    server_token: String,
-    user: UserWithAuthProviders,
 }
 
 #[post("/sign-in/")]

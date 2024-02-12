@@ -3,7 +3,9 @@ pub mod oauth2;
 pub mod provider;
 pub mod token;
 
+use crate::user::UserWithAuthProviders;
 use actix_web::{cookie, post, web, HttpResponse, Responder};
+use serde::Serialize;
 
 pub fn config_service(cfg: &mut web::ServiceConfig) {
     cfg.service(sign_out)
@@ -19,4 +21,11 @@ async fn sign_out(_: identity::Identity) -> impl Responder {
         .finish();
 
     HttpResponse::Ok().cookie(logout_cookie).finish()
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[cfg_attr(test, derive(serde::Deserialize, PartialEq))]
+pub struct SignInSuccess {
+    server_token: String,
+    user: UserWithAuthProviders,
 }
