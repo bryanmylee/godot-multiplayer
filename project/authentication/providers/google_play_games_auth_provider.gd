@@ -1,5 +1,5 @@
-extends AuthenticationProvider
-class_name GooglePlayGamesAuthenticationProvider
+extends AuthProvider
+class_name GooglePlayGamesAuthProvider
 
 @onready var google_play_games: GooglePlayGamesService = ServiceManager.get_service("GooglePlayGames")
 

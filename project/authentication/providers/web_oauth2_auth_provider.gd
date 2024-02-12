@@ -1,5 +1,5 @@
-extends AuthenticationProvider
-class_name WebOAuth2AuthenticationProvider
+extends AuthProvider
+class_name WebOAuth2AuthProvider
 
 @onready var oauth: WebOAuth2Service = ServiceManager.get_service("OAuth2")
 
@@ -25,7 +25,7 @@ func initialize() -> Result:
 	return Result.Ok(null)
 
 
-const AUTH_SERVER_SIGN_IN_PATH := "/auth/oauth2/sign_in"
+const AUTH_SERVER_SIGN_IN_PATH := "/auth/oauth2/sign-in"
 func server_sign_in() -> Result:
 	var access_token_result := oauth.get_local_access_token()
 	if access_token_result.is_none():

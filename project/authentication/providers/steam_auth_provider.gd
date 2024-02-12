@@ -1,5 +1,5 @@
-extends AuthenticationProvider
-class_name SteamAuthenticationProvider
+extends AuthProvider
+class_name SteamAuthProvider
 
 
 func _init() -> void:

@@ -1,5 +1,5 @@
-extends AuthenticationProvider
-class_name AppleGameCenterAuthenticationProvider
+extends AuthProvider
+class_name AppleGameCenterAuthProvider
 
 @onready var game_center: AppleGameCenterService = ServiceManager.get_service("AppleGameCenter")
 

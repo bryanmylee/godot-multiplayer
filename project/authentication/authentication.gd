@@ -8,21 +8,21 @@ enum ProviderName {
 }
 
 const PROVIDER_SCRIPT := {
-	ProviderName.STEAM: "res://authentication/providers/steam_authentication_provider.gd",
-	ProviderName.GOOGLE_PLAY_GAMES: "res://authentication/providers/google_play_games_authentication_provider.gd",
-	ProviderName.APPLE_GAME_CENTER: "res://authentication/providers/apple_game_center_authentication_provider.gd",
-	ProviderName.WEB_OAUTH2: "res://authentication/providers/web_oauth2_authentication_provider.gd",
+	ProviderName.STEAM: "res://authentication/providers/steam_auth_provider.gd",
+	ProviderName.GOOGLE_PLAY_GAMES: "res://authentication/providers/google_play_games_auth_provider.gd",
+	ProviderName.APPLE_GAME_CENTER: "res://authentication/providers/apple_game_center_auth_provider.gd",
+	ProviderName.WEB_OAUTH2: "res://authentication/providers/web_oauth2_auth_provider.gd",
 }
 
 var providers_node: Node
 
-var providers: Array[AuthenticationProvider] :
+var providers: Array[AuthProvider] :
 	get:
-		var _providers: Array[AuthenticationProvider] = []
+		var _providers: Array[AuthProvider] = []
 		_providers.assign(providers_node.get_children())
 		return _providers
 
-var main_provider: AuthenticationProvider :
+var main_provider: AuthProvider :
 	get:
 		return providers.front() if providers.size() > 0 else null
 
@@ -34,7 +34,7 @@ func _ready() -> void:
 
 
 ## [codeblock]
-## @returns Result<AuthenticationProvider>
+## @returns Result<AuthProvider>
 ## [/codeblock]
 func initialize_main_provider() -> Result:
 	if main_provider != null:
@@ -54,11 +54,11 @@ func initialize_main_provider() -> Result:
 
 
 ## [codeblock]
-## @returns Result<AuthenticationProvider>
+## @returns Result<AuthProvider>
 ## [/codeblock]
 func add_provider(pname: ProviderName) -> Result:
 	var script = PROVIDER_SCRIPT[pname]
-	var provider := load(script).new() as AuthenticationProvider
+	var provider := load(script).new() as AuthProvider
 	providers_node.add_child(provider, true)
 	provider.owner = providers_node
 	

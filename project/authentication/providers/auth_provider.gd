@@ -1,5 +1,5 @@
 extends Node
-class_name AuthenticationProvider
+class_name AuthProvider
 
 var user_id: String
 var user_name: String
@@ -22,6 +22,19 @@ func initialize() -> Result:
 ##   oauth2_name?: String
 ##   oauth2_picture_url?: String
 ## }
+##
+## UserWithAuthProviders {
+##   user: User
+##   providers: Array<AuthProvider>
+## }
+##
+## SignInSuccess {
+##   type: "success"
+##   payload: {
+##     server_token: String
+##     user: UserWithAuthProviders
+##   }
+## }
 ## [/codeblock]
 
 
@@ -29,8 +42,9 @@ func initialize() -> Result:
 ## cookie and also return the token as JSON.
 ## [codeblock]
 ## @returns SignInResult {
-##   server_token: String
-##   user: User
+##   type: "success"
+## } | {
+##   type: "pending_link_or_create"
 ## }
 ## [/codeblock]
 func server_sign_in() -> Result:

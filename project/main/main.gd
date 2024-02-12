@@ -15,7 +15,7 @@ func _ready() -> void:
 	if provider_result.is_err():
 		print(provider_result.unwrap_err())
 		return
-	var provider: AuthenticationProvider = provider_result.unwrap()
+	var provider: AuthProvider = provider_result.unwrap()
 
 	var sign_in_result := await provider.server_sign_in()
 	if sign_in_result.is_err():
