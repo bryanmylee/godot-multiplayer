@@ -3,13 +3,13 @@ class_name VerificationSynchronizer
 
 @export var root: Node = get_parent()
 ## [codeblock]
-## Array[keyof TState]
+## Array<keyof TState>
 ## [/codeblock]
 @export var state_properties: Array[String]
 
 @export var input_root: Node
 ## [codeblock]
-## Array[keyof TInput]
+## Array<keyof TInput>
 ## [/codeblock]
 @export var input_properties: Array[String]
 
