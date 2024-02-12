@@ -199,12 +199,12 @@ mod tests {
     #[actix_web::test]
     async fn test_non_existing_provider_but_existing_email_should_be_pending() {
         lazy_static::lazy_static! {
-            static ref EXISTING_NAME: String = "John".to_string();
+            static ref EXISTING_NAME: String = "Adam".to_string();
 
             static ref EXISTING_EMAIL: String = "example@existing.com".to_string();
 
-            static ref GOOGLE_USER_INFO: GoogleUserInfo = GoogleUserInfo {
-                id: "user_info".to_string(),
+            static ref USER_INFO: GoogleUserInfo = GoogleUserInfo {
+                id: "0001".to_string(),
                 email: Some(EXISTING_EMAIL.clone()),
                 verified_email: true,
                 name: Some("Bryan".to_string()),
@@ -220,7 +220,7 @@ mod tests {
         #[async_trait::async_trait]
         impl GoogleUserInfoService for MockGoogleUserInfoService {
             async fn get_info(&self, _token: &str) -> Result<GoogleUserInfo, error::Error> {
-                Ok(GOOGLE_USER_INFO.clone())
+                Ok(USER_INFO.clone())
             }
         }
 
@@ -268,7 +268,7 @@ mod tests {
         .await;
 
         let req = test::TestRequest::post()
-            .insert_header((AUTHORIZATION, "Bearer mock"))
+            .insert_header((AUTHORIZATION, "Bearer 0000"))
             .uri("/sign-in/")
             .to_request();
 
@@ -292,7 +292,7 @@ mod tests {
     #[actix_web::test]
     async fn test_non_existing_provider_with_no_existing_email_should_sign_in() {
         lazy_static::lazy_static! {
-            static ref GOOGLE_USER_INFO: GoogleUserInfo = GoogleUserInfo {
+            static ref USER_INFO: GoogleUserInfo = GoogleUserInfo {
                 id: "examplenonexistent".to_string(),
                 email: Some("example@nonexistent.com".to_string()),
                 verified_email: false,
@@ -309,7 +309,7 @@ mod tests {
         #[async_trait::async_trait]
         impl GoogleUserInfoService for MockGoogleUserInfoService {
             async fn get_info(&self, _token: &str) -> Result<GoogleUserInfo, error::Error> {
-                Ok(GOOGLE_USER_INFO.clone())
+                Ok(USER_INFO.clone())
             }
         }
 
@@ -328,7 +328,7 @@ mod tests {
         .await;
 
         let req = test::TestRequest::post()
-            .insert_header((AUTHORIZATION, "Bearer mock"))
+            .insert_header((AUTHORIZATION, "Bearer 0000"))
             .uri("/sign-in/")
             .to_request();
 
@@ -342,25 +342,25 @@ mod tests {
             panic!()
         };
 
-        assert_eq!(success.user.user.name, GOOGLE_USER_INFO.name);
+        assert_eq!(success.user.user.name, USER_INFO.name);
 
         assert_eq!(success.user.providers.len(), 1);
         assert_eq!(
             success.user.providers[0].clone().into_insert(),
-            GOOGLE_USER_INFO.into_provider_insert(&success.user.user)
+            USER_INFO.into_provider_insert(&success.user.user)
         );
     }
 
     #[actix_web::test]
     async fn test_existing_user_should_sign_in() {
         lazy_static::lazy_static! {
-            static ref GOOGLE_USER_INFO: GoogleUserInfo = GoogleUserInfo {
+            static ref USER_INFO: GoogleUserInfo = GoogleUserInfo {
                 id: "existing".to_string(),
                 email: Some("example@existing.com".to_string()),
                 verified_email: true,
-                name: Some("John".to_string()),
+                name: Some("Adam".to_string()),
                 family_name: None,
-                given_name: Some("John".to_string()),
+                given_name: Some("Adam".to_string()),
                 locale: None,
                 picture: None,
             };
@@ -368,7 +368,7 @@ mod tests {
 
         let existing_user = User {
             id: Uuid::new_v4(),
-            name: Some("John".to_string()),
+            name: Some("Adam".to_string()),
         };
 
         struct MockGoogleUserInfoService;
@@ -376,7 +376,7 @@ mod tests {
         #[async_trait::async_trait]
         impl GoogleUserInfoService for MockGoogleUserInfoService {
             async fn get_info(&self, _token: &str) -> Result<GoogleUserInfo, error::Error> {
-                Ok(GOOGLE_USER_INFO.clone())
+                Ok(USER_INFO.clone())
             }
         }
 
@@ -386,6 +386,7 @@ mod tests {
                 .get()
                 .await
                 .expect("Failed to get a database connection");
+
             diesel::insert_into(schema::user::table)
                 .values(&existing_user)
                 .execute(&mut conn)
@@ -393,7 +394,7 @@ mod tests {
                 .expect("Failed to insert user");
 
             diesel::insert_into(schema::auth_provider::table)
-                .values(GOOGLE_USER_INFO.into_provider_insert(&existing_user))
+                .values(USER_INFO.into_provider_insert(&existing_user))
                 .execute(&mut conn)
                 .await
                 .expect("Failed to insert provider");
@@ -414,7 +415,7 @@ mod tests {
         .await;
 
         let req = test::TestRequest::post()
-            .insert_header((AUTHORIZATION, "Bearer mock"))
+            .insert_header((AUTHORIZATION, "Bearer 0000"))
             .uri("/sign-in/")
             .to_request();
 
@@ -433,7 +434,7 @@ mod tests {
         assert_eq!(success.user.providers.len(), 1);
         assert_eq!(
             success.user.providers[0].clone().into_insert(),
-            GOOGLE_USER_INFO.into_provider_insert(&existing_user)
+            USER_INFO.into_provider_insert(&existing_user)
         );
     }
 }
