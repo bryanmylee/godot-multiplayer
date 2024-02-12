@@ -1,7 +1,8 @@
-use crate::db::{DbError, DbPool};
+use crate::db::DbPool;
 use crate::{auth::provider::AuthProvider, diesel_insertable, schema};
-use actix_web::{error, get, web, HttpResponse, Responder};
+use actix_web::{error, get, web, HttpResponse};
 use diesel::prelude::*;
+use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -37,35 +38,32 @@ impl Default for UserInsert {
 async fn get_user_by_id(
     pool: web::Data<DbPool>,
     path: web::Path<Uuid>,
-) -> actix_web::Result<impl Responder> {
+) -> actix_web::Result<HttpResponse> {
     let id_to_find = path.into_inner();
 
-    let user = web::block(move || {
-        let mut conn = pool.get()?;
+    let mut conn = pool.get().await.map_err(error::ErrorInternalServerError)?;
 
-        let found_user = schema::user::table
-            .filter(schema::user::id.eq(&id_to_find))
-            .first::<User>(&mut conn)
-            .optional()?;
+    let found_user = schema::user::table
+        .filter(schema::user::id.eq(&id_to_find))
+        .first::<User>(&mut conn)
+        .await
+        .optional()
+        .map_err(error::ErrorInternalServerError)?;
 
-        let Some(found_user) = found_user else {
-            return Ok(None);
-        };
+    let Some(found_user) = found_user else {
+        return Ok(HttpResponse::NotFound().body(format!("No user found with id {id_to_find}")));
+    };
 
-        let providers = AuthProvider::belonging_to(&found_user)
-            .select(AuthProvider::as_select())
-            .load(&mut conn)?;
+    let providers = AuthProvider::belonging_to(&found_user)
+        .select(AuthProvider::as_select())
+        .load(&mut conn)
+        .await
+        .map_err(error::ErrorInternalServerError)?;
 
-        Ok(Some(UserWithAuthProviders {
-            user: found_user,
-            providers,
-        }))
-    })
-    .await?
-    .map_err(error::ErrorInternalServerError::<DbError>)?;
+    let user = UserWithAuthProviders {
+        user: found_user,
+        providers,
+    };
 
-    Ok(match user {
-        Some(user) => HttpResponse::Ok().json(user),
-        None => HttpResponse::NotFound().body(format!("No user found with id {id_to_find}")),
-    })
+    Ok(HttpResponse::Ok().json(user))
 }

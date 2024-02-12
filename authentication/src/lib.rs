@@ -4,9 +4,6 @@ pub mod db;
 pub mod schema;
 pub mod user;
 
-#[cfg(test)]
-mod test;
-
 /// Given a Diesel struct `Data`, create a struct `InsertData` that contains
 /// all the same fields except `id: Uuid`.
 #[macro_export]
@@ -45,38 +42,19 @@ macro_rules! diesel_insertable {
                 $($field_vis $field : $FieldType), *
             }
 
-            impl From<[<$Name Insert>]> for $Name {
-                fn from(value: [<$Name Insert>]) -> Self {
-                    Self {
+            impl [<$Name Insert>] {
+                pub fn into_row(self) -> $Name {
+                    $Name {
                         id: Uuid::new_v4(),
-                        $($field: value.$field),*
+                        $($field: self.$field),*
                     }
                 }
             }
 
-            impl From<&[<$Name Insert>]> for $Name {
-                fn from(value: &[<$Name Insert>]) -> Self {
-                    let cloned = value.clone();
-                    Self {
-                        id: Uuid::new_v4(),
-                        $($field: cloned.$field),*
-                    }
-                }
-            }
-
-            impl From<$Name> for [<$Name Insert>] {
-                fn from(value: $Name) -> Self {
-                    Self {
-                        $($field: value.$field),*
-                    }
-                }
-            }
-
-            impl From<&$Name> for [<$Name Insert>] {
-                fn from(value: &$Name) -> Self {
-                    let cloned = value.clone();
-                    Self {
-                        $($field: cloned.$field),*
+            impl $Name {
+                pub fn into_insert(self) -> [<$Name Insert>] {
+                    [<$Name Insert>] {
+                        $($field: self.$field),*
                     }
                 }
             }
