@@ -82,7 +82,7 @@ func get_local_access_token() -> Option:
 const USER_INFO_REQUEST_URI := "https://www.googleapis.com/userinfo/v2/me"
 ## The amount of data returned depends on the `userinfo.*` scopes granted above.
 ## [codeblock]
-## @returns Result<UserInfo {
+## UserInfo {
 ##   id: String
 ##   email: String
 ##   verified_email: bool
@@ -91,7 +91,9 @@ const USER_INFO_REQUEST_URI := "https://www.googleapis.com/userinfo/v2/me"
 ##   family_name: String
 ##   picture: String
 ##   locale: String
-## }, String>
+## }
+##
+## @returns Result<UserInfo, String>
 ## [/codeblock]
 func get_user_info() -> Result:
 	var access_token_result := get_local_access_token()

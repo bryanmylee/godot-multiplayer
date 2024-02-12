@@ -15,14 +15,6 @@ func _ready() -> void:
 	if provider_result.is_err():
 		print(provider_result.unwrap_err())
 		return
-	var provider: AuthProvider = provider_result.unwrap()
-
-	var sign_in_result := await provider.server_sign_in()
-	if sign_in_result.is_err():
-		print(sign_in_result.unwrap_err())
-		return
-	var sign_in_data = sign_in_result.unwrap()
-	print("Signed in to server!\n", sign_in_data)
 
 	await load_debug_auth_screen()
 

@@ -19,8 +19,13 @@ func initialize() -> Result:
 		return user_info_result
 	var user_info = user_info_result.unwrap()
 
-	user_id = user_info.id
-	user_name = user_info.name
+	provider_type = "oauth2"
+	provider_id = user_info.id
+	email = Option.new(user_info.email)
+	email_verified = user_info.verified_email
+	user_name = Option.new(user_info.name)
+	picture_url = Option.new(user_info.picture)
+	locale = Option.new(user_info.locale)
 	
 	return Result.Ok(null)
 

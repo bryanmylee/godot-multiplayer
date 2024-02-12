@@ -26,6 +26,19 @@ var main_provider: AuthProvider :
 	get:
 		return providers.front() if providers.size() > 0 else null
 
+## [codeblock]
+## Option<String>
+## [/codeblock]
+var user_id := Option.None()
+## [codeblock]
+## Option<String>
+## [/codeblock]
+var user_name := Option.None()
+## [codeblock]
+## Option<String>
+## [/codeblock]
+var server_token := Option.None()
+
 
 func _ready() -> void:
 	providers_node = Node.new()
@@ -67,4 +80,22 @@ func add_provider(pname: ProviderName) -> Result:
 		providers_node.remove_child(provider)
 		return init_result
 	
+	if user_id.is_some():
+		return Result.Ok(provider)
+	
+	var sign_in_result := await provider.server_sign_in()
+	if sign_in_result.is_err():
+		providers_node.remove_child(provider)
+		return sign_in_result
+	
+	var sign_in = sign_in_result.unwrap()
+	match sign_in.type:
+		"success":
+			print("Successfully logged in: ", sign_in.payload)
+			user_id = Option.new(sign_in.payload.user.id)
+			user_name = Option.new(sign_in.payload.user.name)
+			server_token = Option.new(sign_in.payload.server_token)
+		"pending_link_or_create":
+			print("Possible existing account: ", sign_in.payload)
+
 	return Result.Ok(provider)

@@ -30,8 +30,16 @@ theme_override_font_sizes/font_size = 28
 text = "Loading username..."
 horizontal_alignment = 1
 
-[node name="UserId" type="Label" parent="."]
+[node name="ProviderId" type="Label" parent="."]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Loading ID..."
 horizontal_alignment = 1
+
+[node name="ServerUserId" type="Label" parent="."]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Loading Server ID..."
+horizontal_alignment = 1
+
+[connection signal="pressed" from="StartGameButton" to="." method="_on_start_game_button_pressed"]
