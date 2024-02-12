@@ -130,13 +130,13 @@ async fn create_new_user(
     user_info: &GoogleUserInfo,
 ) -> Result<UserWithAuthProviders, Box<dyn std::error::Error>> {
     let user_insert: UserInsert = user_info.into();
-    let user = diesel::insert_into(schema::user::table)
+    let user: User = diesel::insert_into(schema::user::table)
         .values(user_insert)
-        .get_result::<User>(conn)
+        .get_result(conn)
         .await?;
-    let provider = diesel::insert_into(schema::auth_provider::table)
+    let provider: AuthProvider = diesel::insert_into(schema::auth_provider::table)
         .values(user_info.into_provider_insert(&user))
-        .get_result::<AuthProvider>(conn)
+        .get_result(conn)
         .await?;
     Ok(UserWithAuthProviders {
         user,

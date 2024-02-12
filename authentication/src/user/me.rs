@@ -12,9 +12,9 @@ async fn me(pool: web::Data<DbPool>, identity: Identity) -> actix_web::Result<Ht
 
     let mut conn = pool.get().await.map_err(error::ErrorInternalServerError)?;
 
-    let user = schema::user::table
+    let user: Option<User> = schema::user::table
         .filter(schema::user::id.eq(&id_to_find))
-        .first::<User>(&mut conn)
+        .first(&mut conn)
         .await
         .optional()
         .map_err(error::ErrorInternalServerError)?;
