@@ -28,7 +28,7 @@ impl IdentityConfig {
             &claims,
             &EncodingKey::from_secret(self.secret.as_ref()),
         )
-        .expect("Token to be generated correctly")
+        .expect("Token failed to generate")
     }
 }
 

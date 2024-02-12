@@ -6,7 +6,7 @@ use diesel_async::{AsyncConnection, AsyncPgConnection};
 /// Short-hand for the database pool type to use throughout the app.
 pub type DbPool = Pool<AsyncPgConnection>;
 pub type DbConnection = AsyncPgConnection;
-pub type DbError = Box<dyn std::error::Error + Send + Sync>;
+pub type DbError = diesel::result::Error;
 
 pub async fn initialize_db_pool(db_url: &str) -> Pool<AsyncPgConnection> {
     let config = AsyncDieselConnectionManager::<AsyncPgConnection>::new(db_url);

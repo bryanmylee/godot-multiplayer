@@ -1,5 +1,5 @@
 pub mod identity;
-mod oauth2;
+pub mod oauth2;
 pub mod provider;
 pub mod token;
 

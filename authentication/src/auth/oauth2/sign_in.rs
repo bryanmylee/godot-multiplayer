@@ -54,17 +54,13 @@ async fn sign_in(
             .await
             .map_err(error::ErrorInternalServerError)?;
 
-        let all_providers: Vec<AuthProvider> = schema::auth_provider::table
-            .filter(schema::auth_provider::user_id.eq(&user.id))
-            .get_results(&mut conn)
+        let providers = user
+            .get_providers(&mut conn)
             .await
             .map_err(error::ErrorInternalServerError)?;
 
         return Ok(generate_sign_in_success_response(
-            UserWithAuthProviders {
-                user,
-                providers: all_providers,
-            },
+            UserWithAuthProviders { user, providers },
             &identity_config,
         ));
     }

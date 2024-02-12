@@ -1,4 +1,4 @@
-mod google_provider;
+pub mod google_provider;
 mod sign_in;
 
 use crate::auth::oauth2::google_provider::{GoogleUserInfoService, RealGoogleUserInfoService};
