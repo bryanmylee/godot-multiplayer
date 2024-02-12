@@ -1,6 +1,6 @@
 use crate::config::get_db_url;
 use actix_web::error;
-use diesel::{r2d2, Connection, PgConnection};
+use diesel::{r2d2, PgConnection};
 use log;
 
 /// Short-hand for the database pool type to use throughout the app.
@@ -16,14 +16,33 @@ lazy_static::lazy_static! {
 }
 
 pub fn initialize_db_pool(db_url: &str) -> DbPool {
+    let mut pool_builder = r2d2::Pool::builder();
+
+    if cfg!(test) {
+        pool_builder = pool_builder
+            .connection_customizer(Box::new(TestTransaction))
+            .max_size(match cfg!(test) {
+                true => 1,
+                false => 10,
+            });
+    }
+
     let manager = r2d2::ConnectionManager::<PgConnection>::new(db_url);
-    r2d2::Pool::builder()
-        .max_size(match cfg!(test) {
-            true => 1,
-            false => 10,
-        })
+    pool_builder
         .build(manager)
         .expect("The database URL should be a valid Postgres connection string")
+}
+
+#[derive(Debug)]
+struct TestTransaction;
+
+impl r2d2::CustomizeConnection<PgConnection, diesel::r2d2::Error> for TestTransaction {
+    fn on_acquire(&self, conn: &mut PgConnection) -> Result<(), diesel::r2d2::Error> {
+        use diesel::Connection;
+        conn.begin_test_transaction()
+            .expect("Failed to start a test transaction");
+        Ok(())
+    }
 }
 
 /// If the database is started in a test configuration, a test transaction is
@@ -31,11 +50,6 @@ pub fn initialize_db_pool(db_url: &str) -> DbPool {
 pub fn init() {
     log::info!("Initializing database");
     lazy_static::initialize(&DB_POOL);
-    let mut conn = get_connection().expect("Failed to get a database connection");
-    if cfg!(test) {
-        conn.begin_test_transaction()
-            .expect("Failed to start a test transaction");
-    }
 }
 
 pub fn get_pool() -> DbPool {
