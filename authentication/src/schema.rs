@@ -17,10 +17,9 @@ diesel::table! {
 }
 
 diesel::table! {
-    refresh_token (id) {
+    refresh_session (id) {
         id -> Uuid,
         user_id -> Uuid,
-        value -> Text,
         issued_at -> Timestamptz,
         expires_at -> Timestamptz,
         count -> Int8,
@@ -36,10 +35,10 @@ diesel::table! {
 }
 
 diesel::joinable!(auth_provider -> user (user_id));
-diesel::joinable!(refresh_token -> user (user_id));
+diesel::joinable!(refresh_session -> user (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     auth_provider,
-    refresh_token,
+    refresh_session,
     user,
 );

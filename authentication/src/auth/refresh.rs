@@ -1,4 +1,4 @@
-use crate::auth::identity::IdentityConfig;
+use crate::auth::identity::{Identity, IdentityConfig};
 use crate::db::{DbConnection, DbError};
 use crate::{diesel_insertable, schema};
 use actix_web::error;
@@ -9,19 +9,17 @@ use jsonwebtoken::DecodingKey;
 use jsonwebtoken::EncodingKey;
 use jsonwebtoken::Header;
 use jsonwebtoken::Validation;
-use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 diesel_insertable! {
     #[derive(Queryable, Selectable, Insertable, AsChangeset)]
     #[diesel(belongs_to(User))]
-    #[diesel(table_name = schema::refresh_token)]
+    #[diesel(table_name = schema::refresh_session)]
     #[diesel(check_for_backend(Pg))]
     #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-    pub struct RefreshToken {
+    pub struct RefreshSession {
         pub user_id: Uuid,
-        pub value: String,
         pub issued_at: DateTime<Utc>,
         pub expires_at: DateTime<Utc>,
         pub count: i64,
@@ -29,33 +27,30 @@ diesel_insertable! {
     }
 }
 
-impl RefreshToken {
+impl RefreshSession {
     pub async fn create(
         conn: &mut DbConnection,
-        user_id: &Uuid,
         config: &IdentityConfig,
+        user_id: &Uuid,
     ) -> Result<Self, DbError> {
-        let value = Alphanumeric.sample_string(&mut rand::thread_rng(), 64);
         let issued_at = Utc::now();
         let expires_at = issued_at + config.refresh_expires_in;
-        let token_insert = RefreshTokenInsert {
+        let token_insert = RefreshSessionInsert {
             user_id: user_id.clone(),
-            value: value.clone(),
             issued_at,
             expires_at,
             count: 0,
             invalidated: false,
         };
-        let token: RefreshToken = diesel::insert_into(schema::refresh_token::table)
+        let token: RefreshSession = diesel::insert_into(schema::refresh_session::table)
             .values(token_insert)
-            .on_conflict(schema::refresh_token::user_id)
+            .on_conflict(schema::refresh_session::user_id)
             .do_update()
             .set((
-                schema::refresh_token::value.eq(value),
-                schema::refresh_token::issued_at.eq(issued_at),
-                schema::refresh_token::expires_at.eq(expires_at),
-                schema::refresh_token::count.eq(schema::refresh_token::count + 1),
-                schema::refresh_token::invalidated.eq(false),
+                schema::refresh_session::issued_at.eq(issued_at),
+                schema::refresh_session::expires_at.eq(expires_at),
+                schema::refresh_session::count.eq(schema::refresh_session::count + 1),
+                schema::refresh_session::invalidated.eq(false),
             ))
             .get_result(conn)
             .await?;
@@ -67,12 +62,85 @@ impl RefreshToken {
     }
 }
 
+#[derive(Debug, Clone)]
+#[cfg_attr(test, derive(PartialEq))]
+pub enum RefreshResult {
+    Success(RefreshSuccess),
+    TokenDecodeFailure,
+    SessionNotFound,
+    TokenAlreadyUsed,
+    SessionExpired,
+    SessionInvalidated,
+}
+
+#[derive(Debug, Clone)]
+#[cfg_attr(test, derive(PartialEq))]
+pub struct RefreshSuccess {
+    pub access_token: String,
+    pub refresh_token: String,
+}
+
+impl RefreshSession {
+    pub async fn refresh(
+        conn: &mut DbConnection,
+        config: &IdentityConfig,
+        refresh_token: &str,
+    ) -> Result<RefreshResult, DbError> {
+        let Ok(claims) = RefreshTokenClaims::decode(config, refresh_token) else {
+            return Ok(RefreshResult::TokenDecodeFailure);
+        };
+
+        let Some(session): Option<RefreshSession> = schema::refresh_session::table
+            .filter(schema::refresh_session::user_id.eq(&claims.sub))
+            .first(conn)
+            .await
+            .optional()?
+        else {
+            return Ok(RefreshResult::SessionNotFound);
+        };
+
+        if claims.cnt < session.count {
+            return RefreshSession::invalidate_session(conn, claims.sub)
+                .await
+                .and(Ok(RefreshResult::TokenAlreadyUsed));
+        }
+
+        if session.expires_at < Utc::now() {
+            return RefreshSession::invalidate_session(conn, claims.sub)
+                .await
+                .and(Ok(RefreshResult::SessionExpired));
+        }
+
+        if session.invalidated {
+            return Ok(RefreshResult::SessionInvalidated);
+        }
+
+        let access_token = Identity::from_user_id(&session.user_id).generate_token(config);
+        let refresh_session = RefreshSession::create(conn, config, &claims.sub).await?;
+        let refresh_token = refresh_session.generate_token(config);
+
+        return Ok(RefreshResult::Success(RefreshSuccess {
+            access_token,
+            refresh_token,
+        }));
+    }
+
+    async fn invalidate_session(conn: &mut DbConnection, user_id: Uuid) -> Result<(), DbError> {
+        diesel::update(schema::refresh_session::table)
+            .filter(schema::refresh_session::user_id.eq(&user_id))
+            .set(schema::refresh_session::invalidated.eq(true))
+            .execute(conn)
+            .await
+            .map(|_| ())
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct RefreshTokenClaims {
-    pub id: String,
-    pub sub: String,
+    pub sub: Uuid,
     pub iat: u64,
     pub exp: u64,
+    pub cnt: i64,
 }
 
 impl RefreshTokenClaims {
@@ -86,59 +154,42 @@ impl RefreshTokenClaims {
     }
 
     pub fn decode(config: &IdentityConfig, token: &str) -> Result<Self, error::Error> {
-        let Ok(payload) = jsonwebtoken::decode::<Self>(
+        let mut validation = Validation::default();
+        validation.validate_exp = false;
+        match jsonwebtoken::decode::<Self>(
             token,
             &DecodingKey::from_secret(config.refresh_secret.as_ref()),
-            &Validation::default(),
-        ) else {
-            return Err(error::ErrorUnauthorized("Invalid refresh token"));
-        };
-
-        Ok(payload.claims)
-    }
-}
-
-impl From<&RefreshToken> for RefreshTokenClaims {
-    fn from(value: &RefreshToken) -> Self {
-        Self {
-            id: value.id.to_string(),
-            sub: value.user_id.to_string(),
-            iat: value.issued_at.timestamp() as u64,
-            exp: value.expires_at.timestamp() as u64,
+            &validation,
+        ) {
+            Ok(payload) => Ok(payload.claims),
+            Err(err) => Err(error::ErrorBadRequest(err)),
         }
     }
 }
 
-pub struct RefreshSuccess {
-    access_token: String,
-    refresh_token: String,
-}
-
-pub enum RefreshError {
-    AlreadyUsed,
-}
-
-pub type RefreshResult = Result<RefreshSuccess, RefreshError>;
-
-impl RefreshToken {
-    pub async fn refresh(conn: &mut DbConnection, config: &IdentityConfig) -> RefreshResult {
-        unimplemented!()
+impl From<&RefreshSession> for RefreshTokenClaims {
+    fn from(value: &RefreshSession) -> Self {
+        Self {
+            sub: value.user_id,
+            iat: value.issued_at.timestamp() as u64,
+            exp: value.expires_at.timestamp() as u64,
+            cnt: value.count,
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::{config, db, user::User};
+    use chrono::Duration;
+
     use super::*;
 
     mod create {
-        use chrono::Duration;
-
-        use crate::{config, db, user::User};
-
         use super::*;
 
         #[actix_web::test]
-        async fn create_inserts_token_to_db() {
+        async fn create_inserts_session_to_db() {
             let user = User {
                 id: Uuid::new_v4(),
                 name: None,
@@ -156,37 +207,44 @@ mod tests {
                 .await
                 .expect("Failed to insert user");
 
-            let new_token =
-                RefreshToken::create(&mut conn, &user.id, &config::get_identity_config())
+            let new_session =
+                RefreshSession::create(&mut conn, &config::get_identity_config(), &user.id)
                     .await
                     .expect("Failed to create new token");
 
-            assert_eq!(new_token.user_id, user.id);
+            assert_eq!(new_session.user_id, user.id);
             assert!(
                 (Utc::now() - Duration::days(1)..Utc::now() + Duration::days(1))
-                    .contains(&new_token.issued_at)
+                    .contains(&new_session.issued_at)
             );
             assert!(
                 (Utc::now() + Duration::days(6)..Utc::now() + Duration::days(8))
-                    .contains(&new_token.expires_at)
+                    .contains(&new_session.expires_at)
             );
-            assert_eq!(new_token.count, 0);
-            assert_eq!(new_token.invalidated, false);
+            assert_eq!(new_session.count, 0);
+            assert_eq!(new_session.invalidated, false);
+
+            let stored_session: RefreshSession = schema::refresh_session::table
+                .find(new_session.id)
+                .first(&mut conn)
+                .await
+                .expect("Failed to find new session");
+            assert_eq!(stored_session, new_session);
         }
 
         #[actix_web::test]
-        async fn create_on_existing_refresh_token_for_user_updates_fields() {
+        async fn create_on_existing_session_updates_fields() {
             let user = User {
                 id: Uuid::new_v4(),
                 name: None,
             };
-            let old_token = {
+
+            let old_session = {
                 let issued_at = Utc::now() - Duration::days(14);
                 let expires_at = issued_at + Duration::days(7);
 
-                RefreshToken {
+                RefreshSession {
                     id: Uuid::new_v4(),
-                    value: "0000".to_string(),
                     user_id: user.id,
                     issued_at,
                     expires_at,
@@ -207,29 +265,320 @@ mod tests {
                 .await
                 .expect("Failed to insert user");
 
-            diesel::insert_into(schema::refresh_token::table)
-                .values(&old_token)
+            diesel::insert_into(schema::refresh_session::table)
+                .values(&old_session)
                 .execute(&mut conn)
                 .await
                 .expect("Failed to insert old token");
 
-            let new_token =
-                RefreshToken::create(&mut conn, &user.id, &config::get_identity_config())
+            let new_session =
+                RefreshSession::create(&mut conn, &config::get_identity_config(), &user.id)
                     .await
                     .expect("Failed to create new token");
 
-            assert_eq!(new_token.user_id, user.id);
-            assert_ne!(new_token.value, old_token.value);
+            assert_eq!(new_session.user_id, user.id);
             assert!(
                 (Utc::now() - Duration::days(1)..Utc::now() + Duration::days(1))
-                    .contains(&new_token.issued_at)
+                    .contains(&new_session.issued_at)
             );
             assert!(
                 (Utc::now() + Duration::days(6)..Utc::now() + Duration::days(8))
-                    .contains(&new_token.expires_at)
+                    .contains(&new_session.expires_at)
             );
-            assert_eq!(new_token.count, 6);
-            assert_eq!(new_token.invalidated, false);
+            assert_eq!(new_session.count, 6);
+            assert_eq!(new_session.invalidated, false);
+
+            let stored_session: RefreshSession = schema::refresh_session::table
+                .find(new_session.id)
+                .first(&mut conn)
+                .await
+                .expect("Failed to find new session");
+            assert_eq!(stored_session, new_session);
+        }
+    }
+
+    mod refresh {
+        use super::*;
+
+        #[actix_web::test]
+        async fn refresh_creates_new_access_and_refresh_tokens() {
+            let user = User {
+                id: Uuid::new_v4(),
+                name: None,
+            };
+
+            let session = {
+                let issued_at = Utc::now();
+                let expires_at = issued_at + Duration::days(7);
+
+                RefreshSession {
+                    id: Uuid::new_v4(),
+                    user_id: user.id,
+                    issued_at,
+                    expires_at,
+                    count: 5,
+                    invalidated: false,
+                }
+            };
+
+            let identity_config = &config::get_identity_config();
+
+            let pool = db::initialize_db_pool(&config::get_db_url()).await;
+            let mut conn = pool
+                .get()
+                .await
+                .expect("Failed to get a database connection");
+
+            let refresh_token = {
+                diesel::insert_into(schema::user::table)
+                    .values(&user)
+                    .execute(&mut conn)
+                    .await
+                    .expect("Failed to insert user");
+
+                diesel::insert_into(schema::refresh_session::table)
+                    .values(&session)
+                    .execute(&mut conn)
+                    .await
+                    .expect("Failed to insert token");
+
+                session.generate_token(identity_config)
+            };
+
+            let refresh_result =
+                RefreshSession::refresh(&mut conn, &identity_config, &refresh_token)
+                    .await
+                    .expect("Failed to refresh session");
+
+            assert!(matches!(refresh_result, RefreshResult::Success(_)));
+            let RefreshResult::Success(success) = refresh_result else {
+                panic!();
+            };
+            assert_ne!(success.refresh_token, refresh_token);
+        }
+
+        #[actix_web::test]
+        async fn refresh_with_non_existent_token_errors() {
+            let user = User {
+                id: Uuid::new_v4(),
+                name: None,
+            };
+
+            let session = {
+                let issued_at = Utc::now();
+                let expires_at = issued_at + Duration::days(7);
+
+                RefreshSession {
+                    id: Uuid::new_v4(),
+                    user_id: user.id,
+                    issued_at,
+                    expires_at,
+                    count: 5,
+                    invalidated: false,
+                }
+            };
+
+            let identity_config = &config::get_identity_config();
+
+            let pool = db::initialize_db_pool(&config::get_db_url()).await;
+            let mut conn = pool
+                .get()
+                .await
+                .expect("Failed to get a database connection");
+
+            let refresh_token = {
+                diesel::insert_into(schema::user::table)
+                    .values(&user)
+                    .execute(&mut conn)
+                    .await
+                    .expect("Failed to insert user");
+
+                session.generate_token(identity_config)
+            };
+
+            let refresh_result =
+                RefreshSession::refresh(&mut conn, &identity_config, &refresh_token)
+                    .await
+                    .expect("Failed to refresh session");
+
+            assert_eq!(refresh_result, RefreshResult::SessionNotFound);
+        }
+
+        #[actix_web::test]
+        async fn refresh_with_used_token_invalidates_existing_token() {
+            let user = User {
+                id: Uuid::new_v4(),
+                name: None,
+            };
+
+            let session = {
+                let issued_at = Utc::now();
+                let expires_at = issued_at + Duration::days(7);
+
+                RefreshSession {
+                    id: Uuid::new_v4(),
+                    user_id: user.id,
+                    issued_at,
+                    expires_at,
+                    count: 5,
+                    invalidated: false,
+                }
+            };
+
+            let identity_config = &config::get_identity_config();
+
+            let pool = db::initialize_db_pool(&config::get_db_url()).await;
+            let mut conn = pool
+                .get()
+                .await
+                .expect("Failed to get a database connection");
+
+            let refresh_token = {
+                diesel::insert_into(schema::user::table)
+                    .values(&user)
+                    .execute(&mut conn)
+                    .await
+                    .expect("Failed to insert user");
+
+                diesel::insert_into(schema::refresh_session::table)
+                    .values(&session)
+                    .execute(&mut conn)
+                    .await
+                    .expect("Failed to insert token");
+
+                session.generate_token(identity_config)
+            };
+
+            let _ = RefreshSession::refresh(&mut conn, &identity_config, &refresh_token)
+                .await
+                .expect("Failed to refresh session");
+
+            let refresh_result =
+                RefreshSession::refresh(&mut conn, &identity_config, &refresh_token)
+                    .await
+                    .expect("Failed to refresh session");
+
+            assert_eq!(refresh_result, RefreshResult::TokenAlreadyUsed);
+
+            let stored_session: RefreshSession = schema::refresh_session::table
+                .find(session.id)
+                .first(&mut conn)
+                .await
+                .expect("Failed to find session");
+            assert_eq!(stored_session.invalidated, true);
+        }
+
+        #[actix_web::test]
+        async fn refresh_with_expired_token_invalidates_existing_token() {
+            let user = User {
+                id: Uuid::new_v4(),
+                name: None,
+            };
+
+            let session = {
+                let issued_at = Utc::now() - Duration::days(14);
+                let expires_at = issued_at + Duration::days(7);
+
+                RefreshSession {
+                    id: Uuid::new_v4(),
+                    user_id: user.id,
+                    issued_at,
+                    expires_at,
+                    count: 5,
+                    invalidated: false,
+                }
+            };
+
+            let identity_config = &config::get_identity_config();
+
+            let pool = db::initialize_db_pool(&config::get_db_url()).await;
+            let mut conn = pool
+                .get()
+                .await
+                .expect("Failed to get a database connection");
+
+            let refresh_token = {
+                diesel::insert_into(schema::user::table)
+                    .values(&user)
+                    .execute(&mut conn)
+                    .await
+                    .expect("Failed to insert user");
+
+                diesel::insert_into(schema::refresh_session::table)
+                    .values(&session)
+                    .execute(&mut conn)
+                    .await
+                    .expect("Failed to insert token");
+
+                session.generate_token(identity_config)
+            };
+
+            let refresh_result =
+                RefreshSession::refresh(&mut conn, &identity_config, &refresh_token)
+                    .await
+                    .expect("Failed to refresh session");
+
+            assert_eq!(refresh_result, RefreshResult::SessionExpired);
+
+            let stored_session: RefreshSession = schema::refresh_session::table
+                .find(session.id)
+                .first(&mut conn)
+                .await
+                .expect("Failed to find session");
+            assert_eq!(stored_session.invalidated, true);
+        }
+
+        #[actix_web::test]
+        async fn refresh_with_invalidated_token_errors() {
+            let user = User {
+                id: Uuid::new_v4(),
+                name: None,
+            };
+
+            let session = {
+                let issued_at = Utc::now();
+                let expires_at = issued_at + Duration::days(7);
+
+                RefreshSession {
+                    id: Uuid::new_v4(),
+                    user_id: user.id,
+                    issued_at,
+                    expires_at,
+                    count: 5,
+                    invalidated: true,
+                }
+            };
+
+            let identity_config = &config::get_identity_config();
+
+            let pool = db::initialize_db_pool(&config::get_db_url()).await;
+            let mut conn = pool
+                .get()
+                .await
+                .expect("Failed to get a database connection");
+
+            let refresh_token = {
+                diesel::insert_into(schema::user::table)
+                    .values(&user)
+                    .execute(&mut conn)
+                    .await
+                    .expect("Failed to insert user");
+
+                diesel::insert_into(schema::refresh_session::table)
+                    .values(&session)
+                    .execute(&mut conn)
+                    .await
+                    .expect("Failed to insert token");
+
+                session.generate_token(identity_config)
+            };
+
+            let refresh_result =
+                RefreshSession::refresh(&mut conn, &identity_config, &refresh_token)
+                    .await
+                    .expect("Failed to refresh session");
+
+            assert_eq!(refresh_result, RefreshResult::SessionInvalidated);
         }
     }
 }

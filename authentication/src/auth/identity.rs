@@ -16,7 +16,7 @@ pub struct IdentityConfig {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 struct IdentityClaims {
-    pub sub: String,
+    pub sub: Uuid,
     pub iat: u64,
     pub exp: u64,
 }
@@ -32,15 +32,14 @@ impl IdentityClaims {
     }
 
     pub fn decode(config: &IdentityConfig, token: &str) -> Result<Self, error::Error> {
-        let Ok(payload) = jsonwebtoken::decode::<Self>(
+        match jsonwebtoken::decode::<Self>(
             token,
             &DecodingKey::from_secret(config.secret.as_ref()),
             &Validation::default(),
-        ) else {
-            return Err(error::ErrorUnauthorized("Invalid access token"));
-        };
-
-        Ok(payload.claims)
+        ) {
+            Ok(payload) => Ok(payload.claims),
+            Err(err) => Err(error::ErrorBadRequest(err)),
+        }
     }
 }
 
@@ -68,7 +67,7 @@ impl Identity {
         let iat = now.timestamp() as u64;
         let exp = (now + config.expires_in).timestamp() as u64;
         let claims = IdentityClaims {
-            sub: self.user_id.to_string(),
+            sub: self.user_id,
             iat,
             exp,
         };
@@ -96,11 +95,10 @@ impl FromRequest for Identity {
 
         let claims = match IdentityClaims::decode(config, &token) {
             Ok(claims) => claims,
-            Err(err) => return ready(Err(err)),
+            Err(err) => return ready(Err(error::ErrorBadRequest(err))),
         };
 
-        let user_id = Uuid::parse_str(&claims.sub).expect("Sub claim is not a valid UUID");
-        let identity = Identity::from_user_id(&user_id);
+        let identity = Identity::from_user_id(&claims.sub);
         req.extensions_mut().insert::<Identity>(identity.clone());
 
         ready(Ok(identity))

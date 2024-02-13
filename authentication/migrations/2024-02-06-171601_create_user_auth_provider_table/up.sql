@@ -17,10 +17,9 @@ create table "auth_provider" (
   "locale" text
 );
 
-create table "refresh_token" (
+create table "refresh_session" (
   "id" uuid primary key not null default gen_random_uuid(),
   "user_id" uuid unique not null references "user"(id),
-  "value" text unique not null,
   "issued_at" timestamptz not null,
   "expires_at" timestamptz not null,
   "count" bigint not null default 0,

@@ -1,7 +1,7 @@
-use crate::auth::identity::{self, Identity, IdentityConfig};
+use crate::auth::identity::{Identity, IdentityConfig};
 use crate::auth::oauth2::google_provider::{GoogleUserInfo, GoogleUserInfoService};
 use crate::auth::provider::{AuthProvider, AuthProviderChangeset, AuthProviderType};
-use crate::auth::refresh::RefreshToken;
+use crate::auth::refresh::RefreshSession;
 use crate::auth::token::BearerToken;
 use crate::auth::SignInSuccess;
 use crate::db::{DbConnection, DbPool};
@@ -117,10 +117,11 @@ async fn generate_sign_in_success_response(
         .http_only(true)
         .finish();
 
-    let refresh_token = RefreshToken::create(conn, &user_with_providers.user.id, &identity_config)
-        .await
-        .map_err(error::ErrorInternalServerError)?;
-    let refresh_token = refresh_token.generate_token(&identity_config);
+    let refresh_session =
+        RefreshSession::create(conn, &identity_config, &user_with_providers.user.id)
+            .await
+            .map_err(error::ErrorInternalServerError)?;
+    let refresh_token = refresh_session.generate_token(&identity_config);
     let refresh_cookie = cookie::Cookie::build("refresh_token", refresh_token.to_owned())
         .path("/")
         .max_age(cookie::time::Duration::seconds(

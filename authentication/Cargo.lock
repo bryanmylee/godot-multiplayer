@@ -356,7 +356,6 @@ dependencies = [
  "jsonwebtoken",
  "lazy_static",
  "paste",
- "rand",
  "rand_core",
  "reqwest",
  "serde",
