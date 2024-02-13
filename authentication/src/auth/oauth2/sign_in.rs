@@ -1,7 +1,7 @@
 use crate::auth::identity::{Identity, IdentityConfig};
 use crate::auth::oauth2::google_provider::{GoogleUserInfo, GoogleUserInfoService};
 use crate::auth::provider::{AuthProvider, AuthProviderChangeset, AuthProviderType};
-use crate::auth::refresh::RefreshSession;
+use crate::auth::refresh::session::RefreshSession;
 use crate::auth::token::BearerToken;
 use crate::auth::SignInSuccess;
 use crate::db::{DbConnection, DbPool};

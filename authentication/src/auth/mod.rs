@@ -10,6 +10,7 @@ use serde::Serialize;
 
 pub fn config_service(cfg: &mut web::ServiceConfig) {
     cfg.service(sign_out)
+        .service(refresh::refresh)
         .service(web::scope("/oauth2").configure(oauth2::config_service));
 }
 

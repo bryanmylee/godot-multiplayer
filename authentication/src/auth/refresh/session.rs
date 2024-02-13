@@ -73,7 +73,7 @@ pub enum RefreshResult {
     SessionInvalidated,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 #[cfg_attr(test, derive(PartialEq))]
 pub struct RefreshSuccess {
     pub access_token: String,
