@@ -49,7 +49,7 @@ func server_sign_in() -> Result:
 	
 	var response = request_result.unwrap()
 	if response.response_code != HTTPClient.RESPONSE_OK:
-		return Result.Err("failed to get data from Google's user info endpoint: %s" % response.response_code)
+		return Result.Err("failed to sign in: %s" % response.response_code)
 	
 	var body_text: String = response.body.get_string_from_utf8()
 	return Result.Ok(JSON.parse_string(body_text))
