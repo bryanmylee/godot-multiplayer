@@ -6,6 +6,7 @@ pub mod token;
 
 use crate::user::UserWithAuthProviders;
 use actix_web::{cookie, post, web, HttpResponse, Responder};
+use chrono::{DateTime, Utc};
 use serde::Serialize;
 
 pub fn config_service(cfg: &mut web::ServiceConfig) {
@@ -16,19 +17,35 @@ pub fn config_service(cfg: &mut web::ServiceConfig) {
 
 #[post("/sign-out/")]
 async fn sign_out(_: identity::Identity) -> impl Responder {
-    let logout_cookie = cookie::Cookie::build("access_token", "")
+    let clear_access = cookie::Cookie::build("access_token", "")
         .path("/")
         .max_age(cookie::time::Duration::seconds(-1))
         .http_only(true)
         .finish();
 
-    HttpResponse::Ok().cookie(logout_cookie).finish()
+    let clear_refresh = cookie::Cookie::build("refresh_token", "")
+        .path("/")
+        .max_age(cookie::time::Duration::seconds(-1))
+        .http_only(true)
+        .finish();
+
+    HttpResponse::Ok()
+        .cookie(clear_access)
+        .cookie(clear_refresh)
+        .finish()
 }
 
 #[derive(Debug, Clone, Serialize)]
 #[cfg_attr(test, derive(serde::Deserialize, PartialEq))]
 pub struct SignInSuccess {
-    access_token: String,
-    refresh_token: String,
+    access_token: Token,
+    refresh_token: Token,
     user: UserWithAuthProviders,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[cfg_attr(test, derive(serde::Deserialize, PartialEq))]
+pub struct Token {
+    pub value: String,
+    pub expires_at: DateTime<Utc>,
 }

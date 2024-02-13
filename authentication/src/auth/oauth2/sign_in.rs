@@ -109,7 +109,7 @@ async fn generate_sign_in_success_response(
         user_id: user_with_providers.user.id,
     };
     let access_token = identity.generate_token(identity_config);
-    let sign_in_cookie = cookie::Cookie::build("access_token", access_token.to_owned())
+    let sign_in_cookie = cookie::Cookie::build("access_token", access_token.value.to_owned())
         .path("/")
         .max_age(cookie::time::Duration::seconds(
             identity_config.expires_in.num_seconds(),
@@ -122,7 +122,7 @@ async fn generate_sign_in_success_response(
             .await
             .map_err(error::ErrorInternalServerError)?;
     let refresh_token = refresh_session.generate_token(&identity_config);
-    let refresh_cookie = cookie::Cookie::build("refresh_token", refresh_token.to_owned())
+    let refresh_cookie = cookie::Cookie::build("refresh_token", refresh_token.value.to_owned())
         .path("/")
         .max_age(cookie::time::Duration::seconds(
             identity_config.refresh_expires_in.num_seconds(),

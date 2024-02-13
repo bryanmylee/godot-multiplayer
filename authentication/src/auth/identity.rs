@@ -1,3 +1,4 @@
+use crate::auth::Token;
 use crate::user::User;
 use actix_web::{error, http, web, FromRequest, HttpMessage};
 use chrono::{Duration, Utc};
@@ -62,16 +63,20 @@ impl Identity {
         }
     }
 
-    pub fn generate_token(&self, config: &IdentityConfig) -> String {
+    pub fn generate_token(&self, config: &IdentityConfig) -> Token {
         let now = Utc::now();
         let iat = now.timestamp() as u64;
-        let exp = (now + config.expires_in).timestamp() as u64;
+        let expires_at = now + config.expires_in;
+        let exp = expires_at.timestamp() as u64;
         let claims = IdentityClaims {
             sub: self.user_id,
             iat,
             exp,
         };
-        claims.encode(config)
+        Token {
+            value: claims.encode(config),
+            expires_at,
+        }
     }
 }
 

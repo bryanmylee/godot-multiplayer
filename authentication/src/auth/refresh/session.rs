@@ -1,4 +1,5 @@
 use crate::auth::identity::{Identity, IdentityConfig};
+use crate::auth::Token;
 use crate::db::{DbConnection, DbError};
 use crate::{diesel_insertable, schema};
 use actix_web::error;
@@ -57,8 +58,11 @@ impl RefreshSession {
         Ok(token)
     }
 
-    pub fn generate_token(&self, config: &IdentityConfig) -> String {
-        RefreshTokenClaims::from(self).encode(config)
+    pub fn generate_token(&self, config: &IdentityConfig) -> Token {
+        Token {
+            value: RefreshTokenClaims::from(self).encode(config),
+            expires_at: self.expires_at,
+        }
     }
 }
 
@@ -76,8 +80,8 @@ pub enum RefreshResult {
 #[derive(Debug, Clone, Serialize)]
 #[cfg_attr(test, derive(PartialEq))]
 pub struct RefreshSuccess {
-    pub access_token: String,
-    pub refresh_token: String,
+    pub access_token: Token,
+    pub refresh_token: Token,
 }
 
 impl RefreshSession {
@@ -346,7 +350,7 @@ mod tests {
             };
 
             let refresh_result =
-                RefreshSession::refresh(&mut conn, &identity_config, &refresh_token)
+                RefreshSession::refresh(&mut conn, &identity_config, &refresh_token.value)
                     .await
                     .expect("Failed to refresh session");
 
@@ -397,7 +401,7 @@ mod tests {
             };
 
             let refresh_result =
-                RefreshSession::refresh(&mut conn, &identity_config, &refresh_token)
+                RefreshSession::refresh(&mut conn, &identity_config, &refresh_token.value)
                     .await
                     .expect("Failed to refresh session");
 
@@ -449,12 +453,12 @@ mod tests {
                 session.generate_token(identity_config)
             };
 
-            let _ = RefreshSession::refresh(&mut conn, &identity_config, &refresh_token)
+            let _ = RefreshSession::refresh(&mut conn, &identity_config, &refresh_token.value)
                 .await
                 .expect("Failed to refresh session");
 
             let refresh_result =
-                RefreshSession::refresh(&mut conn, &identity_config, &refresh_token)
+                RefreshSession::refresh(&mut conn, &identity_config, &refresh_token.value)
                     .await
                     .expect("Failed to refresh session");
 
@@ -514,7 +518,7 @@ mod tests {
             };
 
             let refresh_result =
-                RefreshSession::refresh(&mut conn, &identity_config, &refresh_token)
+                RefreshSession::refresh(&mut conn, &identity_config, &refresh_token.value)
                     .await
                     .expect("Failed to refresh session");
 
@@ -574,7 +578,7 @@ mod tests {
             };
 
             let refresh_result =
-                RefreshSession::refresh(&mut conn, &identity_config, &refresh_token)
+                RefreshSession::refresh(&mut conn, &identity_config, &refresh_token.value)
                     .await
                     .expect("Failed to refresh session");
 
