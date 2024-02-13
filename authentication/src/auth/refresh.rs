@@ -138,7 +138,7 @@ mod tests {
         use super::*;
 
         #[actix_web::test]
-        async fn test_create() {
+        async fn create_inserts_token_to_db() {
             let user = User {
                 id: Uuid::new_v4(),
                 name: None,
@@ -175,7 +175,7 @@ mod tests {
         }
 
         #[actix_web::test]
-        async fn test_create_on_existing_refresh_token_for_user_updates_fields() {
+        async fn create_on_existing_refresh_token_for_user_updates_fields() {
             let user = User {
                 id: Uuid::new_v4(),
                 name: None,

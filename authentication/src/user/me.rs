@@ -41,7 +41,7 @@ mod tests {
     use super::*;
 
     #[actix_web::test]
-    async fn test_me_returns_the_correct_user() {
+    async fn me_returns_the_correct_user() {
         lazy_static::lazy_static! {
             static ref USER_INFO: GoogleUserInfo = GoogleUserInfo {
                 id: "0001".to_string(),
@@ -115,7 +115,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn test_me_returns_providers_in_the_right_order() {
+    async fn me_returns_providers_in_the_right_order() {
         lazy_static::lazy_static! {
             static ref USER_INFO: GoogleUserInfo = GoogleUserInfo {
                 id: "0001".to_string(),

@@ -170,7 +170,7 @@ mod tests {
     use super::*;
 
     #[actix_web::test]
-    async fn test_no_google_token_should_be_unauthorized() {
+    async fn no_google_token_should_be_unauthorized() {
         struct NeverGoogleUserInfoService;
 
         #[async_trait::async_trait]
@@ -201,7 +201,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn test_non_existing_provider_but_existing_email_should_be_pending() {
+    async fn non_existing_provider_but_existing_email_should_be_pending() {
         lazy_static::lazy_static! {
             static ref EXISTING_NAME: String = "Adam".to_string();
 
@@ -294,7 +294,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn test_non_existing_provider_with_no_existing_email_should_sign_in() {
+    async fn non_existing_provider_with_no_existing_email_should_sign_in() {
         lazy_static::lazy_static! {
             static ref USER_INFO: GoogleUserInfo = GoogleUserInfo {
                 id: "examplenonexistent".to_string(),
@@ -361,7 +361,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn test_existing_user_should_sign_in() {
+    async fn existing_user_should_sign_in() {
         lazy_static::lazy_static! {
             static ref USER_INFO: GoogleUserInfo = GoogleUserInfo {
                 id: "existing".to_string(),
