@@ -14,8 +14,9 @@ func initialize() -> Result:
 		return auth_result
 	var auth_data = auth_result.unwrap()
 
-	user_id = auth_data.player_id
+	provider_type = "game_center"
+	provider_id = auth_data.player_id
 	user_name = auth_data.displayName
-	print("Logged in with Game Center as ", user_name)
+	print("Logged in with Game Center as ", user_name.unwrap())
 
 	return Result.Ok(null)

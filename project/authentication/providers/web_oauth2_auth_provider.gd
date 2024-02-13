@@ -26,6 +26,7 @@ func initialize() -> Result:
 	user_name = Option.new(user_info.name)
 	picture_url = Option.new(user_info.picture)
 	locale = Option.new(user_info.locale)
+	print("Logged in via the web as ", user_name.unwrap())
 	
 	return Result.Ok(null)
 
