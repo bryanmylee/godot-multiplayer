@@ -11,10 +11,13 @@ func _ready() -> void:
 		await load_game_screen()
 		return
 	
-	var provider_result := await Authentication.initialize_main_provider()
-	if provider_result.is_err():
-		print(provider_result.unwrap_err())
+	var init_result := await Authentication.initialize_main_provider()
+	if init_result.is_err():
+		print(init_result.unwrap_err())
 		return
+	var sign_in_result := await Authentication.sign_in()
+	if sign_in_result.is_err():
+		print(sign_in_result.unwrap_err())
 
 	await load_debug_auth_screen()
 

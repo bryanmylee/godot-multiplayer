@@ -43,6 +43,11 @@ func initialize() -> Result:
 ##   name?: String
 ## }
 ##
+## Token {
+##   value: String
+##   expires_at: String
+## }
+##
 ## UserWithAuthProviders {
 ##   user: User
 ##   providers: Array<AuthProvider>
@@ -51,7 +56,8 @@ func initialize() -> Result:
 ## SignInSuccess {
 ##   type: "success"
 ##   payload: {
-##     access_token: String
+##     access_token: Token
+##     refresh_token: Token
 ##     user: UserWithAuthProviders
 ##   }
 ## }
