@@ -79,6 +79,18 @@ func get_local_access_token() -> Option:
 	return Option.Some(token)
 
 
+## [codeblock]
+## @returns Option<String>
+## [/codeblock]
+func is_local_access_token_expired() -> bool:
+	if not OS.has_feature("web"):
+		print("The JavaScriptBridge singleton is not available")
+		return false
+	
+	var expired = JavaScriptBridge.eval("new Date() >= window.localStorage.getItem('access_token_expires_at');")
+	return expired
+
+
 const USER_INFO_REQUEST_URI := "https://www.googleapis.com/userinfo/v2/me"
 ## The amount of data returned depends on the `userinfo.*` scopes granted above.
 ## [codeblock]

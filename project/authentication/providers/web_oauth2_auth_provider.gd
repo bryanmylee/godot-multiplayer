@@ -11,7 +11,7 @@ func _init() -> void:
 func initialize() -> Result:
 	oauth.consume_access_token_from_hash()
 	var token_result := oauth.get_local_access_token()
-	if token_result.is_none():
+	if token_result.is_none() or oauth.is_local_access_token_expired():
 		oauth.reload_access_token_into_hash()
 	
 	var user_info_result := await oauth.get_user_info()
