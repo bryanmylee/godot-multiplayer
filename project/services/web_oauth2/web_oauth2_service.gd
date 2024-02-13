@@ -48,12 +48,12 @@ func consume_access_token_from_hash() -> void:
 	JavaScriptBridge.eval("""
 	const params = new URLSearchParams(window.location.hash.slice(1));
 	if (params.has('access_token')) {
-		window.localStorage.setItem('access_token', params.get('access_token'));
+		window.localStorage.setItem('oauth_token', params.get('access_token'));
 		params.delete('access_token');
 		if (params.has('expires_in')) {
 			const expiryDurationSeconds = params.get('expires_in');
 			const expiresAtMs = +(new Date()) + expiryDurationSeconds * 1000;
-			window.localStorage.setItem('access_token_expires_at', expiresAtMs);
+			window.localStorage.setItem('oauth_token_expires_at', expiresAtMs);
 			params.delete('expires_in');
 		}
 		params.delete('token_type');
@@ -73,7 +73,7 @@ func get_local_access_token() -> Option:
 		print("The JavaScriptBridge singleton is not available")
 		return Option.None()
 	
-	var token = JavaScriptBridge.eval("window.localStorage.getItem('access_token');")
+	var token = JavaScriptBridge.eval("window.localStorage.getItem('oauth_token');")
 	if token == null:
 		return Option.None()
 	return Option.Some(token)
@@ -87,7 +87,7 @@ func is_local_access_token_expired() -> bool:
 		print("The JavaScriptBridge singleton is not available")
 		return false
 	
-	var expired = JavaScriptBridge.eval("new Date() >= window.localStorage.getItem('access_token_expires_at');")
+	var expired = JavaScriptBridge.eval("new Date() >= window.localStorage.getItem('oauth_token_expires_at');")
 	return expired
 
 

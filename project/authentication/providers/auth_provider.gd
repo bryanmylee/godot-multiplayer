@@ -51,7 +51,7 @@ func initialize() -> Result:
 ## SignInSuccess {
 ##   type: "success"
 ##   payload: {
-##     server_token: String
+##     access_token: String
 ##     user: UserWithAuthProviders
 ##   }
 ## }
@@ -65,7 +65,7 @@ func initialize() -> Result:
 ## [/codeblock]
 
 
-## Sign in to the authentication server. The server will set a `server_token`
+## Sign in to the authentication server. The server will set a `access_token`
 ## cookie and also return the token as JSON.
 ## [codeblock]
 ## @returns Result<SignInResult, String>

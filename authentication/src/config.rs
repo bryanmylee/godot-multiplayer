@@ -45,13 +45,39 @@ pub fn get_identity_config() -> auth::identity::IdentityConfig {
             .expect("The file at IDENTITY_SECRET_FILE should contain the identity signing secret")
     };
 
-    let expires_in_seconds = env::var("IDENTITY_EXPIRES_IN")
+    let expires_in_seconds = env::var("IDENTITY_EXPIRES_IN_SECS")
         .ok()
         .and_then(|p| p.parse::<i64>().ok())
         .unwrap_or(3600);
     let expires_in = Duration::seconds(expires_in_seconds);
 
-    auth::identity::IdentityConfig { secret, expires_in }
+    let refresh_secret_text = env::var("REFRESH_SECRET");
+    let refresh_secret_file = env::var("REFRESH_SECRET_FILE");
+
+    let refresh_secret = if let Ok(refresh_secret_text) = refresh_secret_text {
+        refresh_secret_text
+    } else {
+        let refresh_secret_file = refresh_secret_file
+            .expect("Expected either REFRESH_SECRET or REFRESH_SECRET_FILE to be set");
+
+        use std::fs;
+        fs::read_to_string(refresh_secret_file).expect(
+            "The file at REFRESH_SECRET_FILE should contain the refresh token signing secret",
+        )
+    };
+
+    let refresh_expires_in_days = env::var("REFRESH_EXPIRES_IN_DAYS")
+        .ok()
+        .and_then(|p| p.parse::<i64>().ok())
+        .unwrap_or(7);
+    let refresh_expires_in = Duration::days(refresh_expires_in_days);
+
+    auth::identity::IdentityConfig {
+        secret,
+        expires_in,
+        refresh_secret,
+        refresh_expires_in,
+    }
 }
 
 pub fn get_cors_config() -> Cors {

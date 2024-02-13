@@ -37,7 +37,11 @@ var user_name := Option.None()
 ## [codeblock]
 ## Option<String>
 ## [/codeblock]
-var server_token := Option.None()
+var access_token := Option.None()
+## [codeblock]
+## Option<String>
+## [/codeblock]
+var refresh_token := Option.None()
 
 
 func _ready() -> void:
@@ -94,7 +98,8 @@ func add_provider(pname: ProviderName) -> Result:
 			print("Successfully logged in: ", sign_in.payload)
 			user_id = Option.new(sign_in.payload.user.id)
 			user_name = Option.new(sign_in.payload.user.name)
-			server_token = Option.new(sign_in.payload.server_token)
+			access_token = Option.new(sign_in.payload.access_token)
+			refresh_token = Option.new(sign_in.payload.refresh_token)
 		"pending_link_or_create":
 			print("Possible existing account: ", sign_in.payload)
 

@@ -10,38 +10,70 @@ use uuid::Uuid;
 pub struct IdentityConfig {
     pub secret: String,
     pub expires_in: Duration,
-}
-
-impl IdentityConfig {
-    pub fn generate_identity(&self, user: &User) -> String {
-        let now = Utc::now();
-        let iat = now.timestamp() as u64;
-        let exp = (now + self.expires_in).timestamp() as u64;
-        let claims = Claims {
-            sub: user.id.to_string(),
-            iat,
-            exp,
-        };
-
-        jsonwebtoken::encode(
-            &Header::default(),
-            &claims,
-            &EncodingKey::from_secret(self.secret.as_ref()),
-        )
-        .expect("Token failed to generate")
-    }
+    pub refresh_secret: String,
+    pub refresh_expires_in: Duration,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-struct Claims {
+struct IdentityClaims {
     pub sub: String,
     pub iat: u64,
     pub exp: u64,
 }
 
+impl IdentityClaims {
+    pub fn encode(&self, config: &IdentityConfig) -> String {
+        jsonwebtoken::encode(
+            &Header::default(),
+            self,
+            &EncodingKey::from_secret(config.secret.as_ref()),
+        )
+        .expect("Failed to encode access token")
+    }
+
+    pub fn decode(config: &IdentityConfig, token: &str) -> Result<Self, error::Error> {
+        let Ok(payload) = jsonwebtoken::decode::<Self>(
+            token,
+            &DecodingKey::from_secret(config.secret.as_ref()),
+            &Validation::default(),
+        ) else {
+            return Err(error::ErrorUnauthorized("Invalid access token"));
+        };
+
+        Ok(payload.claims)
+    }
+}
+
 /// A user's verified identity provided by their server access token.
+#[derive(Debug, Clone)]
 pub struct Identity {
     pub user_id: Uuid,
+}
+
+impl Identity {
+    pub fn from_user_id(user_id: &Uuid) -> Self {
+        Identity {
+            user_id: user_id.clone(),
+        }
+    }
+
+    pub fn from_user(user: &User) -> Self {
+        Identity {
+            user_id: user.id.clone(),
+        }
+    }
+
+    pub fn generate_token(&self, config: &IdentityConfig) -> String {
+        let now = Utc::now();
+        let iat = now.timestamp() as u64;
+        let exp = (now + config.expires_in).timestamp() as u64;
+        let claims = IdentityClaims {
+            sub: self.user_id.to_string(),
+            iat,
+            exp,
+        };
+        claims.encode(config)
+    }
 }
 
 impl FromRequest for Identity {
@@ -62,17 +94,15 @@ impl FromRequest for Identity {
             .app_data::<web::Data<IdentityConfig>>()
             .expect("IdentityConfig is available in app data");
 
-        let Ok(payload) = jsonwebtoken::decode::<Claims>(
-            &token,
-            &DecodingKey::from_secret(config.secret.as_ref()),
-            &Validation::default(),
-        ) else {
-            return ready(Err(error::ErrorUnauthorized("Invalid Bearer token")));
+        let claims = match IdentityClaims::decode(config, &token) {
+            Ok(claims) => claims,
+            Err(err) => return ready(Err(err)),
         };
 
-        let user_id = Uuid::parse_str(&payload.claims.sub).expect("sub claim to be a UUID");
-        req.extensions_mut().insert::<Uuid>(user_id.to_owned());
+        let user_id = Uuid::parse_str(&claims.sub).expect("Sub claim is not a valid UUID");
+        let identity = Identity::from_user_id(&user_id);
+        req.extensions_mut().insert::<Identity>(identity.clone());
 
-        ready(Ok(Identity { user_id }))
+        ready(Ok(identity))
     }
 }

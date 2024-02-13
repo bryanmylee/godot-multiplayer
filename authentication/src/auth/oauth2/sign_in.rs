@@ -1,6 +1,7 @@
-use crate::auth::identity::IdentityConfig;
+use crate::auth::identity::{self, Identity, IdentityConfig};
 use crate::auth::oauth2::google_provider::{GoogleUserInfo, GoogleUserInfoService};
 use crate::auth::provider::{AuthProvider, AuthProviderChangeset, AuthProviderType};
+use crate::auth::refresh::RefreshToken;
 use crate::auth::token::BearerToken;
 use crate::auth::SignInSuccess;
 use crate::db::{DbConnection, DbPool};
@@ -53,20 +54,19 @@ async fn sign_in(
             .await
             .map_err(error::ErrorInternalServerError)?;
 
-        return Ok(generate_sign_in_success_response(
+        return generate_sign_in_success_response(
+            &mut conn,
             UserWithAuthProviders { user, providers },
             &identity_config,
-        ));
+        )
+        .await;
     }
 
     let Some(email) = &user_info.email else {
         let new_user = create_new_user(&mut conn, &user_info)
             .await
             .map_err(error::ErrorInternalServerError)?;
-        return Ok(generate_sign_in_success_response(
-            new_user,
-            &identity_config,
-        ));
+        return generate_sign_in_success_response(&mut conn, new_user, &identity_config).await;
     };
 
     let same_email_providers: Vec<AuthProvider> = schema::auth_provider::table
@@ -79,10 +79,7 @@ async fn sign_in(
         let new_user = create_new_user(&mut conn, &user_info)
             .await
             .map_err(error::ErrorInternalServerError)?;
-        return Ok(generate_sign_in_success_response(
-            new_user,
-            &identity_config,
-        ));
+        return generate_sign_in_success_response(&mut conn, new_user, &identity_config).await;
     }
 
     let user_ids: Vec<Uuid> = same_email_providers.iter().map(|p| p.user_id).collect();
@@ -103,13 +100,16 @@ async fn sign_in(
     Ok(HttpResponse::Ok().json(SignInResult::PendingLinkOrCreate(users_with_providers)))
 }
 
-fn generate_sign_in_success_response(
+async fn generate_sign_in_success_response(
+    conn: &mut DbConnection,
     user_with_providers: UserWithAuthProviders,
     identity_config: &IdentityConfig,
-) -> HttpResponse {
-    let token = identity_config.generate_identity(&user_with_providers.user);
-
-    let sign_in_cookie = cookie::Cookie::build("server_token", token.to_owned())
+) -> actix_web::Result<HttpResponse> {
+    let identity = Identity {
+        user_id: user_with_providers.user.id,
+    };
+    let access_token = identity.generate_token(identity_config);
+    let sign_in_cookie = cookie::Cookie::build("access_token", access_token.to_owned())
         .path("/")
         .max_age(cookie::time::Duration::seconds(
             identity_config.expires_in.num_seconds(),
@@ -117,12 +117,26 @@ fn generate_sign_in_success_response(
         .http_only(true)
         .finish();
 
-    HttpResponse::Ok()
+    let refresh_token = RefreshToken::create(conn, &user_with_providers.user.id, &identity_config)
+        .await
+        .map_err(error::ErrorInternalServerError)?;
+    let refresh_token = refresh_token.generate_token(&identity_config);
+    let refresh_cookie = cookie::Cookie::build("refresh_token", refresh_token.to_owned())
+        .path("/")
+        .max_age(cookie::time::Duration::seconds(
+            identity_config.refresh_expires_in.num_seconds(),
+        ))
+        .http_only(true)
+        .finish();
+
+    Ok(HttpResponse::Ok()
         .cookie(sign_in_cookie)
+        .cookie(refresh_cookie)
         .json(SignInResult::Success(SignInSuccess {
-            server_token: token,
+            access_token,
+            refresh_token,
             user: user_with_providers,
-        }))
+        })))
 }
 
 async fn create_new_user(
@@ -263,7 +277,7 @@ mod tests {
             .to_request();
 
         let resp = test::call_service(&app, req).await;
-        assert!(resp.status().is_success());
+        assert_eq!(resp.status(), StatusCode::OK);
 
         let body: SignInResult = test::read_body_json(resp).await;
         assert!(matches!(body, SignInResult::PendingLinkOrCreate(_)));
@@ -323,7 +337,12 @@ mod tests {
             .to_request();
 
         let resp = test::call_service(&app, req).await;
-        assert!(resp.status().is_success());
+        assert_eq!(
+            resp.status(),
+            StatusCode::OK,
+            "{:?}",
+            test::read_body(resp).await
+        );
 
         let body: SignInResult = test::read_body_json(resp).await;
 
@@ -410,7 +429,7 @@ mod tests {
             .to_request();
 
         let resp = test::call_service(&app, req).await;
-        assert!(resp.status().is_success());
+        assert_eq!(resp.status(), StatusCode::OK);
 
         let body: SignInResult = test::read_body_json(resp).await;
 

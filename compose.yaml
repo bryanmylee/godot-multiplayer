@@ -24,6 +24,8 @@ services:
       POSTGRES_HOST: db
       POSTGRES_PORT: 5432
       IDENTITY_SECRET_FILE: /run/secrets/identity-secret
+      IDENTITY_EXPIRES_IN_SECS: 3600
+      REFRESH_EXPIRES_IN_DAYS: 7
       ALLOWED_ORIGINS: "http://localhost:8060,https://multiplayer-test.bryanmylee.com"
     ports:
       - 18000:8000

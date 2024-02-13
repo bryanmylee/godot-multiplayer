@@ -85,7 +85,7 @@ mod tests {
         let pool = web::Data::new(pool);
         let identity_config = web::Data::new(config::get_identity_config());
 
-        let token = identity_config.generate_identity(&user);
+        let token = Identity::from_user(&user).generate_token(&identity_config);
 
         let app = test::init_service(
             App::new()
@@ -174,7 +174,7 @@ mod tests {
         let pool = web::Data::new(pool);
         let identity_config = web::Data::new(config::get_identity_config());
 
-        let token = identity_config.generate_identity(&user);
+        let token = Identity::from_user(&user).generate_token(&identity_config);
 
         let app = test::init_service(
             App::new()

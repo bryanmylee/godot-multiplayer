@@ -1,10 +1,10 @@
 create table "user" (
-  "id" uuid primary key default gen_random_uuid() not null,
+  "id" uuid primary key not null default gen_random_uuid(),
   "name" text
 );
 
 create table "auth_provider" (
-  "id" uuid primary key default gen_random_uuid() not null,
+  "id" uuid primary key not null default gen_random_uuid(),
   "user_id" uuid not null references "user"(id),
   "order" smallint not null,
   "provider_type" text not null,
@@ -15,4 +15,14 @@ create table "auth_provider" (
   "user_name" text,
   "picture_url" text,
   "locale" text
+);
+
+create table "refresh_token" (
+  "id" uuid primary key not null default gen_random_uuid(),
+  "user_id" uuid unique not null references "user"(id),
+  "value" text unique not null,
+  "issued_at" timestamptz not null,
+  "expires_at" timestamptz not null,
+  "count" bigint not null default 0,
+  "invalidated" boolean not null default false
 );

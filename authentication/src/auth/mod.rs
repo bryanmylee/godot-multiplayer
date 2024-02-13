@@ -1,6 +1,7 @@
 pub mod identity;
 pub mod oauth2;
 pub mod provider;
+pub mod refresh;
 pub mod token;
 
 use crate::user::UserWithAuthProviders;
@@ -14,7 +15,7 @@ pub fn config_service(cfg: &mut web::ServiceConfig) {
 
 #[post("/sign-out/")]
 async fn sign_out(_: identity::Identity) -> impl Responder {
-    let logout_cookie = cookie::Cookie::build("server_token", "")
+    let logout_cookie = cookie::Cookie::build("access_token", "")
         .path("/")
         .max_age(cookie::time::Duration::seconds(-1))
         .http_only(true)
@@ -26,6 +27,7 @@ async fn sign_out(_: identity::Identity) -> impl Responder {
 #[derive(Debug, Clone, Serialize)]
 #[cfg_attr(test, derive(serde::Deserialize, PartialEq))]
 pub struct SignInSuccess {
-    server_token: String,
+    access_token: String,
+    refresh_token: String,
     user: UserWithAuthProviders,
 }
