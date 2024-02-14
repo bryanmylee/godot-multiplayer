@@ -2,6 +2,16 @@
 
 A minimal Godot project with cross-platform authentication, matchmaking, and server-authoritative multiplayer.
 
+# Environment Setup
+
+Set up the Godot project as usual. Some export platforms require extra configuration.
+
+## iOS and Game Center
+
+We manage a custom fork of the official [`godot-ios-plugins`](https://github.com/bryanmylee/godot-ios-plugins) repo, built for Godot 4.2.
+
+Plugins should be exported from [`godot-ios-plugins/`](./godot-ios-plugins/) and stored in `project/ios/`. Refer to the [iOS plugins document](./project/ios/README.md) for build instructions.
+
 # Network Architecture
 
 ## Central Server
@@ -59,6 +69,11 @@ The game has exports for Windows, macOS, Linux, iOS, Android, and the Web.
   - [x] OAuth 2.0 / OpenID for Web
 - [ ] ~~Scalable Server-Authoritative Multiplayer~~
 - [ ] Server-side Authentication
+  - [x] Authentication Server
+  - [ ] Steam for Desktop
+  - [ ] Apple Game Center for iOS
+  - [ ] Google Play Games for Android
+  - [x] OAuth 2.0 / OpenID for Web
 - [ ] Matchmaking
 
 # Design considerations

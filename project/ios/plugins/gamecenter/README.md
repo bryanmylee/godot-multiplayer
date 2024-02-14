@@ -15,17 +15,6 @@ The GameCenter plugin revolves around an event polling system. Events are sent t
 ### Authorization
 
 `authenticate()` - Performs user authentication. Generates a new `authentication` event.
-
-```json
-{
-  "type": "authentication",
-  "result": "ok",
-  "alias": "eatingdumplings",
-  "displayName": "eatingdumplings",
-  "player_id": "T:_48001ab8bf56c9fdcdc242bac5db3b0d"
-}
-```
-
 `is_authenticated()` - Returns authentication state.
 
 ### GameCenter methods
