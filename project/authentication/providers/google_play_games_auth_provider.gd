@@ -25,7 +25,7 @@ func initialize() -> Result:
 	
 	provider_type = "play_games"
 	provider_id = player.player_id
-	user_name = Option.Some(player.display_name)
+	user_name = Option.new(player.display_name)
 	print("Logged in with Play Games as ", user_name.unwrap())
 
 	return Result.Ok(null)

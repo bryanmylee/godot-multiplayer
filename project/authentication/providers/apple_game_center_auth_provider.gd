@@ -16,7 +16,7 @@ func initialize() -> Result:
 
 	provider_type = "game_center"
 	provider_id = auth_data.player_id
-	user_name = auth_data.displayName
+	user_name = Option.new(auth_data.displayName)
 	print("Logged in with Game Center as ", user_name.unwrap())
 
 	return Result.Ok(null)
