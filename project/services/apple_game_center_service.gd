@@ -28,13 +28,26 @@ func _process(_delta: float) -> void:
 
 
 ## [codeblock]
-## @returns Promise<{
+## AuthenticationSuccess {
 ##   type: "authentication"
 ##   result: "ok"
 ##   alias: String
-##   displayName: String;
-##   player_id: String;
-## }, String>
+##   displayName: String
+##   player_id: String
+## }
+##
+## AuthenticationError {
+##   type: "authentication"
+##   result: "error"
+##   error_code: int
+##   error_description: String
+## }
+##
+## AuthenticationResult = |
+##   | AuthenticationSuccess
+##   | AuthenticatoinError
+##
+## @returns Promise<AuthenticationResult, String>
 ## [/codeblock]
 func authenticate() -> Promise:
 	game_center.authenticate()
@@ -50,4 +63,4 @@ func authenticate() -> Promise:
 		
 		# Auto-disconnected when `response_handler` is deallocated.
 		pending_event.connect(response_handler)
-		)
+	)
