@@ -47,7 +47,7 @@ func _process(_delta: float) -> void:
 ##   | AuthenticationSuccess
 ##   | AuthenticatoinError
 ##
-## @returns Promise<AuthenticationResult, String>
+## @returns Promise<AuthenticationResult>
 ## [/codeblock]
 func authenticate() -> Promise:
 	game_center.authenticate()
@@ -55,6 +55,47 @@ func authenticate() -> Promise:
 	return Promise.new(func (resolve, reject):
 		var response_handler := func (payload: Dictionary):
 			if payload.type != "authentication":
+				return
+			if payload.result != "ok":
+				reject.call(payload)
+			else:
+				resolve.call(payload)
+		
+		# Auto-disconnected when `response_handler` is deallocated.
+		pending_event.connect(response_handler)
+	)
+
+
+## [codeblock]
+## RequestIdVerificationSignatureSuccess {
+##   type: "identity_verification_signature"
+##   result: "ok"
+##   public_key_url: String
+##   signature: String
+##   salt: String
+##   timestamp: int
+##   player_id: String
+## }
+##
+## RequestIdVerificationSignatureError {
+##   type: "identity_verification_signature"
+##   result: "error"
+##   error_code: int
+##   error_description: String
+## }
+##
+## RequestIdVerificationSignatureResult = |
+##   | RequestIdVerificationSignatureSuccess
+##   | RequestIdVerificationSignatureError
+##
+## @returns Promise<RequestIdVerificationSignatureResult>
+## [/codeblock]
+func request_identity_verification_signature():
+	game_center.request_identity_verification_signature()
+
+	return Promise.new(func (resolve, reject):
+		var response_handler := func (payload: Dictionary):
+			if payload.type != "identity_verification_signature":
 				return
 			if payload.result != "ok":
 				reject.call(payload)

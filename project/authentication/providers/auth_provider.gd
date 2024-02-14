@@ -37,22 +37,9 @@ func initialize() -> Result:
 	return await err.to_promise().settled
 
 
+## Sign in to the authentication server. The server will set a `access_token`
+## cookie and also return the token as JSON.
 ## [codeblock]
-## User {
-##   id: String
-##   name?: String
-## }
-##
-## Token {
-##   value: String
-##   expires_at: String
-## }
-##
-## UserWithAuthProviders {
-##   user: User
-##   providers: Array<AuthProvider>
-## }
-##
 ## SignInSuccess {
 ##   type: "success"
 ##   payload: {
@@ -68,12 +55,22 @@ func initialize() -> Result:
 ## }
 ##
 ## SignInResult = SignInSuccess | SignInPendingLinkOrCreate
-## [/codeblock]
-
-
-## Sign in to the authentication server. The server will set a `access_token`
-## cookie and also return the token as JSON.
-## [codeblock]
+##
+## User {
+##   id: String
+##   name?: String
+## }
+##
+## Token {
+##   value: String
+##   expires_at: String
+## }
+##
+## UserWithAuthProviders {
+##   user: User
+##   providers: Array<AuthProvider>
+## }
+##
 ## @returns Result<SignInResult, String>
 ## [/codeblock]
 func server_sign_in() -> Result:
