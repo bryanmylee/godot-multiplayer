@@ -59,17 +59,7 @@ impl IntoAuthProviderInsert for IdentitySignature {
 }
 
 #[async_trait::async_trait]
-pub trait GameCenterIdValidationService {
-    async fn is_validated(
-        &self,
-        identity: &IdentitySignature,
-    ) -> Result<bool, Box<dyn std::error::Error>>;
-}
-
-pub struct RealGameCenterIdValidationService;
-
-#[async_trait::async_trait]
-impl GameCenterIdValidationService for RealGameCenterIdValidationService {
+pub trait GameCenterIdValidationService: Sync {
     async fn is_validated(
         &self,
         identity: &IdentitySignature,
@@ -121,3 +111,7 @@ fn get_identity_data(identity: &IdentitySignature) -> Result<Vec<u8>, Box<dyn st
     data.extend_from_slice(&BASE64_STANDARD.decode(&identity.salt)?);
     Ok(data)
 }
+
+pub struct RealGameCenterIdValidationService;
+
+impl GameCenterIdValidationService for RealGameCenterIdValidationService {}

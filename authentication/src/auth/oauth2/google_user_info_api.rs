@@ -58,17 +58,9 @@ impl IntoAuthProviderInsert for GoogleUserInfo {
     }
 }
 
-#[async_trait::async_trait]
-pub trait GoogleUserInfoService {
-    async fn get_info(&self, token: &str) -> Result<GoogleUserInfo, error::Error>;
-}
-
 const USER_INFO_REQUEST_URI: &'static str = "https://www.googleapis.com/userinfo/v2/me";
-
-pub struct RealGoogleUserInfoService;
-
 #[async_trait::async_trait]
-impl GoogleUserInfoService for RealGoogleUserInfoService {
+pub trait GoogleUserInfoService: Sync {
     async fn get_info(&self, token: &str) -> Result<GoogleUserInfo, error::Error> {
         let client = reqwest::Client::new();
         let resp = client
@@ -90,3 +82,7 @@ impl GoogleUserInfoService for RealGoogleUserInfoService {
         }
     }
 }
+
+pub struct RealGoogleUserInfoService;
+
+impl GoogleUserInfoService for RealGoogleUserInfoService {}
