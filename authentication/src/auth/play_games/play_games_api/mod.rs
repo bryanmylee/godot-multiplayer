@@ -6,5 +6,4 @@
 
 pub mod players;
 
-#[allow(dead_code)]
 const URI: &'static str = "https://games.googleapis.com";
