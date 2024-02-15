@@ -30,7 +30,7 @@ async fn sign_in(
     let provider_changeset: AuthProviderChangeset = (&player).into();
     let matching_provider: Option<AuthProvider> = diesel::update(schema::auth_provider::table)
         .filter(schema::auth_provider::provider_id.eq(&player.player_id))
-        .filter(schema::auth_provider::provider_type.eq(AuthProviderType::OAuth2))
+        .filter(schema::auth_provider::provider_type.eq(AuthProviderType::GooglePlayGames))
         .set(&provider_changeset)
         .get_result(&mut conn)
         .await

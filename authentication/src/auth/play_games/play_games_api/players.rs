@@ -70,7 +70,7 @@ impl IntoAuthProviderInsert for Player {
         AuthProviderInsert {
             user_id: user.id,
             order: 0,
-            provider_type: AuthProviderType::OAuth2,
+            provider_type: AuthProviderType::GooglePlayGames,
             provider_id: self.player_id.clone(),
             email: None,
             email_verified: false,
