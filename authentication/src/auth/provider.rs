@@ -47,6 +47,10 @@ impl Default for AuthProviderInsert {
     }
 }
 
+pub trait IntoAuthProviderInsert {
+    fn into_provider_insert(&self, user: &User) -> AuthProviderInsert;
+}
+
 #[derive(AsChangeset)]
 #[diesel(table_name = schema::auth_provider)]
 pub struct AuthProviderChangeset {

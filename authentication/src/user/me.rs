@@ -33,7 +33,8 @@ async fn me(pool: web::Data<DbPool>, identity: Identity) -> actix_web::Result<Ht
 
 #[cfg(test)]
 mod tests {
-    use crate::auth::{oauth2::google_provider::GoogleUserInfo, provider::AuthProvider};
+    use crate::auth::oauth2::google_provider::GoogleUserInfo;
+    use crate::auth::provider::{AuthProvider, IntoAuthProviderInsert};
     use crate::{config, db};
     use actix_web::{http::header::AUTHORIZATION, test, web, App};
     use uuid::Uuid;

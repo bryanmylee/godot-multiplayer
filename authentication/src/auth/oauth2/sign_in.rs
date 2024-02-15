@@ -1,25 +1,15 @@
-use crate::auth::identity::{Identity, IdentityConfig};
-use crate::auth::oauth2::google_provider::{GoogleUserInfo, GoogleUserInfoService};
+use crate::auth::identity::IdentityConfig;
+use crate::auth::oauth2::google_provider::GoogleUserInfoService;
 use crate::auth::provider::{AuthProvider, AuthProviderChangeset, AuthProviderType};
-use crate::auth::refresh::session::RefreshSession;
 use crate::auth::token::BearerToken;
-use crate::auth::SignInSuccess;
-use crate::db::{DbConnection, DbPool};
+use crate::auth::{create_new_user, generate_sign_in_success_response, SignInResult};
+use crate::db::DbPool;
 use crate::schema;
-use crate::user::{User, UserInsert, UserWithAuthProviders};
-use actix_web::{cookie, error, post, web, HttpResponse};
+use crate::user::{User, UserWithAuthProviders};
+use actix_web::{error, post, web, HttpResponse};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
-use serde::Serialize;
 use uuid::Uuid;
-
-#[derive(Debug, Clone, Serialize)]
-#[cfg_attr(test, derive(serde::Deserialize, PartialEq))]
-#[serde(tag = "type", content = "payload", rename_all = "snake_case")]
-pub enum SignInResult {
-    Success(SignInSuccess),
-    PendingLinkOrCreate(Vec<UserWithAuthProviders>),
-}
 
 #[post("/sign-in/")]
 async fn sign_in(
@@ -100,68 +90,10 @@ async fn sign_in(
     Ok(HttpResponse::Ok().json(SignInResult::PendingLinkOrCreate(users_with_providers)))
 }
 
-async fn generate_sign_in_success_response(
-    conn: &mut DbConnection,
-    user_with_providers: UserWithAuthProviders,
-    identity_config: &IdentityConfig,
-) -> actix_web::Result<HttpResponse> {
-    let identity = Identity {
-        user_id: user_with_providers.user.id,
-    };
-    let access_token = identity.generate_token(identity_config);
-    let sign_in_cookie = cookie::Cookie::build("access_token", access_token.value.to_owned())
-        .path("/")
-        .max_age(cookie::time::Duration::seconds(
-            identity_config.expires_in.num_seconds(),
-        ))
-        .http_only(true)
-        .finish();
-
-    let refresh_session =
-        RefreshSession::create(conn, &identity_config, &user_with_providers.user.id)
-            .await
-            .map_err(error::ErrorInternalServerError)?;
-    let refresh_token = refresh_session.generate_token(&identity_config);
-    let refresh_cookie = cookie::Cookie::build("refresh_token", refresh_token.value.to_owned())
-        .path("/")
-        .max_age(cookie::time::Duration::seconds(
-            identity_config.refresh_expires_in.num_seconds(),
-        ))
-        .http_only(true)
-        .finish();
-
-    Ok(HttpResponse::Ok()
-        .cookie(sign_in_cookie)
-        .cookie(refresh_cookie)
-        .json(SignInResult::Success(SignInSuccess {
-            access_token,
-            refresh_token,
-            user: user_with_providers,
-        })))
-}
-
-async fn create_new_user(
-    conn: &mut DbConnection,
-    user_info: &GoogleUserInfo,
-) -> Result<UserWithAuthProviders, Box<dyn std::error::Error>> {
-    let user_insert: UserInsert = user_info.into();
-    let user: User = diesel::insert_into(schema::user::table)
-        .values(user_insert)
-        .get_result(conn)
-        .await?;
-    let provider: AuthProvider = diesel::insert_into(schema::auth_provider::table)
-        .values(user_info.into_provider_insert(&user))
-        .get_result(conn)
-        .await?;
-    Ok(UserWithAuthProviders {
-        user,
-        providers: vec![provider],
-    })
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::auth::provider::AuthProviderInsert;
+    use crate::auth::oauth2::google_provider::GoogleUserInfo;
+    use crate::auth::provider::{AuthProviderInsert, IntoAuthProviderInsert};
     use crate::{config, db};
     use actix_web::{http::header::AUTHORIZATION, test, web, App};
     use reqwest::StatusCode;

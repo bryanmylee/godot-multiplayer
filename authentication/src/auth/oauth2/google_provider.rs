@@ -1,4 +1,6 @@
-use crate::auth::provider::{AuthProviderChangeset, AuthProviderInsert, AuthProviderType};
+use crate::auth::provider::{
+    AuthProviderChangeset, AuthProviderInsert, AuthProviderType, IntoAuthProviderInsert,
+};
 use crate::user::{User, UserInsert};
 use actix_web::error;
 use reqwest::StatusCode;
@@ -39,8 +41,8 @@ impl From<&GoogleUserInfo> for UserInsert {
     }
 }
 
-impl GoogleUserInfo {
-    pub fn into_provider_insert(self: &Self, user: &User) -> AuthProviderInsert {
+impl IntoAuthProviderInsert for GoogleUserInfo {
+    fn into_provider_insert(&self, user: &User) -> AuthProviderInsert {
         AuthProviderInsert {
             user_id: user.id,
             order: 0,
@@ -58,7 +60,7 @@ impl GoogleUserInfo {
 
 #[async_trait::async_trait]
 pub trait GoogleUserInfoService {
-    async fn get_info(self: &Self, token: &str) -> Result<GoogleUserInfo, error::Error>;
+    async fn get_info(&self, token: &str) -> Result<GoogleUserInfo, error::Error>;
 }
 
 const USER_INFO_REQUEST_URI: &'static str = "https://www.googleapis.com/userinfo/v2/me";
