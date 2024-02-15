@@ -20,13 +20,17 @@ We manage a custom fork of the official [`godot-ios-plugins`](https://github.com
 
 > In addition to setting up Game Center in Godot, Game Center has to be [configured in App Store Connect](https://developer.apple.com/documentation/gamekit/enabling_and_configuring_game_center/). Refer to the [Game Center plugin document](../ios/plugins/gamecenter/README.md) for details about setting up Game Center.
 
+Refer to the [iOS build document](../ios/README.md).
+
 ### Google Play Games Services
 
 Android users are authenticated with Google Play Games Services by default.
 
 We manage a custom fork of [`Iakobs`](https://github.com/Iakobs/godot-play-game-services)/[`godot-play-games-services`](https://github.com/bryanmylee/godot-play-games-services) to reduce global namespace conflicts.
 
-> In addition to setting up Play Games Services in Godot, Play Games Services has to be configured on the [Google Play Console](https://play.google.com/console/u/0/developers). Refer to the [Android build document](../android/README.md).
+> In addition to setting up Play Games Services in Godot, Play Games Services has to be configured on the [Google Play Console](https://play.google.com/console/u/0/developers).
+
+Refer to the [Android build document](../android/README.md).
 
 ### OAuth 2.0
 
