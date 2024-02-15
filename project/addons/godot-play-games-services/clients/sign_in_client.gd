@@ -16,7 +16,7 @@ signal user_authenticated(is_authenticated: bool)
 ## Signal emitted after calling the [method request_server_side_access] method.[br]
 ## [br]
 ## [param token]: The OAuth 2.0 authorization code as a string.
-signal server_side_access_requested(token: String)
+signal server_side_access_requested(success: bool, token: String)
 
 var core: PlayGamesServicesCore
 
