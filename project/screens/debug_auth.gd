@@ -13,7 +13,7 @@ func _ready() -> void:
 		server_user_id_label.text = ""
 	else:
 		user_name_label.text = Authentication.main_provider.user_name.unwrap_or("")
-		provider_id_label.text = Authentication.main_provider.provider_id
+		provider_id_label.text = Authentication.main_provider.provider_id.unwrap_or("")
 		server_user_id_label.text = Authentication.user_id.unwrap_or("")
 
 
