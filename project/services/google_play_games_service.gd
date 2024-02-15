@@ -15,3 +15,7 @@ func initialize() -> Result:
 	if not success:
 		return Result.Err("Play Games Services not available")
 	return Result.Ok(null)
+
+
+func request_server_side_access() -> Result:
+	return Result.Ok(null)

@@ -29,3 +29,25 @@ func initialize() -> Result:
 	print("Logged in with Play Games as ", user_name.unwrap())
 
 	return Result.Ok(null)
+
+
+const AUTH_SERVER_SIGN_IN_PATH := "/auth/play-games/sign-in"
+func server_sign_in() -> Result:
+	if provider_id.is_none():
+		return Result.Err("not authenticated locally")
+	
+	var request_result: Result = await HTTPUtils.fetch(
+		Program.AUTH_SERVER_URI + AUTH_SERVER_SIGN_IN_PATH,
+		["Content-Type: application/json"],
+		HTTPClient.METHOD_POST,
+	).settled
+	
+	if request_result.is_err():
+		return request_result
+	
+	var response = request_result.unwrap()
+	if response.response_code != HTTPClient.RESPONSE_OK:
+		return Result.Err("failed to sign in: %s" % response.response_code)
+	
+	var body_text: String = response.body.get_string_from_utf8()
+	return Result.Ok(JSON.parse_string(body_text))
