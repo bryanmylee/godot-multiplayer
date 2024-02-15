@@ -1,7 +1,7 @@
-pub mod google_provider;
+pub mod google_user_info_api;
 mod sign_in;
 
-use self::google_provider::{GoogleUserInfoService, RealGoogleUserInfoService};
+use self::google_user_info_api::{GoogleUserInfoService, RealGoogleUserInfoService};
 use actix_web::web;
 use std::sync::Arc;
 

@@ -1,5 +1,5 @@
 use crate::auth::identity::IdentityConfig;
-use crate::auth::oauth2::google_provider::GoogleUserInfoService;
+use crate::auth::oauth2::google_user_info_api::GoogleUserInfoService;
 use crate::auth::provider::{AuthProvider, AuthProviderChangeset, AuthProviderType};
 use crate::auth::token::BearerToken;
 use crate::auth::{create_new_user, generate_sign_in_success_response, SignInResult};
@@ -92,7 +92,7 @@ async fn sign_in(
 
 #[cfg(test)]
 mod tests {
-    use crate::auth::oauth2::google_provider::GoogleUserInfo;
+    use crate::auth::oauth2::google_user_info_api::GoogleUserInfo;
     use crate::auth::provider::{AuthProviderInsert, IntoAuthProviderInsert};
     use crate::{config, db};
     use actix_web::{http::header::AUTHORIZATION, test, web, App};
