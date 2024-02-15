@@ -5,7 +5,7 @@ create table "user" (
 
 create table "auth_provider" (
   "id" uuid primary key not null default gen_random_uuid(),
-  "user_id" uuid not null references "user"(id),
+  "user_id" uuid not null references "user"(id) on delete cascade,
   "order" smallint not null,
   "provider_type" text not null,
   "provider_id" text not null,
@@ -19,7 +19,7 @@ create table "auth_provider" (
 
 create table "refresh_session" (
   "id" uuid primary key not null default gen_random_uuid(),
-  "user_id" uuid unique not null references "user"(id),
+  "user_id" uuid unique not null references "user"(id) on delete cascade,
   "issued_at" timestamptz not null,
   "expires_at" timestamptz not null,
   "count" bigint not null default 0,
