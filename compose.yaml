@@ -17,6 +17,9 @@ services:
     secrets:
       - db-password
       - identity-secret
+      - identity-refresh-secret
+      - server-oauth-client-id
+      - server-oauth-client-secret
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD_FILE: /run/secrets/db-password
@@ -25,8 +28,11 @@ services:
       POSTGRES_PORT: 5432
       IDENTITY_SECRET_FILE: /run/secrets/identity-secret
       IDENTITY_EXPIRES_IN_SECS: 3600
+      REFRESH_SECRET_FILE: /run/secrets/identity-refresh-secret
       REFRESH_EXPIRES_IN_DAYS: 7
       ALLOWED_ORIGINS: "http://localhost:8060,https://multiplayer-test.bryanmylee.com"
+      OAUTH_CLIENT_ID_FILE: /run/secrets/server-oauth-client-id
+      OAUTH_CLIENT_SECRET_FILE: /run/secrets/server-oauth-client-secret
     ports:
       - 18000:8000
     depends_on:
@@ -61,3 +67,9 @@ secrets:
     file: secrets/db-password.txt
   identity-secret:
     file: secrets/identity-secret.txt
+  identity-refresh-secret:
+    file: secrets/identity-refresh-secret.txt
+  server-oauth-client-id:
+    file: secrets/server-oauth-client-id.txt
+  server-oauth-client-secret:
+    file: secrets/server-oauth-client-secret.txt

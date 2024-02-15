@@ -1,6 +1,7 @@
 pub mod game_center;
 pub mod identity;
 pub mod oauth2;
+pub mod play_games;
 pub mod provider;
 pub mod refresh;
 pub mod token;
@@ -20,7 +21,8 @@ pub fn config_service(cfg: &mut web::ServiceConfig) {
     cfg.service(sign_out)
         .service(refresh::refresh)
         .service(web::scope("/oauth2").configure(oauth2::config_service))
-        .service(web::scope("/game-center").configure(game_center::config_service));
+        .service(web::scope("/game-center").configure(game_center::config_service))
+        .service(web::scope("/play-games").configure(play_games::config_service));
 }
 
 #[post("/sign-out/")]
