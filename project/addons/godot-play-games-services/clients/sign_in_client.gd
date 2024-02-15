@@ -31,8 +31,8 @@ func _connect_signals() -> void:
 		core.android_plugin.userAuthenticated.connect(func(authenticated: bool):
 			user_authenticated.emit(authenticated)
 		)
-		core.android_plugin.serverSideAccessRequested.connect(func(token: String):
-			server_side_access_requested.emit(token)
+		core.android_plugin.serverSideAccessRequested.connect(func(success: bool, token: String):
+			server_side_access_requested.emit(success, token)
 		)
 
 ## Use this method to check if the user is already authenticated. If the user is authenticated,
