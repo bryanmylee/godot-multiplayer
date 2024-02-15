@@ -1,7 +1,7 @@
+mod id_validation;
 mod sign_in;
-mod verification;
 
-use self::verification::{GameCenterIdValidationService, RealGameCenterIdValidationService};
+use self::id_validation::{GameCenterIdValidationService, RealGameCenterIdValidationService};
 use actix_web::web;
 use std::sync::Arc;
 

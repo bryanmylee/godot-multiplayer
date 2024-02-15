@@ -1,4 +1,4 @@
-use crate::auth::game_center::verification::{GameCenterIdValidationService, IdentitySignature};
+use crate::auth::game_center::id_validation::{GameCenterIdValidationService, IdentitySignature};
 use crate::auth::identity::IdentityConfig;
 use crate::auth::provider::{AuthProvider, AuthProviderChangeset, AuthProviderType};
 use crate::auth::{create_new_user, generate_sign_in_success_response};
