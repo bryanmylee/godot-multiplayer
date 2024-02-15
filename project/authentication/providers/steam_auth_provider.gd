@@ -8,7 +8,7 @@ func _init() -> void:
 
 func initialize() -> Result:
 	provider_type = "steam"
-	provider_id = str(Steam.getSteamID())
+	provider_id = Option.new(str(Steam.getSteamID()))
 	user_name = Option.new(Steam.getPersonaName())
 	print("Logged in with Steam as ", user_name.unwrap())
 

@@ -20,7 +20,7 @@ func initialize() -> Result:
 	var user_info = user_info_result.unwrap()
 
 	provider_type = "oauth2"
-	provider_id = user_info.id
+	provider_id = Option.new(user_info.id)
 	email = Option.new(user_info.email)
 	email_verified = user_info.verified_email
 	user_name = Option.new(user_info.name)
@@ -44,7 +44,7 @@ func server_sign_in() -> Result:
 		HTTPClient.METHOD_POST,
 	).settled
 	
-	if not request_result.is_ok():
+	if request_result.is_err():
 		return request_result
 	
 	var response = request_result.unwrap()

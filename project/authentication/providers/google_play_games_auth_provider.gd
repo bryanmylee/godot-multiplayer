@@ -24,7 +24,7 @@ func initialize() -> Result:
 	player = await google_play_games.core.players_client.current_player_loaded
 	
 	provider_type = "play_games"
-	provider_id = player.player_id
+	provider_id = Option.new(player.player_id)
 	user_name = Option.new(player.display_name)
 	print("Logged in with Play Games as ", user_name.unwrap())
 

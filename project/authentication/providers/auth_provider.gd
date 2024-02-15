@@ -4,7 +4,10 @@ class_name AuthProvider
 var id: String
 var order: int
 var provider_type: String
-var provider_id: String
+## [codeblock]
+## Option<String>
+## [/codeblock]
+var provider_id := Option.None()
 ## [codeblock]
 ## Option<String>
 ## [/codeblock]
