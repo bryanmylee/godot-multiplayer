@@ -11,10 +11,10 @@ use diesel_async::RunQueryDsl;
 
 #[post("/sign-in/")]
 async fn sign_in(
-    pool: web::Data<DbPool>,
     id_signature: web::Json<IdentitySignature>,
-    id_validation_service: web::Data<dyn GameCenterIdValidationService>,
+    pool: web::Data<DbPool>,
     identity_config: web::Data<IdentityConfig>,
+    id_validation_service: web::Data<dyn GameCenterIdValidationService>,
 ) -> actix_web::Result<HttpResponse> {
     let id_signature = id_signature.0;
     let validated = id_validation_service.is_validated(&id_signature).await?;

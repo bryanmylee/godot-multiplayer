@@ -1,11 +1,9 @@
 mod sign_in;
 mod verification;
 
-use std::sync::Arc;
-
-use actix_web::web;
-
 use self::verification::{GameCenterIdValidationService, RealGameCenterIdValidationService};
+use actix_web::web;
+use std::sync::Arc;
 
 pub fn config_service(cfg: &mut web::ServiceConfig) {
     let id_validation_service = web::Data::from(

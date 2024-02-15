@@ -1,7 +1,7 @@
 pub mod google_provider;
 mod sign_in;
 
-use crate::auth::oauth2::google_provider::{GoogleUserInfoService, RealGoogleUserInfoService};
+use self::google_provider::{GoogleUserInfoService, RealGoogleUserInfoService};
 use actix_web::web;
 use std::sync::Arc;
 

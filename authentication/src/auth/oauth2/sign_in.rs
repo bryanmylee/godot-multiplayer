@@ -13,10 +13,10 @@ use uuid::Uuid;
 
 #[post("/sign-in/")]
 async fn sign_in(
-    pool: web::Data<DbPool>,
     token: BearerToken,
-    google_user_info_service: web::Data<dyn GoogleUserInfoService>,
+    pool: web::Data<DbPool>,
     identity_config: web::Data<IdentityConfig>,
+    google_user_info_service: web::Data<dyn GoogleUserInfoService>,
 ) -> actix_web::Result<HttpResponse> {
     let user_info = google_user_info_service.get_info(&token).await?;
 

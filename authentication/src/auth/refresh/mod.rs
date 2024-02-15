@@ -14,9 +14,9 @@ struct RefreshRequestBody {
 
 #[post("/refresh/")]
 async fn refresh(
+    body: web::Json<RefreshRequestBody>,
     pool: web::Data<DbPool>,
     identity_config: web::Data<IdentityConfig>,
-    body: web::Json<RefreshRequestBody>,
 ) -> actix_web::Result<HttpResponse> {
     let mut conn = pool.get().await.map_err(error::ErrorInternalServerError)?;
     let result = RefreshSession::refresh(&mut conn, &identity_config, &body.refresh_token)
