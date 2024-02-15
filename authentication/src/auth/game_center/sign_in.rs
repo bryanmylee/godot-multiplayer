@@ -57,5 +57,6 @@ async fn sign_in(
     let new_user = create_new_user(&mut conn, &id_signature)
         .await
         .map_err(error::ErrorInternalServerError)?;
-    return generate_sign_in_success_response(&mut conn, new_user, &identity_config).await;
+
+    generate_sign_in_success_response(&mut conn, new_user, &identity_config).await
 }
