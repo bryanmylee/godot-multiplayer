@@ -31,3 +31,9 @@ diesel setup --database-url='postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@lo
 Take the variables from the project `compose.yaml` file.
 
 Refer to [`diesel-cli`](https://crates.io/crates/diesel_cli) for usage documentation.
+
+## Authentication Providers
+
+### Google Play Games Services
+
+Setting up Google Play Games on the server requires a dedicated [OAuth 2.0 Client ID](https://console.cloud.google.com/apis/credentials), separate from the Android client or the Web client. The server's client type should be "Web application".
