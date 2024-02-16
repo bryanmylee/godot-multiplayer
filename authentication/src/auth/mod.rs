@@ -4,6 +4,7 @@ pub mod oauth2;
 pub mod play_games;
 pub mod provider;
 pub mod refresh;
+pub mod steam;
 pub mod token;
 
 use crate::auth::identity::{Identity, IdentityConfig};
@@ -22,7 +23,8 @@ pub fn config_service(cfg: &mut web::ServiceConfig) {
         .service(refresh::refresh)
         .service(web::scope("/oauth2").configure(oauth2::config_service))
         .service(web::scope("/game-center").configure(game_center::config_service))
-        .service(web::scope("/play-games").configure(play_games::config_service));
+        .service(web::scope("/play-games").configure(play_games::config_service))
+        .service(web::scope("/steam").configure(steam::config_service));
 }
 
 #[post("/sign-out/")]

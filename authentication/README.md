@@ -37,3 +37,14 @@ Refer to [`diesel-cli`](https://crates.io/crates/diesel_cli) for usage documenta
 ### Google Play Games Services
 
 Setting up Google Play Games on the server requires a dedicated [OAuth 2.0 Client ID](https://console.cloud.google.com/apis/credentials), separate from the Android client or the Web client. The server's client type should be "Web application".
+
+### Steam
+
+Using Steam's Web API requires a [Steamworks Web API publisher authentication key](https://partner.steamgames.com/doc/webapi_overview/auth).
+
+To create a Publisher Web API key:
+
+1. As a user with administrative rights in your Steamworks account, first visit your groups list by going to Users & Permissions, then Manage Groups.
+2. From the list of groups, select or create a group that contains the App IDs for which you wish to have access with the WebAPI key.
+3. Then click into that group to view the users and applications in that group.
+4. If you have administrative permissions, you should then see the option to "Create WebAPI Key" on the right-hand side. Or you should see the key listed if it has already been created.

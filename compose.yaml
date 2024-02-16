@@ -20,6 +20,7 @@ services:
       - identity-refresh-secret
       - server-oauth-client-id
       - server-oauth-client-secret
+      - steam-web-api-key
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD_FILE: /run/secrets/db-password
@@ -33,6 +34,8 @@ services:
       ALLOWED_ORIGINS: "http://localhost:8060,https://multiplayer-test.bryanmylee.com"
       OAUTH_CLIENT_ID_FILE: /run/secrets/server-oauth-client-id
       OAUTH_CLIENT_SECRET_FILE: /run/secrets/server-oauth-client-secret
+      STEAM_APP_ID: 2843770
+      STEAM_WEB_API_KEY_FILE: /run/secrets/steam-web-api-key
     ports:
       - 18000:8000
     depends_on:
@@ -73,3 +76,5 @@ secrets:
     file: secrets/server-oauth-client-id.txt
   server-oauth-client-secret:
     file: secrets/server-oauth-client-secret.txt
+  steam-web-api-key:
+    file: secrets/steam-web-api-key.txt
