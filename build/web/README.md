@@ -26,7 +26,7 @@ Run a container with the latest version of the image and it will be pulled autom
 
 ## Running containers with images
 
-The web client should run on port `10443`, which will be forwarded to `443` by NGINX. Refer to the [Web Client NGINX configuration](.././../server/nginx/web_client.nginx).
+The web client should run on port `10443`, which will be forwarded to `443` by NGINX. Refer to the [Web Client NGINX configuration](.././../nginx/templates/web_client.nginx).
 
 Certain parts of the application are controlled via environment variables. Pass them into the container with `-e` / `--env`.
 

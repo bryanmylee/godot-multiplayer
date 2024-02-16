@@ -26,7 +26,7 @@ Run a container with the latest version of the image and it will be pulled autom
 
 ## Running containers with images
 
-The game server should run on the rang of ports from `19000-19249`, which will be forwarded to `9000-9249` by NGINX. Refer to the [Game Server NGINX configuration](.././../server/nginx/game_server.nginx).
+The game server should run on the rang of ports from `19000-19249`, which will be forwarded to `9000-9249` by NGINX. Refer to the [Game Server NGINX configuration](.././../nginx/templates/game_server.nginx).
 
 Certain parts of the application are controlled via environment variables. Pass them into the container with `-e` / `--env`.
 

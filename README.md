@@ -2,7 +2,7 @@
 
 A minimal Godot project with cross-platform authentication, matchmaking, and server-authoritative multiplayer.
 
-# Environment Setup
+# Development Setup
 
 Set up the Godot project as usual. Some export platforms require extra configuration.
 
@@ -12,13 +12,19 @@ We manage a custom fork of the official [`godot-ios-plugins`](https://github.com
 
 Plugins should be exported from [`godot-ios-plugins/`](./godot-ios-plugins/) and stored in `project/ios/`. Refer to the [iOS plugins document](./project/ios/README.md) for build instructions.
 
+# Deployment
+
+We currently manage our services with Docker Compose. Refer to [this guide](https://www.docker.com/blog/docker-compose-from-local-to-amazon-ecs/) on deploying the services to a remote host.
+
+Also refer to the [proxy setup document](nginx/README.md) to setup the remote host.
+
 # Network Architecture
 
-## Central Server
+## Proxy Server
 
-We use a central Linux server that serves as the first contact for game clients. The central server coordinates game clients to services like matchmaking and game servers.
+We use an NGINX proxy that provides the main entrypoint to the multiplayer system.
 
-Refer to the [server setup document](server/README.md).
+Refer to the [proxy setup document](nginx/README.md).
 
 ## Authentication
 
@@ -28,9 +34,9 @@ Refer to the [client-side authentication document](project/authentication/README
 
 An NGINX proxy provides TLS by forwarding ports defined below:
 
-| Internal service port | External port with TLS | Protocol | Description             |
-| --------------------- | ---------------------- | -------- | ----------------------- |
-| `18000`               | `8000`                 | HTTP     | The authentication API. |
+| Internal service port | External proxy port | Protocol | Description             |
+| --------------------- | ------------------- | -------- | ----------------------- |
+| `18000`               | `8000`              | HTTP     | The authentication API. |
 
 ## Game Server
 
@@ -40,10 +46,10 @@ We also run a simple REST API for spawning and stopping containers for game inst
 
 An NGINX proxy provides TLS by forwarding ports defined below:
 
-| Internal service port | External port with TLS | Protocol  | Description                 |
-| --------------------- | ---------------------- | --------- | --------------------------- |
-| `80`                  | `443`                  | HTTP      | The container-spawning API. |
-| `19000-19249`         | `9000-9249`            | WebSocket | The game server.            |
+| Internal service port | External proxy port | Protocol  | Description                 |
+| --------------------- | ------------------- | --------- | --------------------------- |
+| `80`                  | `443`               | HTTP      | The container-spawning API. |
+| `19000-19249`         | `9000-9249`         | WebSocket | The game server.            |
 
 ### Environment variables
 

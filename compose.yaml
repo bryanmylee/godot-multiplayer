@@ -1,6 +1,7 @@
 services:
   game_server:
     platform: linux/x86_64
+    image: bryanmylee/multiplayer-base-game-server
     build:
       dockerfile: build/server/Dockerfile
       target: final
@@ -11,6 +12,7 @@ services:
         condition: service_started
 
   authentication:
+    image: bryanmylee/multiplayer-base-authentication
     build:
       context: authentication
       target: final
