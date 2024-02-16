@@ -40,18 +40,15 @@ An NGINX proxy provides TLS by forwarding ports defined below:
 
 ## Game Server
 
-Every game is run in a Docker container on a game server. A single game server can therefore host multiple games by running multiple containers bound to different ports selected by the matchmaking server.
-
-We also run a simple REST API for spawning and stopping containers for game instances.
+Every game match is run in a Docker container on a game server. A single game server can therefore host multiple matches by running multiple containers bound to different ports selected by the matchmaking server.
 
 An NGINX proxy provides TLS by forwarding ports defined below:
 
-| Internal service port | External proxy port | Protocol  | Description                 |
-| --------------------- | ------------------- | --------- | --------------------------- |
-| `80`                  | `443`               | HTTP      | The container-spawning API. |
-| `19000-19249`         | `9000-9249`         | WebSocket | The game server.            |
+| Internal service port | External proxy port | Protocol  | Description      |
+| --------------------- | ------------------- | --------- | ---------------- |
+| `19000-19249`         | `9000-9249`         | WebSocket | The game server. |
 
-### Environment variables
+### Environment Variables
 
 | Variable    | Description                                      | Default value |
 | ----------- | ------------------------------------------------ | ------------- |
@@ -61,6 +58,16 @@ An NGINX proxy provides TLS by forwarding ports defined below:
 ## Game Client
 
 The game has exports for Windows, macOS, Linux, iOS, Android, and the Web.
+
+### Web Client
+
+The web client is hosted on a simple webpage and acts like a local game client when its assets are downloaded.
+
+An NGINX proxy provides TLS by forwarding ports defined below:
+
+| Internal service port | External proxy port | Protocol | Description     |
+| --------------------- | ------------------- | -------- | --------------- |
+| `10443`               | `443`               | HTTP     | The web client. |
 
 # Roadmap
 
