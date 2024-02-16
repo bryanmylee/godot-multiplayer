@@ -8,3 +8,6 @@ const AUTH_SERVER_STEAM_IDENTITY := "authentication"
 const IOS_BUNDLE_ID := "com.example.game"
 const STEAM_APP_ID := 480
 const STEAM_GAME_ID := 480
+
+const GAME_SERVER_HOST := "127.0.0.1"
+const GAME_SERVER_PORT := 9000

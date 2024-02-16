@@ -1,11 +1,6 @@
 extends Node
 class_name GameClient
 
-# const SERVER_HOST := "multiplayer-test.bryanmylee.com"
-const SERVER_HOST := "127.0.0.1"
-
-const SERVER_PORT := 9000
-
 ## We use this in place of `multiplayer.get_unique_id()` for more customization and static access via `Program.game_client`.
 var peer_id := 0
 var peer := WebSocketMultiplayerPeer.new()
@@ -20,7 +15,7 @@ func _init() -> void:
 ## [/codeblock]
 func start() -> Result:
 	var protocol := "wss://" if Env.SSL_ENABLED else "ws://"
-	var address := protocol + SERVER_HOST + ":" + str(SERVER_PORT)
+	var address := protocol + Env.GAME_SERVER_HOST + ":" + str(Env.GAME_SERVER_PORT)
 	Logger.client_log(["starting client connection to game server at: ", address], ["init"])
 	var start_result := Result.from_gderr(peer.create_client(address))
 
