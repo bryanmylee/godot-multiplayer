@@ -33,7 +33,7 @@ services:
       IDENTITY_EXPIRES_IN_SECS: 3600
       REFRESH_SECRET_FILE: /run/secrets/identity-refresh-secret
       REFRESH_EXPIRES_IN_DAYS: 7
-      ALLOWED_ORIGINS: "http://localhost:8060,https://multiplayer-test.bryanmylee.com"
+      ALLOWED_ORIGINS: "http://localhost:8060,https://multiplayer-base.bryanmylee.com"
       OAUTH_CLIENT_ID_FILE: /run/secrets/server-oauth-client-id
       OAUTH_CLIENT_SECRET_FILE: /run/secrets/server-oauth-client-secret
       STEAM_APP_ID: 2843770
