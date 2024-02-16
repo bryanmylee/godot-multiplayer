@@ -24,6 +24,12 @@ size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
 text = "Start Game"
 
+[node name="SignInButton" type="Button" parent="."]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "Sign In"
+
 [node name="UserName" type="Label" parent="."]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
@@ -43,3 +49,4 @@ text = "Loading Server ID..."
 horizontal_alignment = 1
 
 [connection signal="pressed" from="StartGameButton" to="." method="_on_start_game_button_pressed"]
+[connection signal="pressed" from="SignInButton" to="." method="_on_sign_in_button_pressed"]

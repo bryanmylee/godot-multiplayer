@@ -19,3 +19,7 @@ func _ready() -> void:
 
 func _on_start_game_button_pressed():
 	Program.main.load_game_screen()
+
+
+func _on_sign_in_button_pressed():
+	print(await Authentication.sign_in())
