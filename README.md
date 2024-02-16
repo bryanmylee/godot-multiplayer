@@ -30,7 +30,7 @@ Refer to the [proxy setup document](nginx/README.md).
 
 Different platforms require different authentication strategies, including Steam, Apple Game Center, Google Play Games Services, and OAuth 2.0. All authentication strategies are consolidated and managed by our authentication server.
 
-Refer to the [client-side authentication document](project/authentication/README.md) or the [authentication server document](authentication/README.md).
+Refer to the [client-side authentication document](project/authentication/README.md) and the [authentication server document](authentication/README.md).
 
 An NGINX proxy provides TLS by forwarding ports defined below:
 
