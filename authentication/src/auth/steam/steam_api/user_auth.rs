@@ -4,6 +4,7 @@
 
 use super::{AUTH_SERVER_STEAM_IDENTITY, STEAM_CONFIG, URI};
 use actix_web::error;
+use std::time::Duration;
 
 #[async_trait::async_trait]
 pub trait SteamUserAuthService: Sync {
@@ -20,6 +21,7 @@ pub trait SteamUserAuthService: Sync {
 
         let resp = client
             .get(format!("{URI}/ISteamUserAuth/AuthenticateUserTicket/v1/"))
+            .timeout(Duration::from_secs(5))
             .query(&[
                 ("key", STEAM_CONFIG.web_api_key.to_owned()),
                 ("appid", STEAM_CONFIG.app_id.to_owned()),

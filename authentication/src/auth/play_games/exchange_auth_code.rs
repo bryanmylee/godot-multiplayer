@@ -1,6 +1,6 @@
-use serde::Deserialize;
-
 use crate::config::{get_oauth_client_secrets, OAuthClientSecrets};
+use serde::Deserialize;
+use std::time::Duration;
 
 const OAUTH_TOKEN_URI: &'static str = "https://oauth2.googleapis.com/token";
 
@@ -31,7 +31,12 @@ pub trait PlayGamesExchangeAuthCodeService: Sync {
         ];
 
         let client = reqwest::Client::new();
-        let resp = client.post(OAUTH_TOKEN_URI).form(&params).send().await?;
+        let resp = client
+            .post(OAUTH_TOKEN_URI)
+            .timeout(Duration::from_secs(5))
+            .form(&params)
+            .send()
+            .await?;
 
         let token: TokenPayload = resp.json().await?;
 

@@ -4,6 +4,7 @@
 
 use super::{STEAM_CONFIG, URI};
 use actix_web::error;
+use std::time::Duration;
 
 #[async_trait::async_trait]
 pub trait SteamUserService: Sync {
@@ -20,6 +21,7 @@ pub trait SteamUserService: Sync {
 
         let resp = client
             .get(format!("{URI}/ISteamUser/GetPlayerSummaries/v2/"))
+            .timeout(Duration::from_secs(5))
             .query(&[
                 ("key", STEAM_CONFIG.web_api_key.to_owned()),
                 ("steamids", steam_ids.join(",")),

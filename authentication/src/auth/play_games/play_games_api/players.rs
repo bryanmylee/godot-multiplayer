@@ -6,6 +6,7 @@ use crate::{
     user::{User, UserInsert},
 };
 use serde::{Deserialize, Serialize};
+use std::time::Duration;
 
 #[async_trait::async_trait]
 pub trait PlayersService: Sync {
@@ -13,6 +14,7 @@ pub trait PlayersService: Sync {
         let client = reqwest::Client::new();
         let resp = client
             .get(format!("{URI}/games/v1/players/me"))
+            .timeout(Duration::from_secs(5))
             .bearer_auth(access_token)
             .send()
             .await?;

@@ -7,6 +7,7 @@ use base64::prelude::*;
 use openssl::{hash::MessageDigest, sign::Verifier, x509::X509};
 use reqwest::StatusCode;
 use serde::Deserialize;
+use std::time::Duration;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct IdentitySignature {
@@ -84,7 +85,11 @@ pub trait GameCenterIdValidationService: Sync {
 
 async fn get_certificate(public_key_url: &str) -> Result<X509, Box<dyn std::error::Error>> {
     let client = reqwest::Client::new();
-    let resp = client.get(public_key_url).send().await?;
+    let resp = client
+        .get(public_key_url)
+        .timeout(Duration::from_secs(5))
+        .send()
+        .await?;
     match resp.status() {
         StatusCode::OK => {
             let bytes = resp.bytes().await?;

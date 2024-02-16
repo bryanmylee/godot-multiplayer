@@ -5,6 +5,7 @@ use crate::user::{User, UserInsert};
 use actix_web::error;
 use reqwest::StatusCode;
 use serde::Deserialize;
+use std::time::Duration;
 
 #[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
@@ -65,6 +66,7 @@ pub trait GoogleUserInfoService: Sync {
         let client = reqwest::Client::new();
         let resp = client
             .get(USER_INFO_REQUEST_URI)
+            .timeout(Duration::from_secs(5))
             .bearer_auth(token)
             .send()
             .await
