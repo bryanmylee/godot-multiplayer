@@ -1,6 +1,14 @@
 services:
-  game_server:
-    platform: linux/x86_64
+  web-client:
+    platform: linux/amd64
+    image: bryanmylee/multiplayer-base-web-client
+    build:
+      dockerfile: build/web/Dockerfile
+    ports:
+      - 10443:9000
+
+  game-server:
+    platform: linux/amd64
     image: bryanmylee/multiplayer-base-game-server
     build:
       dockerfile: build/server/Dockerfile
@@ -12,6 +20,7 @@ services:
         condition: service_started
 
   authentication:
+    platform: linux/amd64
     image: bryanmylee/multiplayer-base-authentication
     build:
       context: authentication

@@ -14,15 +14,40 @@ Plugins should be exported from [`godot-ios-plugins/`](./godot-ios-plugins/) and
 
 # Deployment
 
-We currently manage our services with Docker Compose. Refer to [this guide](https://www.docker.com/blog/docker-compose-from-local-to-amazon-ecs/) on deploying the services to a remote host.
+We currently manage our services with Docker Compose. Refer to [this guide](https://www.docker.com/blog/how-to-deploy-on-remote-docker-hosts-with-docker-compose/) on deploying the services to a remote host using Docker Contexts.
 
-Also refer to the [proxy setup document](nginx/README.md) to setup the remote host.
+```bash
+docker compose build
+docker compose push
+docker context create {context_name} --docker "host=ssh://{remote_user}@{remote_ip}"
+```
+
+The [`secrets/`](./secrets/) directory needs to be copied to all remote hosts with the exact same absolute location before deploying the project due to the [bind mount requirement](https://docs.docker.com/engine/swarm/services/#bind-mounts).
+
+```bash
+# On the remote host
+mkdir -p {absolute_path_to_secrets}/secrets
+
+# On the local host
+scp -r secrets/ {remote_user}@{remote_ip}:{absolute_path_to_secrets}/
+```
+
+Then, deploy the services in the remote context.
+
+```bash
+docker --context {context_name} compose up --detach
+
+# Check the processes
+docker --context {context_name} ps
+```
+
+Lastly, refer to the [proxy setup document](nginx/README.md) to setup the proxy for the remote host.
 
 # Network Architecture
 
 ## Proxy Server
 
-We use an NGINX proxy that provides the main entrypoint to the multiplayer system.
+We use an NGINX proxy that provides the main entrypoint to the multiplayer system and provides TLS.
 
 Refer to the [proxy setup document](nginx/README.md).
 

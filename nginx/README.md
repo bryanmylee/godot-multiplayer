@@ -122,6 +122,7 @@ Once the services are behind NGINX's TLS proxy, make sure to expose the ports on
 
 ```bash
 sudo ufw allow 443/tcp
+sudo ufw allow 8000/tcp
 sudo ufw allow 9000:9249/tcp
 ```
 
