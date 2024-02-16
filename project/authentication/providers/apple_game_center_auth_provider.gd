@@ -34,7 +34,7 @@ func server_sign_in() -> Result:
 	var id_signature = id_signature_result.unwrap()
 	
 	var request_result: Result = await HTTPUtils.fetch(
-		Program.AUTH_SERVER_URI + AUTH_SERVER_SIGN_IN_PATH,
+		Env.AUTH_SERVER_URI + AUTH_SERVER_SIGN_IN_PATH,
 		["Content-Type: application/json"],
 		HTTPClient.METHOD_POST,
 		JSON.stringify({
@@ -44,7 +44,7 @@ func server_sign_in() -> Result:
 			"timestamp": id_signature.timestamp,
 			"player_id": id_signature.player_id,
 			"user_name": user_name.unwrap_or(null),
-			"bundle_id": Program.IOS_BUNDLE_ID,
+			"bundle_id": Env.IOS_BUNDLE_ID,
 		}),
 	).settled
 	

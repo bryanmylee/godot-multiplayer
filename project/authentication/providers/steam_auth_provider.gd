@@ -17,7 +17,7 @@ func initialize() -> Result:
 
 const AUTH_SERVER_SIGN_IN_PATH := "/auth/steam/sign-in"
 func server_sign_in() -> Result:
-	Steam.getAuthTicketForWebApi(Program.AUTH_SERVER_STEAM_IDENTITY)
+	Steam.getAuthTicketForWebApi(Env.AUTH_SERVER_STEAM_IDENTITY)
 	var ticket_payload = await Steam.get_ticket_for_web_api
 
 	var auth_ticket_result: Steam.Result = ticket_payload[1]
@@ -29,7 +29,7 @@ func server_sign_in() -> Result:
 	var encoded_auth_ticket = "".join(auth_ticket.map(func (b): return "%02X" % b))
 
 	var request_result: Result = await HTTPUtils.fetch(
-		Program.AUTH_SERVER_URI + AUTH_SERVER_SIGN_IN_PATH,
+		Env.AUTH_SERVER_URI + AUTH_SERVER_SIGN_IN_PATH,
 		["Content-Type: text/plain"],
 		HTTPClient.METHOD_POST,
 		encoded_auth_ticket,

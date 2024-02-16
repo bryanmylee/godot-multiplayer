@@ -36,7 +36,7 @@ func server_sign_in() -> Result:
 	if provider_id.is_none():
 		return Result.Err("not authenticated locally")
 	
-	google_play_games.core.sign_in_client.request_server_side_access(Program.AUTH_SERVER_PLAY_GAMES_OAUTH_CLIENT_ID, false)
+	google_play_games.core.sign_in_client.request_server_side_access(Env.AUTH_SERVER_PLAY_GAMES_OAUTH_CLIENT_ID, false)
 	var auth_code_result = await google_play_games.core.sign_in_client.server_side_access_requested
 	var token_success: bool = auth_code_result[0]
 	if not token_success:
@@ -44,7 +44,7 @@ func server_sign_in() -> Result:
 	var auth_code: String = auth_code_result[1]
 
 	var request_result: Result = await HTTPUtils.fetch(
-		Program.AUTH_SERVER_URI + AUTH_SERVER_SIGN_IN_PATH,
+		Env.AUTH_SERVER_URI + AUTH_SERVER_SIGN_IN_PATH,
 		["Content-Type: text/plain"],
 		HTTPClient.METHOD_POST,
 		auth_code,

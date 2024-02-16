@@ -7,8 +7,8 @@ func _init() -> void:
 
 
 func initialize() -> Result:
-	OS.set_environment("SteamAppId", str(Program.STEAM_APP_ID))
-	OS.set_environment("SteamGameId", str(Program.STEAM_GAME_ID))
+	OS.set_environment("SteamAppId", str(Env.STEAM_APP_ID))
+	OS.set_environment("SteamGameId", str(Env.STEAM_GAME_ID))
 
 	Steam.steamInit()
 	if not Steam.isSteamRunning():
