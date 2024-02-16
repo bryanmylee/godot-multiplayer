@@ -7,8 +7,11 @@ FROM rust:${RUST_VERSION}-slim-bullseye AS build
 ARG APP_NAME=authentication
 WORKDIR /app
 
-# Install `diesel-rs` build dependencies.
-RUN apt-get update && apt-get -qq -y install libpq-dev
+# Install build dependencies for `diesel-rs` and `openssl`.
+RUN apt-get update && apt-get -qq -y install \
+    libpq-dev \
+    libssl-dev \
+    pkg-config
 
 # Build the application.
 # Leverage a cache mount to /usr/local/cargo/registry/
@@ -36,8 +39,10 @@ EOF
 
 FROM debian:bullseye-slim AS final
 
-# Install `diesel-rs` dynamic dependencies.
-RUN apt-get update && apt-get -qq -y install libpq-dev
+# Install runtime dependencies for `diesel-rs` and `openssl`.
+RUN apt-get update && apt-get -qq -y install \
+    libpq-dev \
+    ca-certificates
 
 # Create a non-privileged user that the app will run under.
 ARG UID=10001
