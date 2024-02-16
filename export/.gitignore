@@ -3,7 +3,6 @@ server/*
 !server/.gitkeep
 web/*
 !web/.gitkeep
-!web/serve.py
 windows/*
 !windows/.gitkeep
 macos/*

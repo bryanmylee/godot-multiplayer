@@ -7,7 +7,7 @@ Make sure to have Docker installed.
 To build the web client image, run the command below from the repository root:
 
 ```bash
-docker build --platform linux/x86_64 --tag {custom_tag} -f build/web/Dockerfile export/web
+docker build --platform linux/x86_64 --tag {custom_tag} -f build/web/Dockerfile .
 ```
 
 ## Pushing images to Docker Hub

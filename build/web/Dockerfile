@@ -10,8 +10,11 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Copy the source code into the container.
-COPY . ./
+# Copy the source code.
+COPY ./export/web/ ./
+
+# Copy the server script.
+COPY ./build/web/serve.py ./
 
 # Expose the port that the application listens on.
 EXPOSE 9000
