@@ -351,6 +351,7 @@ dependencies = [
  "diesel",
  "diesel-async",
  "diesel-derive-enum",
+ "diesel_async_migrations",
  "dotenvy",
  "env_logger",
  "is_empty",
@@ -632,6 +633,29 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.48",
+]
+
+[[package]]
+name = "diesel_async_migrations"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a700d6b83a17973b94d3065970fd2b36f1036c3fe08adcbdce1c9beb8fb25553"
+dependencies = [
+ "diesel",
+ "diesel-async",
+ "diesel_async_migrations_macros",
+ "scoped-futures",
+ "tracing",
+]
+
+[[package]]
+name = "diesel_async_migrations_macros"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "05de210f31e6ac18162501b03c37f839af9f9fd6dd6de2bb4031ae6691c47679"
+dependencies = [
+ "proc-macro2",
+ "quote",
 ]
 
 [[package]]
@@ -2007,7 +2031,19 @@ checksum = "c3523ab5a71916ccf420eebdf5521fcef02141234bbc0b8a49f2fdc4544364ef"
 dependencies = [
  "log",
  "pin-project-lite",
+ "tracing-attributes",
  "tracing-core",
+]
+
+[[package]]
+name = "tracing-attributes"
+version = "0.1.27"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "34704c8d6ebcbc939824180af020566b01a7c01f80641264eba0999f6c2b6be7"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.48",
 ]
 
 [[package]]

@@ -15,6 +15,10 @@ async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
     env_logger::init();
 
+    db::run_pending_migrations()
+        .await
+        .expect("Failed to apply database migrations");
+
     let db_pool = db::initialize_db_pool(&config::get_db_url()).await;
     let identity_config = config::get_identity_config();
 
