@@ -7,8 +7,8 @@ func _init() -> void:
 
 
 func initialize() -> Result:
-	OS.set_environment("SteamAppId", str(480))
-	OS.set_environment("SteamGameId", str(480))
+	OS.set_environment("SteamAppId", str(Program.STEAM_APP_ID))
+	OS.set_environment("SteamGameId", str(Program.STEAM_GAME_ID))
 
 	Steam.steamInit()
 	if not Steam.isSteamRunning():
@@ -16,3 +16,7 @@ func initialize() -> Result:
 	print("Steam API initialized")
 
 	return Result.Ok(null)
+
+
+func _process(_delta: float) -> void:
+	Steam.run_callbacks()

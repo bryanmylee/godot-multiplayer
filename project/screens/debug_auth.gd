@@ -18,5 +18,4 @@ func _ready() -> void:
 
 
 func _on_start_game_button_pressed():
-	Authentication.sign_in()
-	# Program.main.load_game_screen()
+	Program.main.load_game_screen()
