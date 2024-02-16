@@ -27,7 +27,7 @@ impl From<&GoogleUserInfo> for AuthProviderChangeset {
             email: value.email.clone(),
             email_verified: value.verified_email,
             display_name: value.name.clone(),
-            user_name: value.email.clone(),
+            user_name: value.given_name.clone(),
             picture_url: value.picture.clone(),
             locale: value.locale.clone(),
         }
@@ -52,7 +52,7 @@ impl IntoAuthProviderInsert for GoogleUserInfo {
             email: self.email.clone(),
             email_verified: self.verified_email,
             display_name: self.name.clone(),
-            user_name: self.email.clone(),
+            user_name: self.given_name.clone(),
             picture_url: self.picture.clone(),
             locale: self.locale.clone(),
         }
