@@ -14,10 +14,8 @@ func _init() -> void:
 ## @returns Result<null, int>
 ## [/codeblock]
 func start() -> Result:
-	var protocol := "wss://" if Env.SSL_ENABLED else "ws://"
-	var address := protocol + Env.GAME_SERVER_HOST + ":" + str(Env.GAME_SERVER_PORT)
-	Logger.client_log(["starting client connection to game server at: ", address], ["init"])
-	var start_result := Result.from_gderr(peer.create_client(address))
+	Logger.client_log(["starting client connection to game server at: ", Env.GAME_SERVER_URI], ["init"])
+	var start_result := Result.from_gderr(peer.create_client(Env.GAME_SERVER_URI))
 
 	multiplayer.multiplayer_peer = peer
 	multiplayer.connected_to_server.connect(_handle_connected_to_server)
