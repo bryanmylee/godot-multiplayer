@@ -26,18 +26,14 @@ services:
       context: authentication
       target: final
     secrets:
-      - db-password
+      - db-url
       - identity-secret
       - identity-refresh-secret
       - server-oauth-client-id
       - server-oauth-client-secret
       - steam-web-api-key
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD_FILE: /run/secrets/db-password
-      POSTGRES_DB: postgres
-      POSTGRES_HOST: db
-      POSTGRES_PORT: 5432
+      POSTGRES_URL_FILE: /run/secrets/db-url
       IDENTITY_SECRET_FILE: /run/secrets/identity-secret
       IDENTITY_EXPIRES_IN_SECS: 3600
       REFRESH_SECRET_FILE: /run/secrets/identity-refresh-secret
@@ -49,36 +45,10 @@ services:
       STEAM_WEB_API_KEY_FILE: /run/secrets/steam-web-api-key
     ports:
       - 18000:8000
-    depends_on:
-      db:
-        condition: service_healthy
-
-  db:
-    image: postgres:16
-    restart: always
-    user: postgres
-    secrets:
-      - db-password
-    volumes:
-      - db-data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD_FILE: /run/secrets/db-password
-      POSTGRES_DB: postgres
-    ports:
-      - 15432:5432
-    healthcheck:
-      test: ["CMD", "pg_isready"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-volumes:
-  db-data:
 
 secrets:
-  db-password:
-    file: secrets/db-password.txt
+  db-url:
+    file: secrets/db-url.txt
   identity-secret:
     file: secrets/identity-secret.txt
   identity-refresh-secret:
