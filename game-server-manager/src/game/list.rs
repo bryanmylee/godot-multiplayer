@@ -1,29 +1,11 @@
+use crate::{config, ServiceKey};
 use actix_web::{error, get, HttpResponse};
 use serde::{Deserialize, Serialize};
 use std::process::Command;
 
-use crate::config;
-
-/**
-{"Command":"\"./server --server -…\"",
-"CreatedAt":"2024-02-17 03:30:35 +0800 +08",
-"ID":"ff1ddbe07182",
-"Image":"bryanmylee/multiplayer-base-game-server",
-"Labels":"com.docker.compose.project.config_files=/Users/bryan/Projects/games/MultiplayerBase/compose.yaml,com.docker.compose.project.working_dir=/Users/bryan/Projects/games/MultiplayerBase,com.docker.compose.config-hash=b160d4e17130c0554daa76116f8183b80e12069abe36f4d729653e9c0f5d9c3e,com.docker.compose.image=sha256:5bfe01520e87a56dd7be62415574b85e0643816c980aec309466dc878b71e894,com.docker.compose.oneoff=False,com.docker.compose.project=multiplayerbase,com.docker.compose.service=game-server,com.docker.compose.version=2.23.0,com.docker.compose.container-number=1,com.docker.compose.depends_on=authentication:service_started:false"
-"LocalVolumes":"0",
-"Mounts":"",
-"Names":"multiplayerbase-game-server-1",
-"Networks":"multiplayerbase_default",
-"Ports":"0.0.0.0:19000-\u003e9000/tcp",
-"RunningFor":"14 hours ago",
-"Size":"0B",
-"State":"running",
-"Status":"Up 14 hours"
-}
- */
-
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "PascalCase")]
+#[allow(dead_code)]
 pub struct Container {
     command: String,
     created_at: String,
@@ -115,7 +97,9 @@ fn get_address(ports: &str) -> Address {
 }
 
 #[get("/list/")]
-async fn list() -> actix_web::Result<HttpResponse> {
+async fn list(service_key: ServiceKey) -> actix_web::Result<HttpResponse> {
+    service_key.validate()?;
+
     let output = Command::new("docker")
         .arg("ps")
         .arg("--format=json")
