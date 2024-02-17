@@ -197,21 +197,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "actix-web-httpauth"
-version = "0.8.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d613edf08a42ccc6864c941d30fe14e1b676a77d16f1dbadc1174d065a0a775"
-dependencies = [
- "actix-utils",
- "actix-web",
- "base64",
- "futures-core",
- "futures-util",
- "log",
- "pin-project-lite",
-]
-
-[[package]]
 name = "addr2line"
 version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -343,7 +328,6 @@ version = "0.1.0"
 dependencies = [
  "actix-cors",
  "actix-web",
- "actix-web-httpauth",
  "async-trait",
  "base64",
  "bb8",
@@ -354,12 +338,10 @@ dependencies = [
  "diesel_async_migrations",
  "dotenvy",
  "env_logger",
- "is_empty",
  "jsonwebtoken",
  "lazy_static",
  "openssl",
  "paste",
- "rand_core",
  "reqwest",
  "serde",
  "uuid",
@@ -1051,26 +1033,6 @@ name = "ipnet"
 version = "2.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8f518f335dce6725a761382244631d86cf0ccb2863413590b31338feb467f9c3"
-
-[[package]]
-name = "is_empty"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0a936154b7f653894729875d5593b3251d90619c90994581dceec44334df4021"
-dependencies = [
- "is_empty_derive",
-]
-
-[[package]]
-name = "is_empty_derive"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8903009eceffe882e7cb6adadd29001f4f0e46f67616247f40841a5604f1610"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
 
 [[package]]
 name = "itoa"
