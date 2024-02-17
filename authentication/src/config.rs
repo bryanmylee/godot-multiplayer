@@ -1,4 +1,4 @@
-use crate::auth;
+use crate::auth::identity::IdentityConfig;
 use actix_cors::Cors;
 use chrono::Duration;
 use std::env;
@@ -31,7 +31,7 @@ fn get_required_secret_text_or_file(var: &str) -> String {
     }
 }
 
-pub fn get_db_url() -> String {
+fn get_db_url() -> String {
     let url = get_secret_text_or_file("POSTGRES_URL");
     if let Some(url) = url {
         return url;
@@ -46,7 +46,7 @@ pub fn get_db_url() -> String {
     format!("postgres://{user}:{password}@{host}:{port}/{db}")
 }
 
-pub fn get_identity_config() -> auth::identity::IdentityConfig {
+fn get_identity_config() -> IdentityConfig {
     let secret = get_required_secret_text_or_file("IDENTITY_SECRET");
     let expires_in_seconds = get_secret_text_or_file("IDENTITY_EXPIRES_IN_SECS")
         .and_then(|p| p.parse::<i64>().ok())
@@ -59,23 +59,11 @@ pub fn get_identity_config() -> auth::identity::IdentityConfig {
         .unwrap_or(7);
     let refresh_expires_in = Duration::days(refresh_expires_in_days);
 
-    auth::identity::IdentityConfig {
+    IdentityConfig {
         secret,
         expires_in,
         refresh_secret,
         refresh_expires_in,
-    }
-}
-
-pub fn get_cors_config() -> Cors {
-    let cors = Cors::permissive().supports_credentials();
-
-    if let Some(origins) = get_secret_text_or_file("ALLOWED_ORIGINS") {
-        origins
-            .split(",")
-            .fold(cors, |cors, origin| cors.allowed_origin(origin))
-    } else {
-        cors
     }
 }
 
@@ -84,7 +72,7 @@ pub struct OAuthClientSecrets {
     pub secret: String,
 }
 
-pub fn get_oauth_client_secrets() -> OAuthClientSecrets {
+fn get_oauth_client_secrets() -> OAuthClientSecrets {
     OAuthClientSecrets {
         id: get_required_secret_text_or_file("OAUTH_CLIENT_ID"),
         secret: get_required_secret_text_or_file("OAUTH_CLIENT_SECRET"),
@@ -96,9 +84,28 @@ pub struct SteamConfig {
     pub web_api_key: String,
 }
 
-pub fn get_steam_config() -> SteamConfig {
+fn get_steam_config() -> SteamConfig {
     SteamConfig {
         app_id: get_required_secret_text_or_file("STEAM_APP_ID"),
         web_api_key: get_required_secret_text_or_file("STEAM_WEB_API_KEY"),
+    }
+}
+
+lazy_static::lazy_static! {
+    pub static ref DB_URL: String = get_db_url();
+    pub static ref IDENTITY_CONFIG: IdentityConfig = get_identity_config();
+    pub static ref OAUTH_CLIENT_SECRETS: OAuthClientSecrets = get_oauth_client_secrets();
+    pub static ref STEAM_CONFIG: SteamConfig = get_steam_config();
+}
+
+pub fn get_cors_config() -> Cors {
+    let cors = Cors::permissive().supports_credentials();
+
+    if let Some(origins) = get_secret_text_or_file("ALLOWED_ORIGINS") {
+        origins
+            .split(",")
+            .fold(cors, |cors, origin| cors.allowed_origin(origin))
+    } else {
+        cors
     }
 }

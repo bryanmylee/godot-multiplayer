@@ -1,12 +1,8 @@
-use crate::config::{get_oauth_client_secrets, OAuthClientSecrets};
+use crate::config::OAUTH_CLIENT_SECRETS;
 use serde::Deserialize;
 use std::time::Duration;
 
 const OAUTH_TOKEN_URI: &'static str = "https://oauth2.googleapis.com/token";
-
-lazy_static::lazy_static! {
-    static ref OAUTH_CLIENT_SECRETS: OAuthClientSecrets = get_oauth_client_secrets();
-}
 
 #[derive(Deserialize)]
 #[allow(dead_code)]

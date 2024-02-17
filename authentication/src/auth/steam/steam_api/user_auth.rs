@@ -2,7 +2,8 @@
  * https://partner.steamgames.com/doc/webapi/ISteamUserAuth.
  */
 
-use super::{AUTH_SERVER_STEAM_IDENTITY, STEAM_CONFIG, URI};
+use super::{AUTH_SERVER_STEAM_IDENTITY, URI};
+use crate::config::STEAM_CONFIG;
 use actix_web::error;
 use std::time::Duration;
 

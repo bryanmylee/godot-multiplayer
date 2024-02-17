@@ -113,8 +113,8 @@ mod tests {
             }
         }
 
-        let pool = web::Data::new(db::initialize_db_pool(&config::get_db_url()).await);
-        let identity_config = web::Data::new(config::get_identity_config());
+        let pool = web::Data::new(db::initialize_db_pool(&config::DB_URL).await);
+        let identity_config = web::Data::new(config::IDENTITY_CONFIG.clone());
         let google_user_info_service =
             web::Data::from(Arc::new(NeverGoogleUserInfoService) as Arc<dyn GoogleUserInfoService>);
 
@@ -130,7 +130,12 @@ mod tests {
         let req = test::TestRequest::post().uri("/sign-in/").to_request();
 
         let resp = test::call_service(&app, req).await;
-        assert_eq!(resp.status(), StatusCode::UNAUTHORIZED);
+        assert_eq!(
+            resp.status(),
+            StatusCode::UNAUTHORIZED,
+            "{:?}",
+            test::read_body(resp).await
+        );
     }
 
     #[actix_web::test]
@@ -161,7 +166,7 @@ mod tests {
             }
         }
 
-        let pool = db::initialize_db_pool(&config::get_db_url()).await;
+        let pool = db::initialize_db_pool(&config::DB_URL).await;
         {
             let mut conn = pool
                 .get()
@@ -191,7 +196,7 @@ mod tests {
         }
 
         let pool = web::Data::new(pool);
-        let identity_config = web::Data::new(config::get_identity_config());
+        let identity_config = web::Data::new(config::IDENTITY_CONFIG.clone());
         let google_user_info_service =
             web::Data::from(Arc::new(MockGoogleUserInfoService) as Arc<dyn GoogleUserInfoService>);
 
@@ -210,7 +215,12 @@ mod tests {
             .to_request();
 
         let resp = test::call_service(&app, req).await;
-        assert_eq!(resp.status(), StatusCode::OK);
+        assert_eq!(
+            resp.status(),
+            StatusCode::OK,
+            "{:?}",
+            test::read_body(resp).await
+        );
 
         let body: SignInResult = test::read_body_json(resp).await;
         assert!(matches!(body, SignInResult::PendingLinkOrCreate(_)));
@@ -250,8 +260,8 @@ mod tests {
             }
         }
 
-        let pool = web::Data::new(db::initialize_db_pool(&config::get_db_url()).await);
-        let identity_config = web::Data::new(config::get_identity_config());
+        let pool = web::Data::new(db::initialize_db_pool(&config::DB_URL).await);
+        let identity_config = web::Data::new(config::IDENTITY_CONFIG.clone());
         let google_user_info_service =
             web::Data::from(Arc::new(MockGoogleUserInfoService) as Arc<dyn GoogleUserInfoService>);
 
@@ -322,7 +332,7 @@ mod tests {
             }
         }
 
-        let pool = db::initialize_db_pool(&config::get_db_url()).await;
+        let pool = db::initialize_db_pool(&config::DB_URL).await;
         {
             let mut conn = pool
                 .get()
@@ -343,7 +353,7 @@ mod tests {
         }
 
         let pool = web::Data::new(pool);
-        let identity_config = web::Data::new(config::get_identity_config());
+        let identity_config = web::Data::new(config::IDENTITY_CONFIG.clone());
         let google_user_info_service =
             web::Data::from(Arc::new(MockGoogleUserInfoService) as Arc<dyn GoogleUserInfoService>);
 
@@ -362,7 +372,12 @@ mod tests {
             .to_request();
 
         let resp = test::call_service(&app, req).await;
-        assert_eq!(resp.status(), StatusCode::OK);
+        assert_eq!(
+            resp.status(),
+            StatusCode::OK,
+            "{:?}",
+            test::read_body(resp).await
+        );
 
         let body: SignInResult = test::read_body_json(resp).await;
 

@@ -19,8 +19,8 @@ async fn main() -> std::io::Result<()> {
         .await
         .expect("Failed to apply database migrations");
 
-    let db_pool = db::initialize_db_pool(&config::get_db_url()).await;
-    let identity_config = config::get_identity_config();
+    let db_pool = db::initialize_db_pool(&config::DB_URL).await;
+    let identity_config = config::IDENTITY_CONFIG.clone();
 
     HttpServer::new(move || {
         App::new()

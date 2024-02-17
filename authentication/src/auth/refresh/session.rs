@@ -199,7 +199,7 @@ mod tests {
                 name: None,
             };
 
-            let pool = db::initialize_db_pool(&config::get_db_url()).await;
+            let pool = db::initialize_db_pool(&config::DB_URL).await;
             let mut conn = pool
                 .get()
                 .await
@@ -211,10 +211,9 @@ mod tests {
                 .await
                 .expect("Failed to insert user");
 
-            let new_session =
-                RefreshSession::create(&mut conn, &config::get_identity_config(), &user.id)
-                    .await
-                    .expect("Failed to create new token");
+            let new_session = RefreshSession::create(&mut conn, &config::IDENTITY_CONFIG, &user.id)
+                .await
+                .expect("Failed to create new token");
 
             assert_eq!(new_session.user_id, user.id);
             assert!(
@@ -257,7 +256,7 @@ mod tests {
                 }
             };
 
-            let pool = db::initialize_db_pool(&config::get_db_url()).await;
+            let pool = db::initialize_db_pool(&config::DB_URL).await;
             let mut conn = pool
                 .get()
                 .await
@@ -275,10 +274,9 @@ mod tests {
                 .await
                 .expect("Failed to insert old token");
 
-            let new_session =
-                RefreshSession::create(&mut conn, &config::get_identity_config(), &user.id)
-                    .await
-                    .expect("Failed to create new token");
+            let new_session = RefreshSession::create(&mut conn, &config::IDENTITY_CONFIG, &user.id)
+                .await
+                .expect("Failed to create new token");
 
             assert_eq!(new_session.user_id, user.id);
             assert!(
@@ -325,9 +323,9 @@ mod tests {
                 }
             };
 
-            let identity_config = &config::get_identity_config();
+            let identity_config = &config::IDENTITY_CONFIG;
 
-            let pool = db::initialize_db_pool(&config::get_db_url()).await;
+            let pool = db::initialize_db_pool(&config::DB_URL).await;
             let mut conn = pool
                 .get()
                 .await
@@ -382,9 +380,9 @@ mod tests {
                 }
             };
 
-            let identity_config = &config::get_identity_config();
+            let identity_config = &config::IDENTITY_CONFIG;
 
-            let pool = db::initialize_db_pool(&config::get_db_url()).await;
+            let pool = db::initialize_db_pool(&config::DB_URL).await;
             let mut conn = pool
                 .get()
                 .await
@@ -429,9 +427,9 @@ mod tests {
                 }
             };
 
-            let identity_config = &config::get_identity_config();
+            let identity_config = &config::IDENTITY_CONFIG;
 
-            let pool = db::initialize_db_pool(&config::get_db_url()).await;
+            let pool = db::initialize_db_pool(&config::DB_URL).await;
             let mut conn = pool
                 .get()
                 .await
@@ -493,9 +491,9 @@ mod tests {
                 }
             };
 
-            let identity_config = &config::get_identity_config();
+            let identity_config = &config::IDENTITY_CONFIG;
 
-            let pool = db::initialize_db_pool(&config::get_db_url()).await;
+            let pool = db::initialize_db_pool(&config::DB_URL).await;
             let mut conn = pool
                 .get()
                 .await
@@ -553,9 +551,9 @@ mod tests {
                 }
             };
 
-            let identity_config = &config::get_identity_config();
+            let identity_config = &config::IDENTITY_CONFIG;
 
-            let pool = db::initialize_db_pool(&config::get_db_url()).await;
+            let pool = db::initialize_db_pool(&config::DB_URL).await;
             let mut conn = pool
                 .get()
                 .await

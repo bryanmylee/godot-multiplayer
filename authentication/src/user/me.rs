@@ -63,7 +63,7 @@ mod tests {
 
         let main_provider = USER_INFO.into_provider_insert(&user).into_row();
 
-        let pool = db::initialize_db_pool(&config::get_db_url()).await;
+        let pool = db::initialize_db_pool(&config::DB_URL).await;
         {
             let mut conn = pool
                 .get()
@@ -84,7 +84,7 @@ mod tests {
         }
 
         let pool = web::Data::new(pool);
-        let identity_config = web::Data::new(config::get_identity_config());
+        let identity_config = web::Data::new(config::IDENTITY_CONFIG.clone());
 
         let token = Identity::from_user(&user)
             .generate_token(&identity_config)
@@ -154,7 +154,7 @@ mod tests {
             ..ALT_USER_INFO.into_provider_insert(&user).into_row()
         };
 
-        let pool = db::initialize_db_pool(&config::get_db_url()).await;
+        let pool = db::initialize_db_pool(&config::DB_URL).await;
         {
             let mut conn = pool
                 .get()
@@ -175,7 +175,7 @@ mod tests {
         }
 
         let pool = web::Data::new(pool);
-        let identity_config = web::Data::new(config::get_identity_config());
+        let identity_config = web::Data::new(config::IDENTITY_CONFIG.clone());
 
         let token = Identity::from_user(&user)
             .generate_token(&identity_config)

@@ -39,15 +39,14 @@ where
     }
 }
 
-use crate::config::get_db_url;
+use crate::config;
 use diesel_async_migrations::{embed_migrations, EmbeddedMigrations};
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
 pub async fn run_pending_migrations(
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
-    let db_url = get_db_url();
-    let mut conn = AsyncPgConnection::establish(&db_url).await?;
+    let mut conn = AsyncPgConnection::establish(&config::DB_URL).await?;
     MIGRATIONS.run_pending_migrations(&mut conn).await?;
     Ok(())
 }
