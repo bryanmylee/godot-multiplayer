@@ -19,6 +19,22 @@ services:
       authentication:
         condition: service_started
 
+  game-server-manager:
+    platform: linux/amd64
+    image: bryanmylee/multiplayer-base-game-server-manager
+    build:
+      context: game-server-manager
+      target: final
+    secrets:
+      - game-server-manager-service-key
+    environment:
+      SERVICE_KEY_FILE: /run/secrets/game-server-manager-service-key
+      GAME_SERVER_IMAGE_NAME: bryanmylee/multiplayer-base-game-server
+    ports:
+      - 18500:8500
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
   authentication:
     platform: linux/amd64
     image: bryanmylee/multiplayer-base-authentication
@@ -59,3 +75,5 @@ secrets:
     file: secrets/server-oauth-client-secret.txt
   steam-web-api-key:
     file: secrets/steam-web-api-key.txt
+  game-server-manager-service-key:
+    file: secrets/game-server-manager-service-key.txt

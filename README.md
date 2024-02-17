@@ -63,6 +63,16 @@ An NGINX proxy provides TLS by forwarding ports defined below:
 | --------------------- | ------------------- | -------- | ----------------------- |
 | `18000`               | `8000`              | HTTP     | The authentication API. |
 
+## Game Server Manager
+
+A single host can host multiple game matches by running multiple Docker containers for each game match. The game server manager facilitates the spawning and killing of these containers, assigning an available port for each game.
+
+Communication to these services is usually prohibited from outside the internal network, so a service key is sufficient.
+
+| Internal service port | External proxy port | Protocol | Description              |
+| --------------------- | ------------------- | -------- | ------------------------ |
+| `18500`               | `8500`              | HTTP     | The game server manager. |
+
 ## Game Server
 
 Every game match is run in a Docker container on a game server. A single game server can therefore host multiple matches by running multiple containers bound to different ports selected by the matchmaking server.
