@@ -1,5 +1,5 @@
+mod get;
 mod kill;
-mod list;
 mod spawn;
 
 use actix_web::web;
@@ -9,7 +9,9 @@ use std::sync::RwLock;
 use subprocess::Popen;
 
 pub fn config_service(cfg: &mut web::ServiceConfig) {
-    cfg.service(list::list).service(spawn::spawn);
+    cfg.service(get::list)
+        .service(get::find_by_port)
+        .service(spawn::spawn);
 }
 
 pub struct GamesData {
@@ -42,7 +44,7 @@ impl Games {
 }
 
 impl Games {
-    pub fn get_for_port<'a>(&'a self, port: u16) -> Option<&'a Game> {
+    pub fn find_by_port(&self, port: u16) -> Option<&Game> {
         let game: Option<&Option<Game>> = self.0.get((port - BASE_PORT) as usize);
         let Some(game) = game else {
             return None;
@@ -54,7 +56,7 @@ impl Games {
         self.0.iter().filter(|p| p.is_some()).count()
     }
 
-    pub fn get_all_active<'a>(&'a self) -> Vec<&'a Game> {
+    pub fn get_all_active(&self) -> Vec<&Game> {
         self.0.iter().filter_map(|p| p.into()).collect()
     }
 
@@ -78,7 +80,7 @@ impl Games {
         Some(idx + BASE_PORT)
     }
 
-    pub fn get_available_entry<'a>(&'a mut self) -> Option<(u16, &'a mut Option<Game>)> {
+    pub fn get_available_entry(&mut self) -> Option<(u16, &mut Option<Game>)> {
         let idx = self.0.iter().position(|p| p.is_none());
         let Some(idx) = idx else {
             return None;
