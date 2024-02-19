@@ -6,15 +6,6 @@ services:
       dockerfile: build/web/Dockerfile
     ports:
       - 10443:9000
-
-  game-server:
-    platform: linux/amd64
-    image: bryanmylee/multiplayer-base-game-server
-    build:
-      dockerfile: build/server/Dockerfile
-      target: final
-    ports:
-      - 19000:9000
     depends_on:
       authentication:
         condition: service_started
@@ -23,7 +14,7 @@ services:
     platform: linux/amd64
     image: bryanmylee/multiplayer-base-game-server-manager
     build:
-      context: game-server-manager
+      dockerfile: game-server-manager/Dockerfile
       target: final
     secrets:
       - game-server-manager-service-key
@@ -32,8 +23,10 @@ services:
       GAME_SERVER_IMAGE_NAME: bryanmylee/multiplayer-base-game-server
     ports:
       - 18500:8500
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - 19000-19249:9000-9249
+    depends_on:
+      authentication:
+        condition: service_started
 
   authentication:
     platform: linux/amd64
