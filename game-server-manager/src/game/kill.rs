@@ -2,7 +2,7 @@ use crate::game::GamesData;
 use crate::ServiceKey;
 use actix_web::{error, post, web, HttpResponse};
 
-#[post("/kill/{port}")]
+#[post("/kill/{port}/")]
 async fn kill(
     port: web::Path<u16>,
     service_key: ServiceKey,
