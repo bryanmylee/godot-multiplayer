@@ -15,13 +15,17 @@ async fn kill(
         .write()
         .expect("Failed to get write lock on games");
 
-    let Some(game) = games.find_mut_by_port(port.into_inner()) else {
-        return Ok(HttpResponse::NotFound().finish());
+    let game = games.find_mut_by_port(port.into_inner());
+
+    match game {
+        Some(game) => game
+            .process
+            .terminate()
+            .map_err(error::ErrorInternalServerError)?,
+        None => return Ok(HttpResponse::NotFound().finish()),
     };
 
-    game.process
-        .terminate()
-        .map_err(error::ErrorInternalServerError)?;
+    _ = std::mem::replace(game, None);
 
     Ok(HttpResponse::Ok().finish())
 }

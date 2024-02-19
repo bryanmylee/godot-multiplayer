@@ -49,20 +49,14 @@ impl Games {
         game.into()
     }
 
-    pub fn find_mut_by_port(&mut self, port: u16) -> Option<&mut Game> {
-        let game: Option<&mut Option<Game>> = self.0.get_mut((port - BASE_PORT) as usize);
-        let Some(game) = game else {
-            return None;
-        };
-        game.into()
+    pub fn find_mut_by_port(&mut self, port: u16) -> &mut Option<Game> {
+        self.0
+            .get_mut((port - BASE_PORT) as usize)
+            .expect("Failed to get mut game reference")
     }
 
     pub fn get_active_count(&self) -> usize {
         self.0.iter().filter(|p| p.is_some()).count()
-    }
-
-    pub fn get_all_active(&self) -> Vec<&Game> {
-        self.0.iter().filter_map(|p| p.into()).collect()
     }
 
     pub fn get_all_active_description(&self) -> Vec<GameDescription> {
@@ -81,9 +75,9 @@ impl Games {
         let Some(idx) = idx else {
             return None;
         };
-        let game_process = self.0.get_mut(idx).unwrap();
+        let game = self.0.get_mut(idx).unwrap();
         let idx: u16 = idx.try_into().unwrap();
-        Some((idx + BASE_PORT, game_process))
+        Some((idx + BASE_PORT, game))
     }
 }
 
