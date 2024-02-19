@@ -127,3 +127,5 @@ sudo ufw allow 9000:9249/tcp
 ```
 
 To check the firewall status, use `ufw status`.
+
+To delete a firewall rule, run `ufw status numbered` then pass the rule number into `ufw delete {number}`.

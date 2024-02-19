@@ -20,7 +20,9 @@ Refer to the [Android build document](./project/android/README.md).
 
 # Deployment
 
-We currently manage our services with Docker Compose. Refer to [this guide](https://www.docker.com/blog/how-to-deploy-on-remote-docker-hosts-with-docker-compose/) on deploying the services to a remote host using Docker Contexts.
+We currently manage our services internally with Docker Compose, with an NGINX reverse proxy on top of the whole layer for TLS.
+
+Refer to [this guide](https://www.docker.com/blog/how-to-deploy-on-remote-docker-hosts-with-docker-compose/) on deploying the services to a remote host using Docker Contexts.
 
 ```bash
 docker compose build
@@ -53,7 +55,7 @@ Lastly, refer to the [proxy setup document](nginx/README.md) to setup the proxy 
 
 ## Proxy Server
 
-We use an NGINX proxy that provides the main entrypoint to the multiplayer system and provides TLS.
+We use an NGINX proxy that acts as the main entrypoint to the multiplayer system and provides TLS.
 
 Refer to the [proxy setup document](nginx/README.md).
 
@@ -138,6 +140,7 @@ An NGINX proxy provides TLS by forwarding ports defined below:
   - [x] Apple Game Center for iOS
   - [x] Google Play Games for Android
   - [x] OAuth 2.0 / OpenID for Web
+- [x] Game Server Management
 - [ ] Matchmaking
 
 # Design considerations
