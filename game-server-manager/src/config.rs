@@ -31,5 +31,4 @@ fn get_required_secret_text_or_file(var: &str) -> String {
 
 lazy_static::lazy_static! {
     pub static ref SERVICE_KEY: String = get_required_secret_text_or_file("SERVICE_KEY");
-    pub static ref GAME_SERVER_IMAGE_NAME: String = get_required_secret_text_or_file("GAME_SERVER_IMAGE_NAME");
 }
