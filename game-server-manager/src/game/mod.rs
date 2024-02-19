@@ -52,6 +52,14 @@ impl Games {
         game.into()
     }
 
+    pub fn find_mut_by_port(&mut self, port: u16) -> Option<&mut Game> {
+        let game: Option<&mut Option<Game>> = self.0.get_mut((port - BASE_PORT) as usize);
+        let Some(game) = game else {
+            return None;
+        };
+        game.into()
+    }
+
     pub fn get_active_count(&self) -> usize {
         self.0.iter().filter(|p| p.is_some()).count()
     }
