@@ -108,12 +108,16 @@ async fn list(service_key: ServiceKey) -> actix_web::Result<HttpResponse> {
             config::GAME_SERVER_IMAGE_NAME.to_owned(),
         ))
         .output()
-        .map_err(|_| error::ErrorInternalServerError("Failed to list game servers"))?;
+        .map_err(|err| error::ErrorInternalServerError(err))?;
 
     if !output.status.success() {
-        return Err(error::ErrorInternalServerError(
-            "Failed to list game servers",
-        ));
+        return Err(error::ErrorInternalServerError({
+            let error = String::from_utf8(output.stderr).ok();
+            match error {
+                Some(error) => format!("Failed to list game servers: {error}"),
+                None => "Failed to list game servers".to_string(),
+            }
+        }));
     }
 
     let services: Vec<GameServerInfo> = output
