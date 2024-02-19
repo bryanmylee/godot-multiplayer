@@ -20,7 +20,7 @@ sudo ln -sfn /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/Java
 
 ## Configuring Google Play Games Services
 
-We rely on a custom form of the [`godot-play-games-services`](https://github.com/bryanmylee/godot-play-games-services) Android plugin for Google Play Games integration, with tweaks to the source code to better integrate with our codebase.
+We rely on a custom fork of the [`godot-play-games-services`](https://github.com/bryanmylee/godot-play-games-services) Android plugin for Google Play Games integration, with tweaks to the source code to better integrate with our codebase.
 
 To enable the plugin, [set up Google Play Games Services](https://developers.google.com/games/services/console/enabling). The rough steps to follow on the guide are:
 

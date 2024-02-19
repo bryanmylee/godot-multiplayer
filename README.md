@@ -8,9 +8,15 @@ Set up the Godot project as usual. Some export platforms require extra configura
 
 ## iOS and Game Center
 
-We manage a custom fork of the official [`godot-ios-plugins`](https://github.com/bryanmylee/godot-ios-plugins) repo, built for Godot 4.2.
+We manage a custom fork of the official [`godot-ios-plugins`](https://github.com/bryanmylee/godot-ios-plugins) repo in [`plugins/godot-ios-plugins`](./plugins/godot-ios-plugins/), built for Godot 4.2.
 
-Plugins should be exported from [`godot-ios-plugins/`](./godot-ios-plugins/) and stored in `project/ios/`. Refer to the [iOS plugins document](./project/ios/README.md) for build instructions.
+Refer to the [iOS build document](./project/ios/README.md).
+
+## Android and Google Play Games Services
+
+We manage a custom fork of [`Iakobs`](https://github.com/Iakobs/godot-play-game-services)/[`godot-play-games-services`](https://github.com/bryanmylee/godot-play-games-services) to reduce global namespace conflicts in [`plugins/godot-play-games-services`](./plugins/godot-play-games-services/).
+
+Refer to the [Android build document](./project/android/README.md).
 
 # Deployment
 

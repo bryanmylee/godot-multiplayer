@@ -1,10 +1,6 @@
 # VSCode
 .vscode/
 
-# External plugin source files
-./godot-ios-plugins/
-./godot-play-games-services/
-
 # Secrets
 secrets/*
 !secrets/.gitkeep
