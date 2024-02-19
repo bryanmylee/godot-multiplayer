@@ -15,12 +15,15 @@ async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
     env_logger::init();
 
+    let games_data = web::Data::new(game::GamesData::new());
+
     HttpServer::new(move || {
         App::new()
             .wrap(middleware::NormalizePath::new(
                 middleware::TrailingSlash::Always,
             ))
             .wrap(middleware::Logger::default())
+            .app_data(games_data.clone())
             .service(hello)
             .service(web::scope("/game").configure(game::config_service))
     })
