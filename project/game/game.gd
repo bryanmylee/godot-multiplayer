@@ -5,23 +5,32 @@ class_name Game
 
 
 func _ready() -> void:
+	# Production server build.
 	if Program.is_dedicated_server:
 		var server_result := _start_server()
 		if server_result.is_err():
 			OS.kill(OS.get_process_id())
 		return
 	
-	if OS.is_debug_build():
-		# In debug builds, we try loading the server on all programs since only one
-		# program will be able to bind to the server port. This leaves us with just
-		# one server.
-		var server_result := _start_server()
-		if server_result.is_err():
-			_start_client()
+	# Production client build.
+	if not OS.is_debug_build():
+		var client_result := _start_client()
+		print(client_result)
 		return
 	
-	# Production client build.
+	#_try_debug_server_or_client()
 	_start_client()
+
+
+func _try_debug_server_or_client() -> void:
+	# In debug builds, we try loading the server on all programs since only one
+	# program will be able to bind to the server port. This leaves us with just
+	# one server.
+	var server_result := _start_server()
+	print(server_result)
+	if server_result.is_err():
+		var client_result := _start_client()
+		print(client_result)
 
 
 ## [codeblock]
@@ -50,6 +59,7 @@ func _start_client() -> Result:
 	var start_result := Program.game_client.start()
 	if start_result.is_err():
 		Program.game_client = null
+		return start_result
 	Logger.client_log(["started client"], ["init"])
 
 	return start_result

@@ -1,12 +1,11 @@
 extends Node
 class_name GameServer
 
-const _DEFAULT_PORT := 9000
-var env_port := OS.get_environment("PORT")
-var port := int(env_port) if env_port else _DEFAULT_PORT
+var port_str: String = Program.cmdline_args.get("port", "9000")
+var port := int(port_str)
 
-var env_id := OS.get_environment("SERVER_ID")
-var id := int(env_id) if env_id else randi()
+var id_str: String = Program.cmdline_args.get("server-id")
+var id := int(id_str) if id_str else randi()
 
 var peer := WebSocketMultiplayerPeer.new()
 var world_spawner: MultiplayerSpawner

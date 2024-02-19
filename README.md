@@ -83,12 +83,12 @@ An NGINX proxy provides TLS by forwarding ports defined below:
 | --------------------- | ------------------- | --------- | ---------------- |
 | `19000-19249`         | `9000-9249`         | WebSocket | The game server. |
 
-### Environment Variables
+### Configuration
 
-| Variable    | Description                                      | Default value |
-| ----------- | ------------------------------------------------ | ------------- |
-| `SERVER_ID` | The unique ID to identify the server in logs.    | `randi()`     |
-| `PORT`      | The port that the server listens for clients on. | `9000`        |
+| Argument      | Description                                      | Default value |
+| ------------- | ------------------------------------------------ | ------------- |
+| `--server-id` | The unique ID to identify the server in logs.    | `randi()`     |
+| `--port`      | The port that the server listens for clients on. | `9000`        |
 
 ## Game Client
 
