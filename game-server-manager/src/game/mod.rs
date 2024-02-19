@@ -30,7 +30,7 @@ impl GamesData {
 
 const BASE_PORT: u16 = 9000;
 // TODO: configurable MAX_NUM_GAMES
-const MAX_NUM_GAMES: usize = 250;
+const MAX_NUM_GAMES: usize = 50;
 
 #[derive(Debug)]
 pub struct Games([Option<Game>; MAX_NUM_GAMES]);

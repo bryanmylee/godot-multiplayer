@@ -77,7 +77,7 @@ services:
     expose:
       - 8200
     ports:
-      - 19000-19249:9000-9249
+      - 19000-19049:9000-9049
 
 secrets:
   postgres-url:
