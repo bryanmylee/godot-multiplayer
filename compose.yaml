@@ -9,23 +9,7 @@ services:
     depends_on:
       authentication:
         condition: service_started
-
-  game-server-manager:
-    platform: linux/amd64
-    image: bryanmylee/multiplayer-base-game-server-manager
-    build:
-      dockerfile: game-server-manager/Dockerfile
-      target: final
-    secrets:
-      - game-server-manager-service-key
-    environment:
-      SERVICE_KEY_FILE: /run/secrets/game-server-manager-service-key
-      GAME_SERVER_IMAGE_NAME: bryanmylee/multiplayer-base-game-server
-    ports:
-      - 18500:8500
-      - 19000-19249:9000-9249
-    depends_on:
-      authentication:
+      matchmaking:
         condition: service_started
 
   authentication:
@@ -35,14 +19,14 @@ services:
       context: authentication
       target: final
     secrets:
-      - db-url
+      - postgres-url
       - identity-secret
       - identity-refresh-secret
       - server-oauth-client-id
       - server-oauth-client-secret
       - steam-web-api-key
     environment:
-      POSTGRES_URL_FILE: /run/secrets/db-url
+      POSTGRES_URL_FILE: /run/secrets/postgres-url
       IDENTITY_SECRET_FILE: /run/secrets/identity-secret
       IDENTITY_EXPIRES_IN_SECS: 3600
       REFRESH_SECRET_FILE: /run/secrets/identity-refresh-secret
@@ -55,9 +39,24 @@ services:
     ports:
       - 18000:8000
 
+  game-server-manager:
+    platform: linux/amd64
+    image: bryanmylee/multiplayer-base-game-server-manager
+    build:
+      dockerfile: game-server-manager/Dockerfile
+      target: final
+    secrets:
+      - game-server-manager-service-key
+    environment:
+      SERVICE_KEY_FILE: /run/secrets/game-server-manager-service-key
+    expose:
+      - 8200
+    ports:
+      - 19000-19249:9000-9249
+
 secrets:
-  db-url:
-    file: secrets/db-url.txt
+  postgres-url:
+    file: secrets/postgres-url.txt
   identity-secret:
     file: secrets/identity-secret.txt
   identity-refresh-secret:

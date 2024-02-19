@@ -7,7 +7,7 @@ async fn hello() -> impl Responder {
 }
 
 const HOST: &'static str = "0.0.0.0";
-const PORT: u16 = 8500;
+const PORT: u16 = 8200;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

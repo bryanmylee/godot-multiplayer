@@ -51,7 +51,7 @@ RUN mkdir /game-server
 COPY --from=build-game-server /build /game-server/
 
 # Expose the port that the application listens on.
-EXPOSE 8500
+EXPOSE 8200
 EXPOSE 9000-9249
 
 # What the container should run when it is started.
