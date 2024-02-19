@@ -39,6 +39,31 @@ services:
     ports:
       - 18000:8000
 
+  matchmaking:
+    platform: linux/amd64
+    image: bryanmylee/multiplayer-base-matchmaking
+    build:
+      context: matchmaking
+      target: final
+    secrets:
+      - postgres-url
+      - game-server-manager-service-key
+      - identity-secret
+      - identity-refresh-secret
+    environment:
+      POSTGRES_URL_FILE: /run/secrets/postgres-url
+      # TODO: use public/private signing for the JWT claims.
+      IDENTITY_SECRET_FILE: /run/secrets/identity-secret
+      IDENTITY_EXPIRES_IN_SECS: 3600
+      REFRESH_SECRET_FILE: /run/secrets/identity-refresh-secret
+      REFRESH_EXPIRES_IN_DAYS: 7
+      GAME_SERVER_MANAGER_SERVICE_KEY_FILE: /run/secrets/game-server-manager-service-key
+    ports:
+      - 18100:8100
+    depends_on:
+      game-server-manager:
+        condition: service_started
+
   game-server-manager:
     platform: linux/amd64
     image: bryanmylee/multiplayer-base-game-server-manager
