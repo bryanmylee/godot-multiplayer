@@ -29,6 +29,7 @@ impl GamesData {
 }
 
 const BASE_PORT: u16 = 9000;
+// TODO: configurable MAX_NUM_GAMES
 const MAX_NUM_GAMES: usize = 250;
 
 #[derive(Debug)]
