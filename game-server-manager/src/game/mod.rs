@@ -11,9 +11,11 @@ use subprocess::Popen;
 pub fn config_service(cfg: &mut web::ServiceConfig) {
     cfg.service(get::list)
         .service(get::find_by_port)
-        .service(spawn::spawn);
+        .service(spawn::spawn)
+        .service(kill::kill);
 }
 
+#[derive(Debug)]
 pub struct GamesData {
     games: RwLock<Games>,
 }
@@ -29,12 +31,7 @@ impl GamesData {
 const BASE_PORT: u16 = 9000;
 const MAX_NUM_GAMES: usize = 250;
 
-pub struct Game {
-    process: Popen,
-    port: u16,
-    created_at: DateTime<Utc>,
-}
-
+#[derive(Debug)]
 pub struct Games([Option<Game>; MAX_NUM_GAMES]);
 
 impl Games {
@@ -79,15 +76,6 @@ impl Games {
             .collect()
     }
 
-    pub fn get_available_port(&self) -> Option<u16> {
-        let idx = self.0.iter().position(|p| p.is_none());
-        let Some(idx) = idx else {
-            return None;
-        };
-        let idx: u16 = idx.try_into().unwrap();
-        Some(idx + BASE_PORT)
-    }
-
     pub fn get_available_entry(&mut self) -> Option<(u16, &mut Option<Game>)> {
         let idx = self.0.iter().position(|p| p.is_none());
         let Some(idx) = idx else {
@@ -97,6 +85,13 @@ impl Games {
         let idx: u16 = idx.try_into().unwrap();
         Some((idx + BASE_PORT, game_process))
     }
+}
+
+#[derive(Debug)]
+pub struct Game {
+    process: Popen,
+    port: u16,
+    created_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize)]
