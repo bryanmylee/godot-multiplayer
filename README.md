@@ -34,7 +34,10 @@ The [`secrets/`](./secrets/) directory needs to be copied to all remote hosts wi
 
 ```bash
 # On the remote host
-mkdir -p {absolute_path_to_secrets}/secrets
+sudo mkdir -p {absolute_path_to_secrets}/secrets
+
+# Change the owner of the newly created directory
+sudo chown -R {remote_user} {absolute_path_to_secrets}
 
 # On the local host
 scp -r secrets/ {remote_user}@{remote_ip}:{absolute_path_to_secrets}/
