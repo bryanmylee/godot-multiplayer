@@ -5,17 +5,19 @@ class_name GameClient
 var peer_id := 0
 var peer := WebSocketMultiplayerPeer.new()
 
+var game_server_address: String
 
-func _init() -> void:
+func _init(_game_server_address: String) -> void:
 	name = "GameClient"
+	game_server_address = _game_server_address
 
 
 ## [codeblock]
 ## @returns Result<null, int>
 ## [/codeblock]
 func start() -> Result:
-	Logger.client_log(["starting client connection to game server at: ", Env.GAME_SERVER_URI], ["init"])
-	var start_result := Result.from_gderr(peer.create_client(Env.GAME_SERVER_URI))
+	Logger.client_log(["starting client connection to game server at: ", game_server_address], ["init"])
+	var start_result := Result.from_gderr(peer.create_client(game_server_address))
 
 	multiplayer.multiplayer_peer = peer
 	multiplayer.connected_to_server.connect(_handle_connected_to_server)

@@ -1,0 +1,145 @@
+[gd_scene load_steps=2 format=3 uid="uid://bsm2i1yruxm35"]
+
+[ext_resource type="Script" path="res://screens/home.gd" id="1_qox8l"]
+
+[node name="Home" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+alignment = 1
+script = ExtResource("1_qox8l")
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 2
+theme_override_font_sizes/font_size = 52
+text = "MultiplayerBase"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NotLoggedIn" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="SignInButton" type="Button" parent="NotLoggedIn"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 28
+text = "Sign In"
+
+[node name="LoggedIn" type="VBoxContainer" parent="."]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="UserName" type="Label" parent="LoggedIn"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Loading username..."
+horizontal_alignment = 1
+
+[node name="UserId" type="Label" parent="LoggedIn"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Loading User ID..."
+horizontal_alignment = 1
+
+[node name="ManualLabel" type="Label" parent="LoggedIn"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 32
+text = "Manual"
+
+[node name="ManualJoin" type="HBoxContainer" parent="LoggedIn"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 8
+
+[node name="GameServerAddressInput" type="LineEdit" parent="LoggedIn/ManualJoin"]
+custom_minimum_size = Vector2(380, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "ws://localhost:9000"
+expand_to_text_length = true
+
+[node name="JoinServerButton" type="Button" parent="LoggedIn/ManualJoin"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 28
+text = "Join Server"
+
+[node name="MatchmakingLabel" type="Label" parent="LoggedIn"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 32
+text = "Matchmaking"
+
+[node name="Matchmaking" type="HBoxContainer" parent="LoggedIn"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 8
+
+[node name="MatchmakingAddressInput" type="LineEdit" parent="LoggedIn/Matchmaking"]
+custom_minimum_size = Vector2(380, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "ws://localhost:8100"
+expand_to_text_length = true
+
+[node name="JoinQueueButton" type="Button" parent="LoggedIn/Matchmaking"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 28
+text = "Join Queue
+"
+
+[node name="LeaveQueueButton" type="Button" parent="LoggedIn/Matchmaking"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 28
+text = "Leave Queue
+"
+
+[node name="Debug" type="VBoxContainer" parent="LoggedIn"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DebugLabel" type="Label" parent="LoggedIn/Debug"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 32
+text = "Debug"
+
+[node name="DebugServer" type="HBoxContainer" parent="LoggedIn/Debug"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 8
+
+[node name="ServerPortInput" type="LineEdit" parent="LoggedIn/Debug/DebugServer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "9000"
+expand_to_text_length = true
+
+[node name="StartDebugServerButton" type="Button" parent="LoggedIn/Debug/DebugServer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 28
+text = "Start Server"
+
+[node name="StartLocalGame" type="Button" parent="LoggedIn/Debug"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 28
+text = "Start Local Game"
+
+[connection signal="pressed" from="NotLoggedIn/SignInButton" to="." method="_on_sign_in_button_pressed"]
+[connection signal="pressed" from="LoggedIn/ManualJoin/JoinServerButton" to="." method="_on_join_server_button_pressed"]
+[connection signal="pressed" from="LoggedIn/Matchmaking/JoinQueueButton" to="." method="_on_join_queue_button_pressed"]
+[connection signal="pressed" from="LoggedIn/Matchmaking/LeaveQueueButton" to="." method="_on_leave_queue_button_pressed"]
+[connection signal="pressed" from="LoggedIn/Debug/DebugServer/StartDebugServerButton" to="." method="_on_start_debug_server_button_pressed"]
+[connection signal="pressed" from="LoggedIn/Debug/StartLocalGame" to="." method="_on_start_local_game_pressed"]

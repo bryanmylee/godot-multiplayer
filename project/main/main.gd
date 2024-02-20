@@ -19,14 +19,30 @@ func _ready() -> void:
 	if sign_in_result.is_err():
 		print(sign_in_result.unwrap_err())
 
-	await load_debug_auth_screen()
+	await load_home_screen()
 
 
-func load_debug_auth_screen() -> void:
-	var debug_auth_screen := preload("res://screens/debug_auth.tscn").instantiate()
-	await transition.fade_to(debug_auth_screen)
+func load_home_screen() -> void:
+	var home_screen := preload("res://screens/home.tscn").instantiate()
+	await transition.fade_to(home_screen)
 
 
-func load_game_screen() -> void:
-	var game_screen := preload("res://game/game.tscn").instantiate()
+## [codeblock]
+## @param params GameOptions {
+##   start_server?: bool
+##   server_port?: int
+##   start_client?: bool
+##   game_server_address?: String
+## }
+## [/codeblock]
+func load_game_screen(params := {}) -> void:
+	var game_screen := preload("res://game/game.tscn").instantiate() as Game
+	if params.has("start_server"):
+		game_screen.start_server = params.start_server
+	if params.has("server_port"):
+		game_screen.server_port = params.server_port
+	if params.has("start_client"):
+		game_screen.start_client = params.start_client
+	if params.has("game_server_address"):
+		game_screen.game_server_address = params.game_server_address
 	await transition.fade_to(game_screen)

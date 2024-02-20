@@ -1,19 +1,19 @@
 extends Node
 class_name GameServer
 
-var port_str: String = Program.cmdline_args.get("port", "9000")
-var port := int(port_str)
-
-var id_str: String = Program.cmdline_args.get("server-id")
+var id_str = Program.cmdline_args.get("server-id")
 var id := int(id_str) if id_str else randi()
 
 var peer := WebSocketMultiplayerPeer.new()
+
+var port: int
 var world_spawner: MultiplayerSpawner
 
 
-func _init(_world_spawner: MultiplayerSpawner) -> void:
+func _init(_port: int, _world_spawner: MultiplayerSpawner) -> void:
 	name = "GameServer"
 	world_spawner = _world_spawner
+	port = _port
 
 
 ## [codeblock]

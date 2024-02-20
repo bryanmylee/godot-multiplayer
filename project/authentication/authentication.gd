@@ -139,7 +139,6 @@ func sign_in() -> Result:
 	var sign_in_body = sign_in_result.unwrap()
 	match sign_in_body.type:
 		"success":
-			print("Successfully logged in: ", sign_in_body.payload)
 			user_id = Option.new(sign_in_body.payload.user.id)
 			user_name = Option.new(sign_in_body.payload.user.name)
 			access_token = Option.new(sign_in_body.payload.access_token.value)

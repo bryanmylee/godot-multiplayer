@@ -3,6 +3,13 @@ class_name Game
 
 @onready var world_spawner := $WorldSpawner as MultiplayerSpawner
 
+@export var start_server := false
+var server_port_str: String = Program.cmdline_args.get("port", "9000")
+@export var server_port := int(server_port_str)
+
+@export var start_client := false
+@export var game_server_address := "ws://localhost:9000"
+
 
 func _ready() -> void:
 	# Production server build.
@@ -12,32 +19,18 @@ func _ready() -> void:
 			OS.kill(OS.get_process_id())
 		return
 	
-	# Production client build.
-	if not OS.is_debug_build():
-		var client_result := _start_client()
-		print(client_result)
-		return
+	if start_server:
+		print(_start_server())
 	
-	#_try_debug_server_or_client()
-	_start_client()
-
-
-func _try_debug_server_or_client() -> void:
-	# In debug builds, we try loading the server on all programs since only one
-	# program will be able to bind to the server port. This leaves us with just
-	# one server.
-	var server_result := _start_server()
-	print(server_result)
-	if server_result.is_err():
-		var client_result := _start_client()
-		print(client_result)
+	if start_client:
+		print(_start_client())
 
 
 ## [codeblock]
 ## @returns Result<null, int>
 ## [/codeblock]
 func _start_server() -> Result:
-	Program.game_server = GameServer.new(world_spawner)
+	Program.game_server = GameServer.new(server_port, world_spawner)
 	add_child(Program.game_server, true)
 
 	var start_result := Program.game_server.start()
@@ -53,7 +46,7 @@ func _start_server() -> Result:
 ## @returns Result<null, int>
 ## [/codeblock]
 func _start_client() -> Result:
-	Program.game_client = GameClient.new()
+	Program.game_client = GameClient.new(game_server_address)
 	add_child(Program.game_client, true)
 
 	var start_result := Program.game_client.start()
