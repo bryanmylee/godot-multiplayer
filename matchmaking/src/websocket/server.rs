@@ -31,20 +31,7 @@ impl WebsocketServer {
         }
     }
 
-    pub fn send_message(
-        &self,
-        user_id: &Uuid,
-        message: ServerToClientMessage,
-    ) -> Result<(), error::Error> {
-        let Some(recipient) = self.sessions.get(user_id) else {
-            return Err(error::ErrorInternalServerError("Peer not found"));
-        };
-        recipient
-            .try_send(message)
-            .map_err(error::ErrorInternalServerError)
-    }
-
-    pub fn check_queue(&mut self) {
+    pub fn check_queue(&self) -> Result<(), error::Error> {
         let queue_ready = {
             let queue = self
                 .queue_data
@@ -57,26 +44,32 @@ impl WebsocketServer {
                 _ => false,
             }
         };
-        if !queue_ready {
-            return;
+
+        if queue_ready {
+            self.start_game()?
         }
+
+        Ok(())
+    }
+
+    pub fn start_game(&self) -> Result<(), error::Error> {
         let ready_players = {
             let mut queue = self
                 .queue_data
                 .solo
                 .write()
                 .expect("Failed to get write lock on solo queue");
-            queue.remove_ready_players(&self.matchmaking_config)
+            queue.remove_ready_players(&self.matchmaking_config)?
         };
-        let Ok(ready_players) = ready_players else {
-            return;
-        };
+
         for player in ready_players {
             let Some(session) = self.sessions.get(&player.user_id) else {
                 continue;
             };
             session.do_send(ServerToClientMessage::StartGame);
         }
+
+        Ok(())
     }
 }
 
@@ -108,7 +101,10 @@ impl Handler<RoutingToServerMessage> for WebsocketServer {
         _ctx: &mut Self::Context,
     ) -> Self::Result {
         match message {
-            RoutingToServerMessage::CheckQueue => self.check_queue(),
+            RoutingToServerMessage::CheckQueue => match self.check_queue() {
+                Ok(_) => (),
+                Err(err) => println!("{err}"),
+            },
         };
     }
 }
