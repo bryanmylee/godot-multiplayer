@@ -57,7 +57,7 @@ impl SoloQueue {
     pub fn insert_user(&mut self, user_id: Uuid) -> Result<QueuedPlayer, error::Error> {
         if self.contains_player(&user_id) {
             return Err(error::ErrorBadRequest(
-                "Cannot join queue that was already joined",
+                "Cannot join queue that is already joined",
             ));
         }
         let player = QueuedPlayer {
@@ -72,7 +72,7 @@ impl SoloQueue {
         match self.queue.remove(|p| &p.user_id == user_id) {
             Some(removed) => Ok(removed),
             None => Err(error::ErrorBadRequest(
-                "Cannot leave queue that was not joined",
+                "Cannot leave queue that is not joined",
             )),
         }
     }
