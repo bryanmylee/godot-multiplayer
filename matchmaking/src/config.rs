@@ -63,8 +63,8 @@ pub struct MatchmakingConfig {
 impl Default for MatchmakingConfig {
     fn default() -> Self {
         MatchmakingConfig {
-            solo_game_desired_size: 4,
             solo_game_min_size: 2,
+            solo_game_desired_size: 4,
             solo_game_desired_max_wait_time: Duration::minutes(1),
         }
     }

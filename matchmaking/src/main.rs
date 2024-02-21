@@ -22,9 +22,10 @@ async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
     env_logger::init();
 
-    let server_address = web::Data::new(websocket::server::WebsocketServer::new().start());
     let queue_data = web::Data::new(queue::QueueData::new());
-    let matchmaking_config = web::Data::new(MATCHMAKING_CONFIG.clone());
+    let server =
+        websocket::server::WebsocketServer::new(queue_data.clone(), MATCHMAKING_CONFIG.clone());
+    let server_address = web::Data::new(server.start());
 
     HttpServer::new(move || {
         let id_service = web::Data::from(Arc::new(RealIdentityService::new(
@@ -37,9 +38,8 @@ async fn main() -> std::io::Result<()> {
             ))
             .wrap(config::get_cors_config())
             .wrap(middleware::Logger::default())
-            .app_data(server_address.clone())
             .app_data(queue_data.clone())
-            .app_data(matchmaking_config.clone())
+            .app_data(server_address.clone())
             .app_data(id_service)
             .service(hello)
             .service(websocket::listen)

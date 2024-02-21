@@ -118,9 +118,7 @@ impl Handler<ServerToClientMessage> for WebsocketSession {
     type Result = ();
 
     fn handle(&mut self, message: ServerToClientMessage, ctx: &mut Self::Context) -> Self::Result {
-        match message {
-            ServerToClientMessage::Text(text) => ctx.text(text),
-        }
+        ctx.text(serde_json::to_string(&message).expect("Unexpected failed to parse message"));
     }
 }
 

@@ -2,11 +2,7 @@ pub mod server;
 pub mod session;
 
 use self::{server::WebsocketServer, session::WebsocketSession};
-use crate::{
-    config::MatchmakingConfig,
-    identity::{BearerToken, IdentityService},
-    queue::QueueData,
-};
+use crate::identity::{BearerToken, IdentityService};
 use actix::Addr;
 use actix_web::{error, get, web, HttpRequest, Responder};
 use actix_web_actors::ws;
@@ -39,5 +35,5 @@ async fn listen(
 #[derive(Debug, Clone, actix::Message)]
 #[rtype(result = "()")]
 pub enum RoutingToServerMessage {
-    CheckQueue(web::Data<QueueData>, web::Data<MatchmakingConfig>),
+    CheckQueue,
 }

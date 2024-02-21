@@ -1,5 +1,4 @@
 use crate::{
-    config::MatchmakingConfig,
     identity::{BearerToken, IdentityService},
     queue::QueueData,
     websocket::{server::WebsocketServer, RoutingToServerMessage},
@@ -16,7 +15,6 @@ async fn join(
     token: BearerToken,
     server_address: web::Data<Addr<WebsocketServer>>,
     queue_data: web::Data<QueueData>,
-    matchmaking_config: web::Data<MatchmakingConfig>,
     id_service: web::Data<dyn IdentityService>,
 ) -> actix_web::Result<impl Responder> {
     let identity = id_service.get_identity(&token)?;
@@ -26,15 +24,12 @@ async fn join(
         .write()
         .expect("Failed to get write lock on solo queue");
 
-    let player = solo_queue.join_queue(identity.user_id)?;
+    let player = solo_queue.insert_user(identity.user_id)?;
 
     server_address
         .as_ref()
         .clone()
-        .try_send(RoutingToServerMessage::CheckQueue(
-            queue_data.clone(),
-            matchmaking_config.clone(),
-        ))
+        .try_send(RoutingToServerMessage::CheckQueue)
         .map_err(error::ErrorInternalServerError)?;
 
     Ok(HttpResponse::Ok().json(player))
@@ -53,7 +48,7 @@ async fn leave(
         .write()
         .expect("Failed to get write lock on solo queue");
 
-    let player = solo_queue.leave_queue(&identity.user_id)?;
+    let player = solo_queue.remove_player(&identity.user_id)?;
 
     Ok(HttpResponse::Ok().json(player))
 }
