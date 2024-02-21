@@ -45,6 +45,15 @@ impl Identity {
             user_id: user_id.clone(),
         }
     }
+
+    pub fn from_token(id_config: &IdentityConfig, token: &str) -> Result<Self, error::Error> {
+        let claims = match IdentityClaims::decode(id_config, token) {
+            Ok(claims) => claims,
+            Err(err) => return Err(error::ErrorUnauthorized(err)),
+        };
+
+        Ok(Identity::from_user_id(&claims.sub))
+    }
 }
 
 impl FromRequest for Identity {

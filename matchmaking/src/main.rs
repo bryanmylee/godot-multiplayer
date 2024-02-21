@@ -1,12 +1,13 @@
+use actix::Actor;
 use actix_web::{get, middleware, web, App, HttpServer, Responder};
-use matchmaking::{config, player, start};
+use matchmaking::{config, player, start, websocket::server::WebsocketServer};
 
 #[get("/")]
 async fn hello() -> impl Responder {
     "MultiplayerBase Matchmaking"
 }
 
-const HOST: &'static str = "0.0.0.0";
+const HOST: &'static str = "127.0.0.1";
 const PORT: u16 = 8100;
 
 #[actix_web::main]
@@ -16,6 +17,7 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     let identity_config = config::IDENTITY_CONFIG.clone();
+    let websocket_server = web::Data::new(WebsocketServer::new().start());
     let queued_players_data = web::Data::new(player::PlayersData::new());
 
     HttpServer::new(move || {
@@ -26,6 +28,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(config::get_cors_config())
             .wrap(middleware::Logger::default())
             .app_data(web::Data::new(identity_config.clone()))
+            .app_data(websocket_server.clone())
             .app_data(queued_players_data.clone())
             .service(hello)
             .service(start)
