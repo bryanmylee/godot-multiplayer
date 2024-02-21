@@ -1,4 +1,5 @@
-use super::{session::ClientToServerMessage, RouteToActorMessage};
+use super::{session::ClientToServerMessage, RoutingToServerMessage};
+use crate::queue::QueueStatus;
 use actix::{Actor, Context, Handler, Recipient};
 use actix_web::error;
 use std::collections::HashMap;
@@ -54,12 +55,28 @@ impl Handler<ClientToServerMessage> for WebsocketServer {
     }
 }
 
-impl Handler<RouteToActorMessage> for WebsocketServer {
+impl Handler<RoutingToServerMessage> for WebsocketServer {
     type Result = ();
 
-    fn handle(&mut self, message: RouteToActorMessage, _ctx: &mut Self::Context) -> Self::Result {
+    fn handle(
+        &mut self,
+        message: RoutingToServerMessage,
+        _ctx: &mut Self::Context,
+    ) -> Self::Result {
         match message {
-            RouteToActorMessage::CheckQueue(queue_data, config) => {}
+            RoutingToServerMessage::CheckQueue(queue_data, config) => {
+                // TODO: specify which queue to check.
+                let queue = queue_data
+                    .solo
+                    .write()
+                    .expect("Failed to get write lock on solo queue");
+                match queue.status(&config) {
+                    QueueStatus::Ready | QueueStatus::LongWaitReady => {
+                        println!("Sending ready message to clients");
+                    }
+                    _ => (),
+                }
+            }
         };
     }
 }

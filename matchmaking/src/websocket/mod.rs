@@ -2,7 +2,11 @@ pub mod server;
 pub mod session;
 
 use self::{server::WebsocketServer, session::WebsocketSession};
-use crate::identity::{BearerToken, Identity, IdentityConfig};
+use crate::{
+    config::MatchmakingConfig,
+    identity::{BearerToken, IdentityService},
+    queue::QueueData,
+};
 use actix::Addr;
 use actix_web::{error, get, web, HttpRequest, Responder};
 use actix_web_actors::ws;
@@ -19,10 +23,10 @@ async fn listen(
     req: HttpRequest,
     stream: web::Payload,
     server_address: web::Data<Addr<WebsocketServer>>,
-    id_config: web::Data<IdentityConfig>,
+    id_service: web::Data<dyn IdentityService>,
 ) -> actix_web::Result<impl Responder> {
     let token = BearerToken::new(&params.token);
-    let identity = Identity::from_token(&id_config, &token)?;
+    let identity = id_service.get_identity(&token)?;
 
     ws::start(
         WebsocketSession::new(identity.user_id, server_address.as_ref().clone()),
@@ -30,4 +34,10 @@ async fn listen(
         stream,
     )
     .map_err(error::ErrorInternalServerError)
+}
+
+#[derive(Debug, Clone, actix::Message)]
+#[rtype(result = "()")]
+pub enum RoutingToServerMessage {
+    CheckQueue(web::Data<QueueData>, web::Data<MatchmakingConfig>),
 }

@@ -1,7 +1,8 @@
 use crate::{
+    config::MatchmakingConfig,
     identity::{BearerToken, IdentityService},
     queue::QueueData,
-    websocket::{server::WebsocketServer, session::ClientMessage},
+    websocket::{server::WebsocketServer, RoutingToServerMessage},
 };
 use actix::Addr;
 use actix_web::{error, post, web, HttpResponse, Responder};
@@ -13,11 +14,13 @@ pub fn config_service(cfg: &mut web::ServiceConfig) {
 #[post("/join/")]
 async fn join(
     token: BearerToken,
-    id_service: web::Data<dyn IdentityService>,
-    queue_data: web::Data<QueueData>,
     server_address: web::Data<Addr<WebsocketServer>>,
+    queue_data: web::Data<QueueData>,
+    matchmaking_config: web::Data<MatchmakingConfig>,
+    id_service: web::Data<dyn IdentityService>,
 ) -> actix_web::Result<impl Responder> {
     let identity = id_service.get_identity(&token)?;
+
     let mut solo_queue = queue_data
         .solo
         .write()
@@ -28,7 +31,10 @@ async fn join(
     server_address
         .as_ref()
         .clone()
-        .try_send(ClientMessage::CheckQueue(queue_data.clone()))
+        .try_send(RoutingToServerMessage::CheckQueue(
+            queue_data.clone(),
+            matchmaking_config.clone(),
+        ))
         .map_err(error::ErrorInternalServerError)?;
 
     Ok(HttpResponse::Ok().json(player))
@@ -41,6 +47,7 @@ async fn leave(
     queue_data: web::Data<QueueData>,
 ) -> actix_web::Result<impl Responder> {
     let identity = id_service.get_identity(&token)?;
+
     let mut solo_queue = queue_data
         .solo
         .write()

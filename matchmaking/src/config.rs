@@ -53,6 +53,7 @@ fn get_identity_config() -> IdentityConfig {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct MatchmakingConfig {
     pub solo_game_min_size: u8,
     pub solo_game_desired_size: u8,

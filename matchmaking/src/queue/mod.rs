@@ -1,26 +1,17 @@
 mod solo;
 
+use crate::config::MatchmakingConfig;
 use actix_web::{error, web};
 use chrono::{DateTime, Utc};
 use derivative::Derivative;
 use serde::Serialize;
+use std::cmp::Reverse;
 use std::collections::BinaryHeap;
 use std::sync::RwLock;
-use std::{cmp::Reverse, sync::Arc};
 use uuid::Uuid;
 
-use crate::identity::IdentityService;
-use crate::{
-    config::{self, MatchmakingConfig},
-    identity::RealIdentityService,
-};
-
 pub fn config_service(cfg: &mut web::ServiceConfig) {
-    let id_service = web::Data::from(Arc::new(RealIdentityService::new(
-        config::IDENTITY_CONFIG.clone(),
-    )) as Arc<dyn IdentityService>);
-    cfg.app_data(id_service)
-        .service(web::scope("/solo").configure(solo::config_service));
+    cfg.service(web::scope("/solo").configure(solo::config_service));
 }
 
 #[derive(Debug)]
