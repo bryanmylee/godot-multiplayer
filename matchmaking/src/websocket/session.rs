@@ -1,8 +1,10 @@
 use super::server::{ServerMessage, WebsocketServer};
+use crate::queue::QueueData;
 use actix::{
     fut, Actor, ActorContext, ActorFutureExt, Addr, AsyncContext, ContextFutureSpawner, Handler,
     Recipient, StreamHandler, WrapFuture,
 };
+use actix_web::web;
 use actix_web_actors::ws;
 use std::time::{Duration, Instant};
 use uuid::Uuid;
@@ -18,6 +20,7 @@ const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
 pub enum ClientMessage {
     Connect(Recipient<ServerMessage>, Uuid),
     Disconnect(Uuid),
+    CheckQueue(web::Data<QueueData>),
 }
 
 #[derive(Debug)]

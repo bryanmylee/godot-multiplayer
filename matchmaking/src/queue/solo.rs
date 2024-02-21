@@ -1,8 +1,10 @@
 use crate::{
     identity::{BearerToken, IdentityService},
     queue::QueueData,
+    websocket::{server::WebsocketServer, session::ClientMessage},
 };
-use actix_web::{post, web, HttpResponse, Responder};
+use actix::Addr;
+use actix_web::{error, post, web, HttpResponse, Responder};
 
 pub fn config_service(cfg: &mut web::ServiceConfig) {
     cfg.service(join).service(leave);
@@ -13,6 +15,7 @@ async fn join(
     token: BearerToken,
     id_service: web::Data<dyn IdentityService>,
     queue_data: web::Data<QueueData>,
+    server_address: web::Data<Addr<WebsocketServer>>,
 ) -> actix_web::Result<impl Responder> {
     let identity = id_service.get_identity(&token)?;
     let mut solo_queue = queue_data
@@ -21,6 +24,12 @@ async fn join(
         .expect("Failed to get write lock on solo queue");
 
     let player = solo_queue.join_queue(identity.user_id)?;
+
+    server_address
+        .as_ref()
+        .clone()
+        .try_send(ClientMessage::CheckQueue(queue_data.clone()))
+        .map_err(error::ErrorInternalServerError)?;
 
     Ok(HttpResponse::Ok().json(player))
 }

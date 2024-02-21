@@ -46,6 +46,7 @@ impl Handler<ClientMessage> for WebsocketServer {
             ClientMessage::Disconnect(uuid) => {
                 self.sessions.remove(&uuid);
             }
+            ClientMessage::CheckQueue(queue_data) => {}
         };
     }
 }
