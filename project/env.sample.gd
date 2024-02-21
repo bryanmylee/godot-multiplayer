@@ -3,7 +3,7 @@
 
 const SSL_ENABLED := false
 
-const AUTH_SERVER_URI := "http://localhost:8000"
+const AUTH_SERVER_URL := "http://localhost:8000"
 const AUTH_SERVER_PLAY_GAMES_OAUTH_CLIENT_ID := ""
 const AUTH_SERVER_STEAM_IDENTITY := "authentication"
 

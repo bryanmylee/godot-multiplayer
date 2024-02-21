@@ -2,7 +2,7 @@
  * https://partner.steamgames.com/doc/webapi/ISteamUserAuth.
  */
 
-use super::{AUTH_SERVER_STEAM_IDENTITY, URI};
+use super::{AUTH_SERVER_STEAM_IDENTITY, URL};
 use crate::config::STEAM_CONFIG;
 use actix_web::error;
 use std::time::Duration;
@@ -21,7 +21,7 @@ pub trait SteamUserAuthService: Sync {
         let client = reqwest::Client::new();
 
         let resp = client
-            .get(format!("{URI}/ISteamUserAuth/AuthenticateUserTicket/v1/"))
+            .get(format!("{URL}/ISteamUserAuth/AuthenticateUserTicket/v1/"))
             .timeout(Duration::from_secs(5))
             .query(&[
                 ("key", STEAM_CONFIG.web_api_key.to_owned()),

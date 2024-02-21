@@ -3,7 +3,7 @@ class_name WebOAuth2Service
 
 #region OAuth client info
 const PROJECT_ID := "bryanmylee-multiplayer-base"
-const AUTH_URI := "https://accounts.google.com/o/oauth2/v2/auth"
+const AUTH_URL := "https://accounts.google.com/o/oauth2/v2/auth"
 const CLIENT_ID := "865539732998-fibei7810dqa7ffbo5i65kevli7rfuef.apps.googleusercontent.com"
 
 const REQUIRED_SCOPES := [
@@ -24,17 +24,17 @@ func reload_access_token_into_hash() -> void:
 		print("The JavaScriptBridge singleton is not available")
 		return
 
-	var current_uri = JavaScriptBridge.eval("window.location.origin + window.location.pathname;")
+	var current_url = JavaScriptBridge.eval("window.location.origin + window.location.pathname;")
 	
 	var query_params = [
 		"include_granted_scopes=true",
 		"response_type=token",
 		"scope=%s" % " ".join(REQUIRED_SCOPES),
-		"redirect_uri=%s" % current_uri,
+		"redirect_uri=%s" % current_url,
 		"client_id=%s" % CLIENT_ID,
 	]
 
-	var request_url = AUTH_URI + "?" + "&".join(query_params)
+	var request_url = AUTH_URL + "?" + "&".join(query_params)
 	
 	JavaScriptBridge.eval("window.open('%s', '_blank').focus(); window.close();" % request_url)
 
@@ -91,7 +91,7 @@ func is_local_access_token_expired() -> bool:
 	return expired
 
 
-const USER_INFO_REQUEST_URI := "https://www.googleapis.com/userinfo/v2/me"
+const USER_INFO_REQUEST_URL := "https://www.googleapis.com/userinfo/v2/me"
 ## The amount of data returned depends on the `userinfo.*` scopes granted above.
 ## [codeblock]
 ## UserInfo {
@@ -114,7 +114,7 @@ func get_user_info() -> Result:
 	var access_token = access_token_result.unwrap()
 	
 	var request_result: Result = await HTTPUtils.fetch(
-		USER_INFO_REQUEST_URI, ["Authorization: Bearer %s" % access_token]
+		USER_INFO_REQUEST_URL, ["Authorization: Bearer %s" % access_token]
 	).settled
 	
 	if request_result.is_err():

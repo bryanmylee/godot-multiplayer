@@ -59,13 +59,14 @@ impl IntoAuthProviderInsert for GoogleUserInfo {
     }
 }
 
-const USER_INFO_REQUEST_URI: &'static str = "https://www.googleapis.com/userinfo/v2/me";
+const USER_INFO_REQUEST_URL: &'static str = "https://www.googleapis.com/userinfo/v2/me";
+
 #[async_trait::async_trait]
 pub trait GoogleUserInfoService: Sync {
     async fn get_info(&self, token: &str) -> Result<GoogleUserInfo, error::Error> {
         let client = reqwest::Client::new();
         let resp = client
-            .get(USER_INFO_REQUEST_URI)
+            .get(USER_INFO_REQUEST_URL)
             .timeout(Duration::from_secs(5))
             .bearer_auth(token)
             .send()

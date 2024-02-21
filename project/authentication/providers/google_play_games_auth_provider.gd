@@ -44,7 +44,7 @@ func server_sign_in() -> Result:
 	var auth_code: String = auth_code_result[1]
 
 	var request_result: Result = await HTTPUtils.fetch(
-		Env.AUTH_SERVER_URI + AUTH_SERVER_SIGN_IN_PATH,
+		Env.AUTH_SERVER_URL + AUTH_SERVER_SIGN_IN_PATH,
 		["Content-Type: text/plain"],
 		HTTPClient.METHOD_POST,
 		auth_code,

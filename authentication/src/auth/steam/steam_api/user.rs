@@ -2,7 +2,7 @@
  * https://partner.steamgames.com/doc/webapi/ISteamUser.
  */
 
-use super::URI;
+use super::URL;
 use crate::config::STEAM_CONFIG;
 use actix_web::error;
 use std::time::Duration;
@@ -21,7 +21,7 @@ pub trait SteamUserService: Sync {
         let client = reqwest::Client::new();
 
         let resp = client
-            .get(format!("{URI}/ISteamUser/GetPlayerSummaries/v2/"))
+            .get(format!("{URL}/ISteamUser/GetPlayerSummaries/v2/"))
             .timeout(Duration::from_secs(5))
             .query(&[
                 ("key", STEAM_CONFIG.web_api_key.to_owned()),

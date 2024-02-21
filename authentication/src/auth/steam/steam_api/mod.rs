@@ -7,6 +7,6 @@
 pub mod user;
 pub mod user_auth;
 
-const URI: &'static str = "https://partner.steam-api.com";
+const URL: &'static str = "https://partner.steam-api.com";
 
 const AUTH_SERVER_STEAM_IDENTITY: &'static str = "authentication";

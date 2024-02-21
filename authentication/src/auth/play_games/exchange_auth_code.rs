@@ -2,7 +2,7 @@ use crate::config::OAUTH_CLIENT_SECRETS;
 use serde::Deserialize;
 use std::time::Duration;
 
-const OAUTH_TOKEN_URI: &'static str = "https://oauth2.googleapis.com/token";
+const OAUTH_TOKEN_URL: &'static str = "https://oauth2.googleapis.com/token";
 
 #[derive(Deserialize)]
 #[allow(dead_code)]
@@ -28,7 +28,7 @@ pub trait PlayGamesExchangeAuthCodeService: Sync {
 
         let client = reqwest::Client::new();
         let resp = client
-            .post(OAUTH_TOKEN_URI)
+            .post(OAUTH_TOKEN_URL)
             .timeout(Duration::from_secs(5))
             .form(&params)
             .send()

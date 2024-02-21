@@ -1,4 +1,4 @@
-use super::URI;
+use super::URL;
 use crate::{
     auth::provider::{
         AuthProviderChangeset, AuthProviderInsert, AuthProviderType, IntoAuthProviderInsert,
@@ -13,7 +13,7 @@ pub trait PlayersService: Sync {
     async fn me(&self, access_token: &str) -> Result<Player, Box<dyn std::error::Error>> {
         let client = reqwest::Client::new();
         let resp = client
-            .get(format!("{URI}/games/v1/players/me"))
+            .get(format!("{URL}/games/v1/players/me"))
             .timeout(Duration::from_secs(5))
             .bearer_auth(access_token)
             .send()

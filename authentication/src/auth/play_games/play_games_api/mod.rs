@@ -6,4 +6,4 @@
 
 pub mod players;
 
-const URI: &'static str = "https://games.googleapis.com";
+const URL: &'static str = "https://games.googleapis.com";

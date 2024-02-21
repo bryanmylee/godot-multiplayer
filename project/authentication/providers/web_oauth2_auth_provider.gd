@@ -39,7 +39,7 @@ func server_sign_in() -> Result:
 	var access_token = access_token_result.unwrap()
 	
 	var request_result: Result = await HTTPUtils.fetch(
-		Env.AUTH_SERVER_URI + AUTH_SERVER_SIGN_IN_PATH,
+		Env.AUTH_SERVER_URL + AUTH_SERVER_SIGN_IN_PATH,
 		["Authorization: Bearer %s" % access_token],
 		HTTPClient.METHOD_POST,
 	).settled

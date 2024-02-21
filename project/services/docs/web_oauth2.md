@@ -16,8 +16,8 @@ Upon initialization, `WebOAuth2Service` requests an access code from Google's OA
 
 Whenever the web client is initialized, it checks the URL fragment hash for the access code and consumes it if it exists by storing the access token into local storage along with an expiry date then removing the hash from the URL.
 
-Whenever user information is needed, a request is made with the access token to Google's user info request URI.
+Whenever user information is needed, a request is made with the access token to Google's user info request URL.
 
 ## Testing OAuth2.0 locally
 
-To allow the default web debugging client on `http://localhost:8060/tmp_js_export.html` to receive the authorization code, we need to add its URI to the authorized redirect URIs on the Google Cloud console, under the "Credentials" page.
+To allow the default web debugging client on `http://localhost:8060/tmp_js_export.html` to receive the authorization code, we need to add its URL to the authorized redirect URLs on the Google Cloud console, under the "Credentials" page.

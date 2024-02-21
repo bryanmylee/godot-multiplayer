@@ -160,7 +160,7 @@ func refresh_access_token() -> Result:
 	
 	is_token_refreshing = true
 	var request_result: Result = await HTTPUtils.fetch(
-		Env.AUTH_SERVER_URI + AUTH_SERVER_REFRESH_PATH,
+		Env.AUTH_SERVER_URL + AUTH_SERVER_REFRESH_PATH,
 		["Content-Type: application/json"],
 		HTTPClient.METHOD_POST,
 		JSON.stringify({ "refresh_token": refresh_token.unwrap() })
