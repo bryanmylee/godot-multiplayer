@@ -134,9 +134,14 @@ mod tests {
                 user_id: Uuid::new_v4(),
             });
 
+            queue.queue.push(QueuedPlayer {
+                joined_at: Reverse(Utc::now() - Duration::seconds(2)),
+                user_id: Uuid::new_v4(),
+            });
+
             let config = MatchmakingConfig {
                 solo_game_desired_max_wait_time: Duration::seconds(5),
-                solo_game_min_size: 1,
+                solo_game_min_size: 2,
                 ..MatchmakingConfig::default()
             };
 
