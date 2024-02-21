@@ -53,10 +53,35 @@ fn get_identity_config() -> IdentityConfig {
     }
 }
 
+pub struct MatchmakingConfig {
+    pub solo_game_min_size: u8,
+    pub solo_game_desired_size: u8,
+    pub solo_game_desired_max_wait_time: Duration,
+}
+
+impl Default for MatchmakingConfig {
+    fn default() -> Self {
+        MatchmakingConfig {
+            solo_game_desired_size: 4,
+            solo_game_min_size: 2,
+            solo_game_desired_max_wait_time: Duration::minutes(1),
+        }
+    }
+}
+
+fn get_matchmaking_config() -> MatchmakingConfig {
+    MatchmakingConfig {
+        solo_game_min_size: 2,
+        solo_game_desired_size: 4,
+        solo_game_desired_max_wait_time: Duration::minutes(1),
+    }
+}
+
 lazy_static::lazy_static! {
     pub static ref POSTGRES_URL: String = get_required_secret_text_or_file("POSTGRES_URL");
     pub static ref GAME_SERVER_MANAGER_SERVICE_KEY: String = get_required_secret_text_or_file("GAME_SERVER_MANAGER_SERVICE_KEY");
     pub static ref IDENTITY_CONFIG: IdentityConfig = get_identity_config();
+    pub static ref MATCHMAKING_CONFIG: MatchmakingConfig = get_matchmaking_config();
 }
 
 pub fn get_cors_config() -> Cors {

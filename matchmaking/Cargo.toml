@@ -9,6 +9,7 @@ actix-cors = "0.7.0"
 actix-web = "4.5.1"
 actix-web-actors = "4.3.0"
 chrono = { version = "0.4.34", default-features = false, features = ["serde", "std", "now"] }
+derivative = "2.2.0"
 dotenvy = "0.15.7"
 env_logger = "0.11.1"
 jsonwebtoken = "9.2.0"

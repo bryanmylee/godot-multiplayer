@@ -1,6 +1,6 @@
 use actix::Actor;
 use actix_web::{get, middleware, web, App, HttpServer, Responder};
-use matchmaking::{config, player, start, websocket::server::WebsocketServer};
+use matchmaking::{config, queue, websocket};
 
 #[get("/")]
 async fn hello() -> impl Responder {
@@ -17,8 +17,8 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     let identity_config = config::IDENTITY_CONFIG.clone();
-    let websocket_server = web::Data::new(WebsocketServer::new().start());
-    let queued_players_data = web::Data::new(player::PlayersData::new());
+    let websocket_server = web::Data::new(websocket::server::WebsocketServer::new().start());
+    let queue_data = web::Data::new(queue::QueueData::new());
 
     HttpServer::new(move || {
         App::new()
@@ -29,9 +29,9 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             .app_data(web::Data::new(identity_config.clone()))
             .app_data(websocket_server.clone())
-            .app_data(queued_players_data.clone())
+            .app_data(queue_data.clone())
             .service(hello)
-            .service(start)
+            .service(websocket::listen)
     })
     .bind((HOST, PORT))?
     .run()
