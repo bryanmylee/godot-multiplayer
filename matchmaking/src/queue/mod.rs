@@ -213,7 +213,7 @@ mod tests {
             let mut queue = SoloQueue::new();
 
             for _ in 0..4 {
-                queue.join_queue(Uuid::new_v4());
+                _ = queue.join_queue(Uuid::new_v4());
             }
 
             let config = MatchmakingConfig {
