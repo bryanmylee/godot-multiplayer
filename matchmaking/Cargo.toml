@@ -4,12 +4,16 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+actix = "0.13.3"
+actix-cors = "0.7.0"
 actix-web = "4.5.1"
-chrono = { version = "0.4.34", default-features = false, features = ["serde", "std"] }
+actix-web-actors = "4.3.0"
+chrono = { version = "0.4.34", default-features = false, features = ["serde", "std", "now"] }
 dotenvy = "0.15.7"
 env_logger = "0.11.1"
 jsonwebtoken = "9.2.0"
 lazy_static = "1.4.0"
+rand = "0.8.5"
 serde = { version = "1.0.196", features = ["derive"] }
 serde_json = "1.0.113"
 uuid = { version = "1.7.0", features = ["v4", "serde", "fast-rng"] }
