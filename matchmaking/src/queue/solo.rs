@@ -1,4 +1,7 @@
-use crate::{identity::Identity, queue::QueueData};
+use crate::{
+    identity::{BearerToken, IdentityService},
+    queue::QueueData,
+};
 use actix_web::{post, web, HttpResponse, Responder};
 
 pub fn config_service(cfg: &mut web::ServiceConfig) {
@@ -7,10 +10,12 @@ pub fn config_service(cfg: &mut web::ServiceConfig) {
 
 #[post("/join/")]
 async fn join(
-    identity: Identity,
-    queued_data: web::Data<QueueData>,
+    token: BearerToken,
+    id_service: web::Data<dyn IdentityService>,
+    queue_data: web::Data<QueueData>,
 ) -> actix_web::Result<impl Responder> {
-    let mut solo_queue = queued_data
+    let identity = id_service.get_identity(&token)?;
+    let mut solo_queue = queue_data
         .solo
         .write()
         .expect("Failed to get write lock on solo queue");
@@ -22,10 +27,12 @@ async fn join(
 
 #[post("/leave/")]
 async fn leave(
-    identity: Identity,
-    queued_data: web::Data<QueueData>,
+    token: BearerToken,
+    id_service: web::Data<dyn IdentityService>,
+    queue_data: web::Data<QueueData>,
 ) -> actix_web::Result<impl Responder> {
-    let mut solo_queue = queued_data
+    let identity = id_service.get_identity(&token)?;
+    let mut solo_queue = queue_data
         .solo
         .write()
         .expect("Failed to get write lock on solo queue");

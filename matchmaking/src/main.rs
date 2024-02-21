@@ -7,7 +7,7 @@ async fn hello() -> impl Responder {
     "MultiplayerBase Matchmaking"
 }
 
-const HOST: &'static str = "127.0.0.1";
+const HOST: &'static str = "0.0.0.0";
 const PORT: u16 = 8100;
 
 #[actix_web::main]
@@ -16,7 +16,6 @@ async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
     env_logger::init();
 
-    let identity_config = config::IDENTITY_CONFIG.clone();
     let websocket_server = web::Data::new(websocket::server::WebsocketServer::new().start());
     let queue_data = web::Data::new(queue::QueueData::new());
 
@@ -27,7 +26,6 @@ async fn main() -> std::io::Result<()> {
             ))
             .wrap(config::get_cors_config())
             .wrap(middleware::Logger::default())
-            .app_data(web::Data::new(identity_config.clone()))
             .app_data(websocket_server.clone())
             .app_data(queue_data.clone())
             .service(hello)

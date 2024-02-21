@@ -1,4 +1,4 @@
-use actix_web::{error, http, web, FromRequest, HttpMessage};
+use actix_web::{error, http, FromRequest};
 use chrono::Duration;
 use jsonwebtoken::{DecodingKey, Validation};
 use serde::{Deserialize, Serialize};
@@ -46,8 +46,11 @@ impl Identity {
         }
     }
 
-    pub fn from_token(id_config: &IdentityConfig, token: &str) -> Result<Self, error::Error> {
-        let claims = match IdentityClaims::decode(id_config, token) {
+    pub fn from_token(
+        id_config: &IdentityConfig,
+        token: &BearerToken,
+    ) -> Result<Self, error::Error> {
+        let claims = match IdentityClaims::decode(id_config, &token.0) {
             Ok(claims) => claims,
             Err(err) => return Err(error::ErrorUnauthorized(err)),
         };
@@ -56,7 +59,15 @@ impl Identity {
     }
 }
 
-impl FromRequest for Identity {
+pub struct BearerToken(String);
+
+impl BearerToken {
+    pub fn new(token: &str) -> BearerToken {
+        BearerToken(token.to_string())
+    }
+}
+
+impl FromRequest for BearerToken {
     type Error = error::Error;
     type Future = Ready<Result<Self, Self::Error>>;
 
@@ -70,18 +81,28 @@ impl FromRequest for Identity {
             return ready(Err(error::ErrorUnauthorized("Missing Bearer token")));
         };
 
-        let config = req
-            .app_data::<web::Data<IdentityConfig>>()
-            .expect("IdentityConfig is available in app data");
+        let token = BearerToken(token);
 
-        let claims = match IdentityClaims::decode(config, &token) {
-            Ok(claims) => claims,
-            Err(err) => return ready(Err(error::ErrorBadRequest(err))),
-        };
+        ready(Ok(token))
+    }
+}
 
-        let identity = Identity::from_user_id(&claims.sub);
-        req.extensions_mut().insert::<Identity>(identity.clone());
+pub trait IdentityService: Sync {
+    fn get_identity(&self, token: &BearerToken) -> Result<Identity, error::Error>;
+}
 
-        ready(Ok(identity))
+pub struct RealIdentityService {
+    id_config: IdentityConfig,
+}
+
+impl RealIdentityService {
+    pub fn new(id_config: IdentityConfig) -> RealIdentityService {
+        RealIdentityService { id_config }
+    }
+}
+
+impl IdentityService for RealIdentityService {
+    fn get_identity(&self, token: &BearerToken) -> Result<Identity, error::Error> {
+        Identity::from_token(&self.id_config, token)
     }
 }
