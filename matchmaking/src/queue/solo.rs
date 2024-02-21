@@ -15,9 +15,9 @@ async fn join(
         .write()
         .expect("Failed to get write lock on solo queue");
 
-    solo_queue.insert_player(identity.user_id);
+    let player = solo_queue.join_queue(identity.user_id)?;
 
-    Ok(HttpResponse::Ok().finish())
+    Ok(HttpResponse::Ok().json(player))
 }
 
 #[post("/leave/")]
@@ -30,7 +30,7 @@ async fn leave(
         .write()
         .expect("Failed to get write lock on solo queue");
 
-    solo_queue.remove_player(&identity.user_id);
+    let player = solo_queue.leave_queue(&identity.user_id)?;
 
-    Ok(HttpResponse::Ok().finish())
+    Ok(HttpResponse::Ok().json(player))
 }

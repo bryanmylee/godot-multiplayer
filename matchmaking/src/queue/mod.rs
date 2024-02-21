@@ -1,8 +1,9 @@
 mod solo;
 
-use actix_web::web;
+use actix_web::{error, web};
 use chrono::{DateTime, Utc};
 use derivative::Derivative;
+use serde::Serialize;
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
 use std::sync::RwLock;
@@ -40,24 +41,66 @@ impl SoloQueue {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Derivative)]
+trait BinaryHeapExt<T> {
+    fn remove<F>(&mut self, f: F) -> Option<T>
+    where
+        F: FnMut(&T) -> bool;
+}
+
+impl<T> BinaryHeapExt<T> for BinaryHeap<T>
+where
+    T: Eq + Ord + Clone,
+{
+    fn remove<F>(&mut self, mut f: F) -> Option<T>
+    where
+        F: FnMut(&T) -> bool,
+    {
+        let mut removed: Option<T> = None;
+        self.retain(|e| {
+            let matches = f(e);
+            if matches {
+                removed = Some(e.clone());
+            }
+            !matches
+        });
+        removed
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Derivative, Serialize)]
 #[derivative(PartialOrd, Ord)]
-struct QueuedPlayer {
+pub struct QueuedPlayer {
     joined_at: Reverse<DateTime<Utc>>,
     #[derivative(PartialOrd = "ignore", Ord = "ignore")]
     user_id: Uuid,
 }
 
 impl SoloQueue {
-    pub fn insert_player(&mut self, user_id: Uuid) {
-        self.queue.push(QueuedPlayer {
-            user_id,
-            joined_at: Reverse(Utc::now()),
-        })
+    pub fn contains_player(&self, user_id: &Uuid) -> bool {
+        self.queue.iter().any(|p| &p.user_id == user_id)
     }
 
-    pub fn remove_player(&mut self, user_id: &Uuid) {
-        self.queue.retain(|p| &p.user_id != user_id);
+    pub fn join_queue(&mut self, user_id: Uuid) -> Result<QueuedPlayer, error::Error> {
+        if self.contains_player(&user_id) {
+            return Err(error::ErrorBadRequest(
+                "Cannot join queue that was already joined",
+            ));
+        }
+        let player = QueuedPlayer {
+            user_id,
+            joined_at: Reverse(Utc::now()),
+        };
+        self.queue.push(player.clone());
+        Ok(player)
+    }
+
+    pub fn leave_queue(&mut self, user_id: &Uuid) -> Result<QueuedPlayer, error::Error> {
+        match self.queue.remove(|p| &p.user_id == user_id) {
+            Some(removed) => Ok(removed),
+            None => Err(error::ErrorBadRequest(
+                "Cannot leave queue that was not joined",
+            )),
+        }
     }
 
     pub fn status(&self, config: &MatchmakingConfig) -> QueueStatus {
@@ -170,7 +213,7 @@ mod tests {
             let mut queue = SoloQueue::new();
 
             for _ in 0..4 {
-                queue.insert_player(Uuid::new_v4());
+                queue.join_queue(Uuid::new_v4());
             }
 
             let config = MatchmakingConfig {

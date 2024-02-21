@@ -32,6 +32,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(queue_data.clone())
             .service(hello)
             .service(websocket::listen)
+            .service(web::scope("/queue").configure(queue::config_service))
     })
     .bind((HOST, PORT))?
     .run()
