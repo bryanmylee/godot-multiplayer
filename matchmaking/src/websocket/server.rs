@@ -1,4 +1,4 @@
-use super::session::ClientMessage;
+use super::{session::ClientToServerMessage, RouteToActorMessage};
 use actix::{Actor, Context, Handler, Recipient};
 use actix_web::error;
 use std::collections::HashMap;
@@ -6,12 +6,12 @@ use uuid::Uuid;
 
 #[derive(Debug, Clone, actix::Message)]
 #[rtype(result = "()")]
-pub enum ServerMessage {
+pub enum ServerToClientMessage {
     Text(String),
 }
 
 pub struct WebsocketServer {
-    sessions: HashMap<Uuid, Recipient<ServerMessage>>,
+    sessions: HashMap<Uuid, Recipient<ServerToClientMessage>>,
 }
 
 impl WebsocketServer {
@@ -21,7 +21,11 @@ impl WebsocketServer {
         }
     }
 
-    pub fn send_message(&self, user_id: &Uuid, message: ServerMessage) -> Result<(), error::Error> {
+    pub fn send_message(
+        &self,
+        user_id: &Uuid,
+        message: ServerToClientMessage,
+    ) -> Result<(), error::Error> {
         let Some(recipient) = self.sessions.get(user_id) else {
             return Err(error::ErrorInternalServerError("Peer not found"));
         };
@@ -35,18 +39,27 @@ impl Actor for WebsocketServer {
     type Context = Context<Self>;
 }
 
-impl Handler<ClientMessage> for WebsocketServer {
+impl Handler<ClientToServerMessage> for WebsocketServer {
     type Result = ();
 
-    fn handle(&mut self, message: ClientMessage, _ctx: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, message: ClientToServerMessage, _ctx: &mut Self::Context) -> Self::Result {
         match message {
-            ClientMessage::Connect(recipient, uuid) => {
+            ClientToServerMessage::Connect(recipient, uuid) => {
                 self.sessions.insert(uuid, recipient);
             }
-            ClientMessage::Disconnect(uuid) => {
+            ClientToServerMessage::Disconnect(uuid) => {
                 self.sessions.remove(&uuid);
             }
-            ClientMessage::CheckQueue(queue_data) => {}
+        };
+    }
+}
+
+impl Handler<RouteToActorMessage> for WebsocketServer {
+    type Result = ();
+
+    fn handle(&mut self, message: RouteToActorMessage, _ctx: &mut Self::Context) -> Self::Result {
+        match message {
+            RouteToActorMessage::CheckQueue(queue_data, config) => {}
         };
     }
 }

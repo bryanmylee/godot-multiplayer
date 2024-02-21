@@ -1,10 +1,8 @@
-use super::server::{ServerMessage, WebsocketServer};
-use crate::queue::QueueData;
+use super::server::{ServerToClientMessage, WebsocketServer};
 use actix::{
     fut, Actor, ActorContext, ActorFutureExt, Addr, AsyncContext, ContextFutureSpawner, Handler,
     Recipient, StreamHandler, WrapFuture,
 };
-use actix_web::web;
 use actix_web_actors::ws;
 use std::time::{Duration, Instant};
 use uuid::Uuid;
@@ -17,10 +15,9 @@ const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
 
 #[derive(Debug, Clone, actix::Message)]
 #[rtype(result = "()")]
-pub enum ClientMessage {
-    Connect(Recipient<ServerMessage>, Uuid),
+pub enum ClientToServerMessage {
+    Connect(Recipient<ServerToClientMessage>, Uuid),
     Disconnect(Uuid),
-    CheckQueue(web::Data<QueueData>),
 }
 
 #[derive(Debug)]
@@ -64,7 +61,7 @@ impl WebsocketSession {
 
                 session
                     .server_address
-                    .do_send(ClientMessage::Disconnect(session.user_id.clone()));
+                    .do_send(ClientToServerMessage::Disconnect(session.user_id.clone()));
 
                 // Stop the actor.
                 ctx.stop();
@@ -86,7 +83,7 @@ impl Actor for WebsocketSession {
 
         let session_address = ctx.address();
         self.server_address
-            .send(ClientMessage::Connect(
+            .send(ClientToServerMessage::Connect(
                 session_address.recipient(),
                 self.user_id,
             ))
@@ -103,7 +100,7 @@ impl Actor for WebsocketSession {
 
     fn stopping(&mut self, ctx: &mut Self::Context) -> actix::prelude::Running {
         self.server_address
-            .send(ClientMessage::Disconnect(self.user_id))
+            .send(ClientToServerMessage::Disconnect(self.user_id))
             .into_actor(self)
             .then(|res, _, ctx| {
                 if let Err(err) = res {
@@ -117,12 +114,12 @@ impl Actor for WebsocketSession {
     }
 }
 
-impl Handler<ServerMessage> for WebsocketSession {
+impl Handler<ServerToClientMessage> for WebsocketSession {
     type Result = ();
 
-    fn handle(&mut self, message: ServerMessage, ctx: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, message: ServerToClientMessage, ctx: &mut Self::Context) -> Self::Result {
         match message {
-            ServerMessage::Text(text) => ctx.text(text),
+            ServerToClientMessage::Text(text) => ctx.text(text),
         }
     }
 }
@@ -139,7 +136,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebsocketSession 
             Ok(ws::Message::Binary(bin)) => ctx.binary(bin),
             Ok(ws::Message::Close(reason)) => {
                 self.server_address
-                    .do_send(ClientMessage::Disconnect(self.user_id));
+                    .do_send(ClientToServerMessage::Disconnect(self.user_id));
                 ctx.close(reason);
                 ctx.stop();
             }
