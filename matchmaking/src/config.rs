@@ -3,7 +3,6 @@ use actix_cors::Cors;
 use chrono::Duration;
 use std::env;
 
-#[allow(dead_code)]
 fn get_secret_text_or_file(var: &str) -> Option<String> {
     let secret_text = env::var(var);
 
@@ -72,7 +71,7 @@ fn get_game_server_manager_config() -> GameServerManagerConfig {
 pub struct MatchmakingConfig {
     pub solo_game_min_size: u8,
     pub solo_game_desired_size: u8,
-    pub solo_game_desired_max_wait_time: Duration,
+    pub solo_queue_desired_max_wait_time: Duration,
 }
 
 impl Default for MatchmakingConfig {
@@ -80,16 +79,24 @@ impl Default for MatchmakingConfig {
         MatchmakingConfig {
             solo_game_min_size: 2,
             solo_game_desired_size: 4,
-            solo_game_desired_max_wait_time: Duration::minutes(1),
+            solo_queue_desired_max_wait_time: Duration::minutes(1),
         }
     }
 }
 
 fn get_matchmaking_config() -> MatchmakingConfig {
     MatchmakingConfig {
-        solo_game_min_size: 2,
-        solo_game_desired_size: 4,
-        solo_game_desired_max_wait_time: Duration::minutes(1),
+        solo_game_min_size: get_secret_text_or_file("SOLO_GAME_MIN_SIZE")
+            .and_then(|s| s.parse::<u8>().ok())
+            .unwrap_or(2),
+        solo_game_desired_size: get_secret_text_or_file("SOLO_GAME_DESIRED_SIZE")
+            .and_then(|s| s.parse::<u8>().ok())
+            .unwrap_or(4),
+        solo_queue_desired_max_wait_time: Duration::seconds(
+            get_secret_text_or_file("SOLO_QUEUE_DESIRED_MAX_WAIT_SECS")
+                .and_then(|s| s.parse::<i64>().ok())
+                .unwrap_or(1),
+        ),
     }
 }
 

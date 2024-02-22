@@ -107,7 +107,7 @@ impl SoloQueue {
         };
 
         if Utc::now().signed_duration_since(oldest_player.joined_at.0)
-            > config.solo_game_desired_max_wait_time
+            > config.solo_queue_desired_max_wait_time
         {
             return if (self.queue.len() as u8) >= config.solo_game_min_size {
                 QueueStatus::LongWaitReady
@@ -154,7 +154,7 @@ mod tests {
             });
 
             let config = MatchmakingConfig {
-                solo_game_desired_max_wait_time: Duration::seconds(5),
+                solo_queue_desired_max_wait_time: Duration::seconds(5),
                 solo_game_min_size: 2,
                 ..MatchmakingConfig::default()
             };
@@ -177,7 +177,7 @@ mod tests {
             });
 
             let config = MatchmakingConfig {
-                solo_game_desired_max_wait_time: Duration::seconds(5),
+                solo_queue_desired_max_wait_time: Duration::seconds(5),
                 solo_game_min_size: 2,
                 ..MatchmakingConfig::default()
             };
@@ -195,7 +195,7 @@ mod tests {
             });
 
             let config = MatchmakingConfig {
-                solo_game_desired_max_wait_time: Duration::seconds(20),
+                solo_queue_desired_max_wait_time: Duration::seconds(20),
                 ..MatchmakingConfig::default()
             };
 
