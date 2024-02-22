@@ -88,11 +88,10 @@ impl SoloQueue {
         }
         let mut removed = vec![];
         for _ in 0..config.solo_game_desired_size {
-            removed.push(
-                self.queue
-                    .pop()
-                    .expect("Unexpected not enough ready players to remove"),
-            );
+            let Some(player) = self.queue.pop() else {
+                break;
+            };
+            removed.push(player);
         }
         Ok(removed)
     }
