@@ -5,5 +5,10 @@
 secrets/*
 !secrets/.gitkeep
 
+# Environment
+.env
+.env.local
+.env.prod
+
 # Build logs
 build.log

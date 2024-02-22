@@ -31,10 +31,10 @@ services:
       IDENTITY_EXPIRES_IN_SECS: 3600
       REFRESH_SECRET_FILE: /run/secrets/identity-refresh-secret
       REFRESH_EXPIRES_IN_DAYS: 7
-      ALLOWED_ORIGINS: "http://localhost:8060,https://multiplayer-base.bryanmylee.com"
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
       OAUTH_CLIENT_ID_FILE: /run/secrets/server-oauth-client-id
       OAUTH_CLIENT_SECRET_FILE: /run/secrets/server-oauth-client-secret
-      STEAM_APP_ID: 2843770
+      STEAM_APP_ID: ${STEAM_APP_ID}
       STEAM_WEB_API_KEY_FILE: /run/secrets/steam-web-api-key
     ports:
       - 18000:8000
@@ -57,8 +57,13 @@ services:
       IDENTITY_EXPIRES_IN_SECS: 3600
       REFRESH_SECRET_FILE: /run/secrets/identity-refresh-secret
       REFRESH_EXPIRES_IN_DAYS: 7
-      ALLOWED_ORIGINS: "http://localhost:8060,https://multiplayer-base.bryanmylee.com"
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      GAME_SERVER_EXTERNAL_HOST: ${GAME_SERVER_EXTERNAL_HOST}
+      GAME_SERVER_MANAGER_URL: http://game-server-manager:8200
       GAME_SERVER_MANAGER_SERVICE_KEY_FILE: /run/secrets/game-server-manager-service-key
+      SOLO_GAME_MIN_SIZE: ${SOLO_GAME_MIN_SIZE}
+      SOLO_GAME_DESIRED_SIZE: ${SOLO_GAME_DESIRED_SIZE}
+      SOLO_QUEUE_DESIRED_MAX_WAIT_SECS: ${SOLO_QUEUE_DESIRED_MAX_WAIT_SECS}
     ports:
       - 18100:8100
     depends_on:
