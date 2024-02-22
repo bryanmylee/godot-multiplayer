@@ -1,37 +1,53 @@
-use super::{session::ClientToServerMessage, RoutingToServerMessage};
+use super::session::ClientToServerMessage;
 use crate::{
     config::MatchmakingConfig,
+    game_server_manager::{GameServerDescription, GameServerManager},
     queue::{QueueData, QueueStatus},
 };
-use actix::{Actor, Context, Handler, Recipient};
+use actix::{
+    dev::ContextFutureSpawner, fut, Actor, ActorFutureExt, AsyncContext, Context, Handler,
+    Recipient, WrapFuture,
+};
 use actix_web::{error, web};
 use serde::Serialize;
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    sync::{Arc, RwLock},
+};
 use uuid::Uuid;
 
 #[derive(Debug, Clone, actix::Message, Serialize)]
 #[rtype(result = "()")]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum ServerToClientMessage {
-    StartGame,
+    StartGame(GameServerDescription),
 }
 
+type Sessions = HashMap<Uuid, Recipient<ServerToClientMessage>>;
+
+#[derive(Clone)]
 pub struct WebsocketServer {
-    sessions: HashMap<Uuid, Recipient<ServerToClientMessage>>,
+    sessions: Arc<RwLock<Sessions>>,
     queue_data: web::Data<QueueData>,
     matchmaking_config: MatchmakingConfig,
+    game_server_manager: web::Data<dyn GameServerManager>,
 }
 
 impl WebsocketServer {
-    pub fn new(queue_data: web::Data<QueueData>, matchmaking_config: MatchmakingConfig) -> Self {
+    pub fn new(
+        queue_data: web::Data<QueueData>,
+        matchmaking_config: MatchmakingConfig,
+        game_server_manager: web::Data<dyn GameServerManager>,
+    ) -> Self {
         WebsocketServer {
-            sessions: HashMap::new(),
+            sessions: Arc::new(RwLock::new(HashMap::new())),
             queue_data,
             matchmaking_config,
+            game_server_manager,
         }
     }
 
-    pub fn check_queue(&self) -> Result<(), error::Error> {
+    fn check_queue(&self, ctx: &mut Context<Self>) -> Result<(), error::Error> {
         let queue_ready = {
             let queue = self
                 .queue_data
@@ -46,31 +62,42 @@ impl WebsocketServer {
         };
 
         if queue_ready {
-            self.start_game()?
+            ctx.address()
+                .try_send(StartGame)
+                .map_err(error::ErrorInternalServerError)?;
         }
 
         Ok(())
     }
+}
 
-    pub fn start_game(&self) -> Result<(), error::Error> {
-        let ready_players = {
-            let mut queue = self
-                .queue_data
-                .solo
-                .write()
-                .expect("Failed to get write lock on solo queue");
-            queue.remove_ready_players(&self.matchmaking_config)?
-        };
+async fn start_game(server: WebsocketServer) -> Result<(), error::Error> {
+    let game_server = server.game_server_manager.spawn_new_game_server().await?;
+
+    let ready_players = {
+        let mut queue = server
+            .queue_data
+            .solo
+            .write()
+            .expect("Failed to get write lock on solo queue");
+        queue.remove_ready_players(&server.matchmaking_config)?
+    };
+
+    {
+        let sessions = server
+            .sessions
+            .read()
+            .expect("Failed to get read lock on sessions");
 
         for player in ready_players {
-            let Some(session) = self.sessions.get(&player.user_id) else {
+            let Some(session) = sessions.get(&player.user_id) else {
                 continue;
             };
-            session.do_send(ServerToClientMessage::StartGame);
+            session.do_send(ServerToClientMessage::StartGame(game_server.clone()));
         }
-
-        Ok(())
     }
+
+    Ok(())
 }
 
 impl Actor for WebsocketServer {
@@ -83,28 +110,54 @@ impl Handler<ClientToServerMessage> for WebsocketServer {
     fn handle(&mut self, message: ClientToServerMessage, _ctx: &mut Self::Context) -> Self::Result {
         match message {
             ClientToServerMessage::Connect(recipient, uuid) => {
-                self.sessions.insert(uuid, recipient);
+                let mut sessions = self
+                    .sessions
+                    .write()
+                    .expect("Failed to get write lock on sessions");
+                sessions.insert(uuid, recipient);
             }
             ClientToServerMessage::Disconnect(uuid) => {
-                self.sessions.remove(&uuid);
+                let mut sessions = self
+                    .sessions
+                    .write()
+                    .expect("Failed to get write lock on sessions");
+                sessions.remove(&uuid);
             }
         };
     }
 }
 
-impl Handler<RoutingToServerMessage> for WebsocketServer {
-    type Result = ();
+#[derive(Debug, Clone, actix::Message)]
+#[rtype(result = "Result<(), ()>")]
+pub struct CheckQueue;
+impl Handler<CheckQueue> for WebsocketServer {
+    type Result = Result<(), ()>;
 
-    fn handle(
-        &mut self,
-        message: RoutingToServerMessage,
-        _ctx: &mut Self::Context,
-    ) -> Self::Result {
-        match message {
-            RoutingToServerMessage::CheckQueue => match self.check_queue() {
-                Ok(_) => (),
-                Err(err) => println!("{err}"),
-            },
-        };
+    fn handle(&mut self, _message: CheckQueue, ctx: &mut Self::Context) -> Self::Result {
+        self.check_queue(ctx).map_err(|err| {
+            println!("{err}");
+        })
+    }
+}
+
+#[derive(Debug, Clone, actix::Message)]
+#[rtype(result = "Result<(), ()>")]
+pub struct StartGame;
+impl Handler<StartGame> for WebsocketServer {
+    type Result = Result<(), ()>;
+
+    fn handle(&mut self, _message: StartGame, ctx: &mut Self::Context) -> Self::Result {
+        start_game(self.clone())
+            .into_actor(self)
+            .then(|res, _, _| {
+                match res {
+                    Err(err) => println!("{err}"),
+                    Ok(()) => (),
+                }
+                fut::ready(())
+            })
+            .wait(ctx);
+
+        Ok(())
     }
 }

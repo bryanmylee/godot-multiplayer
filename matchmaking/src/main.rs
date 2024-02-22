@@ -4,6 +4,7 @@ use actix::Actor;
 use actix_web::{get, middleware, web, App, HttpServer, Responder};
 use matchmaking::{
     config::{self, MATCHMAKING_CONFIG},
+    game_server_manager::{GameServerManager, RealGameServerManager},
     identity::{IdentityService, RealIdentityService},
     queue, websocket,
 };
@@ -23,8 +24,17 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     let queue_data = web::Data::new(queue::QueueData::new());
-    let server =
-        websocket::server::WebsocketServer::new(queue_data.clone(), MATCHMAKING_CONFIG.clone());
+
+    let game_server_manager = web::Data::from(Arc::new(RealGameServerManager::new(
+        config::GAME_SERVER_MANAGER_CONFIG.clone(),
+    )) as Arc<dyn GameServerManager>);
+
+    let server = websocket::server::WebsocketServer::new(
+        queue_data.clone(),
+        MATCHMAKING_CONFIG.clone(),
+        game_server_manager.clone(),
+    );
+
     let server_address = web::Data::new(server.start());
 
     HttpServer::new(move || {

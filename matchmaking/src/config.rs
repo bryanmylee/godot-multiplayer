@@ -54,6 +54,21 @@ fn get_identity_config() -> IdentityConfig {
 }
 
 #[derive(Debug, Clone)]
+pub struct GameServerManagerConfig {
+    pub game_server_external_host: String,
+    pub url: String,
+    pub service_key: String,
+}
+
+fn get_game_server_manager_config() -> GameServerManagerConfig {
+    GameServerManagerConfig {
+        game_server_external_host: get_required_secret_text_or_file("GAME_SERVER_EXTERNAL_HOST"),
+        url: get_required_secret_text_or_file("GAME_SERVER_MANAGER_URL"),
+        service_key: get_required_secret_text_or_file("GAME_SERVER_MANAGER_SERVICE_KEY"),
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct MatchmakingConfig {
     pub solo_game_min_size: u8,
     pub solo_game_desired_size: u8,
@@ -80,8 +95,8 @@ fn get_matchmaking_config() -> MatchmakingConfig {
 
 lazy_static::lazy_static! {
     pub static ref POSTGRES_URL: String = get_required_secret_text_or_file("POSTGRES_URL");
-    pub static ref GAME_SERVER_MANAGER_SERVICE_KEY: String = get_required_secret_text_or_file("GAME_SERVER_MANAGER_SERVICE_KEY");
     pub static ref IDENTITY_CONFIG: IdentityConfig = get_identity_config();
+    pub static ref GAME_SERVER_MANAGER_CONFIG: GameServerManagerConfig = get_game_server_manager_config();
     pub static ref MATCHMAKING_CONFIG: MatchmakingConfig = get_matchmaking_config();
 }
 

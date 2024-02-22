@@ -1,7 +1,7 @@
 use crate::{
     identity::{BearerToken, IdentityService},
     queue::QueueData,
-    websocket::{server::WebsocketServer, RoutingToServerMessage},
+    websocket::server::{CheckQueue, WebsocketServer},
 };
 use actix::Addr;
 use actix_web::{error, post, web, HttpResponse, Responder};
@@ -29,7 +29,7 @@ async fn join(
     server_address
         .as_ref()
         .clone()
-        .try_send(RoutingToServerMessage::CheckQueue)
+        .try_send(CheckQueue)
         .map_err(error::ErrorInternalServerError)?;
 
     Ok(HttpResponse::Ok().json(player))

@@ -1,4 +1,5 @@
 pub mod config;
+pub mod game_server_manager;
 pub mod identity;
 pub mod queue;
 pub mod websocket;

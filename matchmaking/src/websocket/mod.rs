@@ -31,9 +31,3 @@ async fn listen(
     )
     .map_err(error::ErrorInternalServerError)
 }
-
-#[derive(Debug, Clone, actix::Message)]
-#[rtype(result = "()")]
-pub enum RoutingToServerMessage {
-    CheckQueue,
-}
