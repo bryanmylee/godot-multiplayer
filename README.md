@@ -1,6 +1,6 @@
 # Godot Multiplayer with Cross-Platform Matchmaking
 
-A minimal Godot project with cross-platform authentication, matchmaking, and server-authoritative multiplayer.
+A minimal Godot project with cross-platform authentication and matchmaking.
 
 # Development Setup
 
