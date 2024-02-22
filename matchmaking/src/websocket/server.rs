@@ -93,7 +93,10 @@ async fn start_game(server: WebsocketServer) -> Result<(), error::Error> {
             let Some(session) = sessions.get(&player.user_id) else {
                 continue;
             };
-            session.do_send(ServerToClientMessage::StartGame(game_server.clone()));
+            match session.try_send(ServerToClientMessage::StartGame(game_server.clone())) {
+                Ok(()) => (),
+                Err(err) => println!("{err}"),
+            };
         }
     }
 
